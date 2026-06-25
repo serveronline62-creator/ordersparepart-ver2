@@ -15,7 +15,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js">
   </script>
   <style>
-    /* ===== CSS LENGKAP (sama seperti sebelumnya, hanya tambahan style untuk locked-cell biru) ===== */
+    /* ===== CSS LENGKAP (sama seperti sebelumnya) ===== */
     :root,
     [data-theme="dark"] {
       --bg-primary: #0b1120;
@@ -1807,7 +1807,6 @@
                   <th>No. HP</th>
                   <th>Tgl Order</th>
                   <th>TGL TERIMA PART</th>
-                  <!-- ===== UBAH HEADER ===== -->
                   <th>Lama pengiriman</th>
                   <th>Order ke Pabrik</th>
                   <th>Keterangan</th>
@@ -1855,7 +1854,6 @@
                   <th>No. HP</th>
                   <th>Tgl Order</th>
                   <th>TGL TERIMA PART</th>
-                  <!-- ===== UBAH HEADER ===== -->
                   <th>Lama pengiriman</th>
                   <th>Order ke Pabrik</th>
                   <th>Keterangan</th>
@@ -1900,7 +1898,6 @@
             <div class="form-group"><label class="form-label">Nama Konsumen <span class="required">*</span></label><input class="form-input" type="text" name="NAMA KONSUMEN" required /></div>
             <div class="form-group"><label class="form-label">No. HP <span class="required">*</span></label><input class="form-input" type="tel" name="NO. HP" required /></div>
           </div>
-          <!-- ===== BAGIAN INFORMASI PENERIMAAN PART DIHAPUS (tidak berubah) ===== -->
         </form>
       </div>
       <div class="modal-footer">
@@ -1917,12 +1914,30 @@
       <div class="modal-body">
         <input type="hidden" id="modalRowIndex" />
         <div style="background:rgba(128,128,128,0.1);border-radius:var(--radius);padding:0.85rem 1rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><span style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--accent);font-weight:700;" id="modalOrderNo"></span><span style="color:var(--text-muted);">|</span><span style="font-size:0.78rem;color:var(--text-secondary);" id="modalPartInfo"></span></div>
-        <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="modalStatus"><option value="PENDING">PENDING</option><option value="PROSES">PROSES</option><option value="READY">READY</option><option value="FINISH">FINISH</option></select></div>
-        <div class="form-group"><label class="form-label"><span class="editable-label"><i class="fas fa-pen edit-icon"></i> Tgl Order</span></label><input class="form-input" type="date" id="modalTglOrder" /></div>
-        <div class="form-group"><label class="form-label"><span class="editable-label"><i class="fas fa-pen edit-icon"></i> TGL TERIMA PART</span></label><input class="form-input" type="date" id="modalTglTerimaPart" onchange="editHitungJumlahHari()" /></div>
-        <div class="form-group"><label class="form-label"><span class="editable-label"><i class="fas fa-pen edit-icon"></i> Jumlah (hari)</span></label><input class="form-input" type="number" id="modalJumlah" readonly style="background:var(--bg-card);cursor:default;font-weight:700;color:var(--accent);" /></div>
-        <div class="form-group"><label class="form-label"><span class="editable-label"><i class="fas fa-pen edit-icon"></i> Order ke Pabrik</span></label><input class="form-input" type="text" id="modalOrderPabrik" /></div>
-        <div class="form-group"><label class="form-label"><span class="editable-label"><i class="fas fa-pen edit-icon"></i> Keterangan</span></label><textarea class="form-textarea" id="modalKeterangan"></textarea></div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-select" id="modalStatus"><option value="PENDING">PENDING</option><option value="PROSES">PROSES</option><option value="READY">READY</option><option value="FINISH">FINISH</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="editable-label"><i class="fas fa-pen edit-icon"></i> Tgl Order</span></label>
+          <input class="form-input" type="date" id="modalTglOrder" />
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="editable-label"><i class="fas fa-pen edit-icon"></i> TGL TERIMA PART</span></label>
+          <input class="form-input" type="date" id="modalTglTerimaPart" onchange="editHitungJumlahHari()" />
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="editable-label"><i class="fas fa-pen edit-icon"></i> Jumlah (hari)</span></label>
+          <input class="form-input" type="number" id="modalJumlah" readonly style="background:var(--bg-card);cursor:default;font-weight:700;color:var(--accent);" />
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="editable-label"><i class="fas fa-pen edit-icon"></i> Order ke Pabrik</span></label>
+          <input class="form-input" type="text" id="modalOrderPabrik" />
+        </div>
+        <div class="form-group">
+          <label class="form-label"><span class="editable-label"><i class="fas fa-pen edit-icon"></i> Keterangan</span></label>
+          <textarea class="form-textarea" id="modalKeterangan"></textarea>
+        </div>
       </div>
       <div class="modal-footer"><button class="btn btn-secondary btn-sm" onclick="closeEditModal()">Batal</button><button class="btn btn-primary btn-sm" onclick="submitUpdate()" id="modalSaveBtn"><i class="fas fa-save"></i> Simpan</button></div>
     </div>
@@ -2462,8 +2477,12 @@
       });
     }
 
-    // ===== INLINE EDIT: Tgl Terima Part =====
+    // ===== INLINE EDIT: Tgl Terima Part (HANYA ADMIN) =====
     function editTglTerimaPart(docId, td) {
+      if (!isAdmin) {
+        showToast('Hanya Admin yang bisa mengedit!', 'warning');
+        return;
+      }
       if (td.querySelector('input')) return;
       var currentValue = td.textContent.trim();
       var displayValue = (currentValue === '-' ? '' : currentValue);
@@ -2541,8 +2560,12 @@
       input.addEventListener('blur', save);
     }
 
-    // ===== INLINE EDIT: Order ke Pabrik =====
+    // ===== INLINE EDIT: Order ke Pabrik (HANYA ADMIN) =====
     function editOrderPabrik(docId, td) {
+      if (!isAdmin) {
+        showToast('Hanya Admin yang bisa mengedit!', 'warning');
+        return;
+      }
       if (td.querySelector('input')) return;
       var currentValue = td.textContent.trim();
       var displayValue = (currentValue === '-' ? '' : currentValue);
@@ -2596,7 +2619,7 @@
       input.addEventListener('blur', save);
     }
 
-    // ===== RENDER AKTIF (dengan perubahan tampilan "Lama pengiriman") =====
+    // ===== RENDER AKTIF =====
     function renderAktifTable() {
       var tb = document.getElementById('tableBody'),
         es = document.getElementById('emptyState'),
@@ -2640,8 +2663,16 @@
           k = o['Keterangan Pemenuhan'] || '',
           da = 'onclick="openEditModal(\'' + o._docId + '\')"';
 
-        // ===== TAMPILAN "Lama pengiriman" dengan satuan hari =====
         var displayJml = jml ? jml + ' hari' : '-';
+
+        // Inline edit hanya untuk admin
+        var canInline = isAdmin;
+        var editTglAttr = canInline ? 'ondblclick="editTglTerimaPart(\'' + o._docId + '\', this)" title="Double‑klik untuk edit"' :
+          '';
+        var editOpAttr = canInline ? 'ondblclick="editOrderPabrik(\'' + o._docId + '\', this)" title="Double‑klik untuk edit"' :
+          '';
+        var tglClass = canInline ? 'editable-cell' : 'locked-cell';
+        var opClass = canInline ? 'editable-cell' : 'locked-cell';
 
         h += '<tr class="' + (isNew ? 'new-row' : '') + '">' +
           '<td>' + (i + 1) + '</td>' +
@@ -2659,12 +2690,10 @@
           '<td class="name-cell">' + escapeHtml(o['NAMA KONSUMEN'] || '') + '</td>' +
           '<td>' + escapeHtml(o['NO. HP'] || '') + '</td>' +
           '<td class="editable-cell" ' + da + '>' + formatDateDisplay(to) + '</td>' +
-          '<td class="editable-cell" ondblclick="editTglTerimaPart(\'' + o._docId +
-          '\', this)" title="Double‑klik untuk edit" style="cursor:text;">' +
+          '<td class="' + tglClass + '" ' + editTglAttr + ' style="' + (canInline ? 'cursor:text;' : '') + '">' +
           formatDateDisplay(ttp) + '</td>' +
           '<td style="font-weight:700;color:var(--accent);">' + escapeHtml(displayJml) + '</td>' +
-          '<td class="editable-cell" ondblclick="editOrderPabrik(\'' + o._docId +
-          '\', this)" title="Double‑klik untuk edit" style="cursor:text;">' +
+          '<td class="' + opClass + '" ' + editOpAttr + ' style="' + (canInline ? 'cursor:text;' : '') + '">' +
           escapeHtml(op || '-') + '</td>' +
           '<td class="editable-cell" ' + da + '>' + escapeHtml(k || '-') + '</td>' +
           '<td><div class="action-btns"><button class="action-btn" ' + da +
@@ -2680,7 +2709,7 @@
       }
     }
 
-    // ===== RENDER RIWAYAT (dengan perubahan tampilan "Lama pengiriman") =====
+    // ===== RENDER RIWAYAT =====
     function renderRiwayatTable() {
       var tb = document.getElementById('riwayatBody'),
         es = document.getElementById('emptyRiwayat'),
@@ -2705,16 +2734,17 @@
       ft.style.display = 'flex';
       document.getElementById('riwayatCount').textContent = fd.length;
 
-      var canEdit = isAdmin,
-        cellClass = canEdit ? 'editable-cell' : 'locked-cell',
-        editAction = canEdit ? 'onclick="openEditModal(\'' : '',
-        editActionClose = canEdit ? '\')"' : '',
-        btnEditClass = canEdit ? '' : ' locked',
-        btnEditTitle = canEdit ? '' : ' title="Hanya Admin yang bisa mengedit"',
-        btnDelClass = canEdit ? '' : ' locked',
-        btnDelTitle = canEdit ? '' : ' title="Hanya Admin yang bisa menghapus"',
-        delAction = canEdit ? 'onclick="confirmDelete(\'' : '',
-        delActionClose = canEdit ? '\')"' : '';
+      var canEdit = isAdmin;
+      var canInline = isAdmin;
+      var cellClass = canEdit ? 'editable-cell' : 'locked-cell';
+      var editAction = canEdit ? 'onclick="openEditModal(\'' : '';
+      var editActionClose = canEdit ? '\')"' : '';
+      var btnEditClass = canEdit ? '' : ' locked';
+      var btnEditTitle = canEdit ? '' : ' title="Hanya Admin yang bisa mengedit"';
+      var btnDelClass = canEdit ? '' : ' locked';
+      var btnDelTitle = canEdit ? '' : ' title="Hanya Admin yang bisa menghapus"';
+      var delAction = canEdit ? 'onclick="confirmDelete(\'' : '';
+      var delActionClose = canEdit ? '\')"' : '';
 
       var h = '';
       for (var i = 0; i < fd.length; i++) {
@@ -2726,6 +2756,13 @@
           k = o['Keterangan Pemenuhan'] || '';
 
         var displayJml = jml ? jml + ' hari' : '-';
+
+        var editTglAttr = canInline ? 'ondblclick="editTglTerimaPart(\'' + o._docId + '\', this)" title="Double‑klik untuk edit"' :
+          '';
+        var editOpAttr = canInline ? 'ondblclick="editOrderPabrik(\'' + o._docId + '\', this)" title="Double‑klik untuk edit"' :
+          '';
+        var tglClass = canInline ? 'editable-cell' : 'locked-cell';
+        var opClass = canInline ? 'editable-cell' : 'locked-cell';
 
         h += '<tr>' +
           '<td>' + (i + 1) + '</td>' +
@@ -2744,14 +2781,10 @@
           '<td>' + escapeHtml(o['NO. HP'] || '') + '</td>' +
           '<td class="' + cellClass + '" ' + editAction + o._docId + editActionClose + '>' + formatDateDisplay(to) +
           '</td>' +
-          '<td class="' + cellClass + '" ' +
-          (canEdit ? 'ondblclick="editTglTerimaPart(\'' + o._docId + '\', this)" title="Double‑klik untuk edit"' : '') +
-          ' style="' + (canEdit ? 'cursor:text;' : '') + '">' +
+          '<td class="' + tglClass + '" ' + editTglAttr + ' style="' + (canInline ? 'cursor:text;' : '') + '">' +
           formatDateDisplay(ttp) + '</td>' +
           '<td style="font-weight:700;color:var(--info);">' + escapeHtml(displayJml) + '</td>' +
-          '<td class="' + cellClass + '" ' +
-          (canEdit ? 'ondblclick="editOrderPabrik(\'' + o._docId + '\', this)" title="Double‑klik untuk edit"' : '') +
-          ' style="' + (canEdit ? 'cursor:text;' : '') + '">' +
+          '<td class="' + opClass + '" ' + editOpAttr + ' style="' + (canInline ? 'cursor:text;' : '') + '">' +
           escapeHtml(op || '-') + '</td>' +
           '<td class="' + cellClass + '" ' + editAction + o._docId + editActionClose + '>' + escapeHtml(k || '-') +
           '</td>' +
@@ -2797,12 +2830,40 @@
     function openEditModal(docId) {
       var o = allOrders.find(function(x) { return x._docId === docId; });
       if (!o) return;
+
+      // Jika status FINISH dan bukan admin, tolak akses
       if ((o['STATUS'] || '').toUpperCase() === 'FINISH' && !isAdmin) {
         showToast('Hanya Admin yang bisa mengubah data riwayat.', 'warning');
         return;
       }
+
       document.getElementById('modalRowIndex').value = docId;
       document.getElementById('modalStatus').value = (o['STATUS'] || 'PENDING').toUpperCase();
+
+      // Jika user bukan admin, semua field non-status menjadi readonly
+      var readonly = !isAdmin;
+      var fields = ['modalTglOrder', 'modalTglTerimaPart', 'modalOrderPabrik', 'modalKeterangan'];
+      fields.forEach(function(id) {
+        var el = document.getElementById(id);
+        if (readonly) {
+          el.setAttribute('readonly', true);
+          el.style.background = 'var(--bg-card)';
+          el.style.cursor = 'default';
+          el.style.opacity = '0.7';
+        } else {
+          el.removeAttribute('readonly');
+          el.style.background = '';
+          el.style.cursor = '';
+          el.style.opacity = '';
+        }
+      });
+
+      // Jumlah tetap readonly untuk semua
+      document.getElementById('modalJumlah').setAttribute('readonly', true);
+      document.getElementById('modalJumlah').style.background = 'var(--bg-card)';
+      document.getElementById('modalJumlah').style.cursor = 'default';
+
+      // Isi nilai
       document.getElementById('modalTglOrder').value = o['Tgl Order'] || '';
       document.getElementById('modalTglTerimaPart').value = o['TGL TERIMA PART'] || '';
       document.getElementById('modalJumlah').value = o['JUMLAH'] || '';
@@ -2810,32 +2871,39 @@
       document.getElementById('modalKeterangan').value = o['Keterangan Pemenuhan'] || '';
       document.getElementById('modalOrderNo').textContent = '#' + (o['No. Order'] || '-');
       document.getElementById('modalPartInfo').textContent = (o['NAMA PART'] || '-') + ' | ' + (o['NAMA KONSUMEN'] || '-');
+
       document.getElementById('editModal').classList.add('active');
     }
 
     function submitUpdate() {
       var docId = document.getElementById('modalRowIndex').value;
-      var tglTerima = document.getElementById('modalTglTerimaPart').value;
-      var order = allOrders.find(function(o) { return o._docId === docId; });
-      var tglPengajuan = order ? order['TGL PENGAJUAN ORD'] : '';
+      var updates = {};
 
-      var jumlah = document.getElementById('modalJumlah').value;
-      if (tglPengajuan && tglTerima) {
-        var d1 = new Date(tglPengajuan);
-        var d2 = new Date(tglTerima);
-        var diffTime = Math.abs(d2 - d1);
-        var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-        jumlah = String(diffDays);
+      // Semua user bisa update status
+      updates['STATUS'] = document.getElementById('modalStatus').value;
+
+      // Jika admin, update semua field
+      if (isAdmin) {
+        var tglTerima = document.getElementById('modalTglTerimaPart').value;
+        var order = allOrders.find(function(o) { return o._docId === docId; });
+        var tglPengajuan = order ? order['TGL PENGAJUAN ORD'] : '';
+
+        var jumlah = document.getElementById('modalJumlah').value;
+        if (tglPengajuan && tglTerima) {
+          var d1 = new Date(tglPengajuan);
+          var d2 = new Date(tglTerima);
+          var diffTime = Math.abs(d2 - d1);
+          var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          jumlah = String(diffDays);
+        }
+
+        updates['Tgl Order'] = document.getElementById('modalTglOrder').value;
+        updates['TGL TERIMA PART'] = tglTerima;
+        updates['JUMLAH'] = jumlah;
+        updates['ORDER KE PABRIK'] = document.getElementById('modalOrderPabrik').value;
+        updates['Keterangan Pemenuhan'] = document.getElementById('modalKeterangan').value;
       }
 
-      var updates = {
-        'STATUS': document.getElementById('modalStatus').value,
-        'Tgl Order': document.getElementById('modalTglOrder').value,
-        'TGL TERIMA PART': tglTerima,
-        'JUMLAH': jumlah,
-        'ORDER KE PABRIK': document.getElementById('modalOrderPabrik').value,
-        'Keterangan Pemenuhan': document.getElementById('modalKeterangan').value
-      };
       var sb = document.getElementById('modalSaveBtn');
       sb.disabled = true;
       sb.innerHTML = '<div class="spinner"></div>';
@@ -2980,7 +3048,7 @@
     document.getElementById('inputModal').addEventListener('click', function(e) { if (e.target === this) closeInputModal(); });
     document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeEditModal(); });
 
-    console.log('✅ Aplikasi siap - Header "Jumlah" diubah menjadi "Lama pengiriman" dengan satuan hari.');
+    console.log('✅ Aplikasi siap - User hanya bisa ubah status di Edit Order.');
   </script>
 </body>
 </html>
