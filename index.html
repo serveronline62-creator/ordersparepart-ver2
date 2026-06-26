@@ -1891,11 +1891,7 @@
             <div class="form-group"><label class="form-label">Nama Konsumen <span class="required">*</span></label><input class="form-input" type="text" name="NAMA KONSUMEN" required /></div>
             <div class="form-group"><label class="form-label">No. HP <span class="required">*</span></label><input class="form-input" type="tel" name="NO. HP" required /></div>
           </div>
-          <!-- ORDER KE PABRIK DITAMBAHKAN DI SINI -->
-          <div class="form-section-title">Informasi Tambahan</div>
-          <div class="form-grid">
-            <div class="form-group"><label class="form-label">Order ke Pabrik</label><input class="form-input" type="text" name="ORDER KE PABRIK" placeholder="Opsional" /></div>
-          </div>
+          <!-- FIELD ORDER KE PABRIK DIHAPUS DARI INPUT -->
         </form>
       </div>
       <div class="modal-footer">
@@ -1911,7 +1907,10 @@
       <div class="modal-header"><h3><i class="fas fa-edit"></i> Edit Order</h3><button class="modal-close" onclick="closeEditModal()"><i class="fas fa-times"></i></button></div>
       <div class="modal-body">
         <input type="hidden" id="modalRowIndex" />
-        <div style="background:rgba(128,128,128,0.1);border-radius:var(--radius);padding:0.85rem 1rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><span style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--accent);font-weight:700;" id="modalOrderNo"></span><span style="color:var(--text-muted);">|</span><span style="font-size:0.78rem;color:var(--text-secondary);" id="modalPartInfo"></span></div>
+        <!-- NOMOR ORDER DIHAPUS -->
+        <div style="background:rgba(128,128,128,0.1);border-radius:var(--radius);padding:0.85rem 1rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+          <span style="font-size:0.78rem;color:var(--text-secondary);" id="modalPartInfo"></span>
+        </div>
         
         <!-- STATUS - HANYA INI YANG BISA DIEDIT USER -->
         <div class="form-group"><label class="form-label">Status <span class="required">*</span></label>
@@ -1931,11 +1930,6 @@
           <div class="form-group">
             <label class="form-label"><span class="editable-label"><i class="fas fa-lock" style="color:var(--info);font-size:0.6rem;"></i> Tgl Order</span></label>
             <input class="form-input" type="date" id="modalTglOrder" readonly style="background:var(--bg-card);cursor:not-allowed;opacity:0.7;" />
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label"><span class="editable-label"><i class="fas fa-lock" style="color:var(--info);font-size:0.6rem;"></i> Order ke Pabrik</span></label>
-            <input class="form-input" type="text" id="modalOrderPabrik" readonly style="background:var(--bg-card);cursor:not-allowed;opacity:0.7;" />
           </div>
           
           <div class="form-group">
@@ -2437,7 +2431,7 @@
           'NO. HP': d['NO. HP'],
           'Tgl Order': '',
           'No. Order': orderNo,
-          'ORDER KE PABRIK': d['ORDER KE PABRIK'] || '',
+          'ORDER KE PABRIK': '', // Kosong karena tidak ada di form input
           'Keterangan Pemenuhan': '',
           'createdAt': firebase.firestore.FieldValue.serverTimestamp(),
           'createdBy': user ? user.email : '',
@@ -2696,7 +2690,6 @@
       var o = allOrders.find(function(x) { return x._docId === docId; });
       if (!o) return;
 
-      // Cek apakah user bisa mengedit (hanya admin yang bisa edit selain status)
       var isAdminUser = isAdmin;
 
       document.getElementById('modalRowIndex').value = docId;
@@ -2706,7 +2699,6 @@
 
       // FIELD LAIN - HANYA ADMIN YANG BISA EDIT
       var tglOrderInput = document.getElementById('modalTglOrder');
-      var orderPabrikInput = document.getElementById('modalOrderPabrik');
       var keteranganInput = document.getElementById('modalKeterangan');
 
       if (isAdminUser) {
@@ -2717,19 +2709,12 @@
         tglOrderInput.style.cursor = 'text';
         tglOrderInput.style.opacity = '1';
 
-        orderPabrikInput.value = o['ORDER KE PABRIK'] || '';
-        orderPabrikInput.readOnly = false;
-        orderPabrikInput.style.background = 'var(--bg-input)';
-        orderPabrikInput.style.cursor = 'text';
-        orderPabrikInput.style.opacity = '1';
-
         keteranganInput.value = o['Keterangan Pemenuhan'] || '';
         keteranganInput.readOnly = false;
         keteranganInput.style.background = 'var(--bg-input)';
         keteranganInput.style.cursor = 'text';
         keteranganInput.style.opacity = '1';
 
-        // Tampilkan info bahwa admin bisa edit semua
         document.querySelector('#editModal .modal-body .form-group small')?.remove();
       } else {
         // User biasa - hanya status yang bisa diedit, yang lain readonly
@@ -2739,12 +2724,6 @@
         tglOrderInput.style.cursor = 'not-allowed';
         tglOrderInput.style.opacity = '0.7';
 
-        orderPabrikInput.value = o['ORDER KE PABRIK'] || '';
-        orderPabrikInput.readOnly = true;
-        orderPabrikInput.style.background = 'var(--bg-card)';
-        orderPabrikInput.style.cursor = 'not-allowed';
-        orderPabrikInput.style.opacity = '0.7';
-
         keteranganInput.value = o['Keterangan Pemenuhan'] || '';
         keteranganInput.readOnly = true;
         keteranganInput.style.background = 'var(--bg-card)';
@@ -2752,7 +2731,7 @@
         keteranganInput.style.opacity = '0.7';
       }
 
-      document.getElementById('modalOrderNo').textContent = '#' + (o['No. Order'] || '-');
+      // NOMOR ORDER TIDAK DITAMPILKAN
       document.getElementById('modalPartInfo').textContent = (o['NAMA PART'] || '-') + ' | ' + (o['NAMA KONSUMEN'] || '-');
       document.getElementById('editModal').classList.add('active');
     }
@@ -2769,7 +2748,6 @@
       // Jika admin, update semua field
       if (isAdminUser) {
         updates['Tgl Order'] = document.getElementById('modalTglOrder').value;
-        updates['ORDER KE PABRIK'] = document.getElementById('modalOrderPabrik').value;
         updates['Keterangan Pemenuhan'] = document.getElementById('modalKeterangan').value;
       }
 
@@ -2915,7 +2893,7 @@
     document.getElementById('inputModal').addEventListener('click', function(e) { if (e.target === this) closeInputModal(); });
     document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeEditModal(); });
 
-    console.log('✅ Aplikasi siap - User hanya bisa edit status, Admin bisa edit semua field.');
+    console.log('✅ Aplikasi siap - Nomor Order dihapus dari Edit, Order ke Pabrik dihapus dari Input.');
   </script>
 </body>
 </html>
