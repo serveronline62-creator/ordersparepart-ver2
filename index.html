@@ -1164,6 +1164,7 @@
       const doc = new jsPDF('portrait', 'mm', 'a4');
       const pageWidth = doc.internal.pageSize.getWidth();
 
+      // Header
       doc.setFontSize(16);
       doc.text('Riwayat Produk Masuk', pageWidth/2, 15, { align: 'center' });
       doc.setFontSize(10);
@@ -1171,12 +1172,14 @@
       doc.text(dateLabel, pageWidth/2, 22, { align: 'center' });
       doc.text(`Total Data: ${filtered.length}`, pageWidth/2, 29, { align: 'center' });
 
+      // Hitung total
       let totalQty = 0, totalModal = 0;
       filtered.forEach(h => {
         totalQty += h.qty || 0;
         totalModal += h.totalModal || 0;
       });
 
+      // Tabel data dengan nomor urut
       const rows = filtered.map((h, index) => [
         index + 1,
         h.date || new Date(h.timestamp).toLocaleString('id-ID'),
@@ -1211,6 +1214,7 @@
         pageBreak: 'auto'
       });
 
+      // Total di bawah tabel
       const finalY = doc.lastAutoTable.finalY + 8;
       doc.setFontSize(9);
       doc.setFont(undefined, 'bold');
@@ -1223,7 +1227,7 @@
       showToast('PDF berhasil diunduh!', 'success');
     }
 
-    // ==================== STOCK OUT (PENGELUARAN BARANG) ====================
+    // ==================== STOCK OUT (PENGELUARAN BARANG) - KHUSUS PDF ====================
     function populateStockOutProductSelect() {
       const select = document.getElementById('so-product');
       select.innerHTML = '<option value="" disabled selected>-- Pilih Produk --</option>' +
@@ -1342,6 +1346,7 @@
       showToast('File Excel berhasil diunduh!', 'success');
     }
 
+    // ========== KHUSUS PDF PENGELUARAN BARANG ==========
     function downloadStockOutPDF() {
       const start = document.getElementById('so-start')?.value;
       const end = document.getElementById('so-end')?.value;
@@ -1375,14 +1380,14 @@
         totalModal += s.totalModal || 0;
       });
 
-      // Tabel data dengan nomor urut dan keterangan
+      // Tabel data dengan nomor urut - KETERANGAN TETAP TAMPIL
       const rows = filtered.map((s, index) => [
         index + 1,
         s.date || new Date(s.timestamp).toLocaleString('id-ID'),
         s.productId || '-',
         s.productName || '-',
         s.qty || 0,
-        s.note || '-',  // Keterangan ditampilkan dengan jelas
+        s.note || '-',   // <-- KETERANGAN TETAP
         formatRp(s.totalModal || 0)
       ]);
 
@@ -1394,12 +1399,12 @@
         headStyles: { fillColor: [230, 57, 70], textColor: [255,255,255], fontSize: 7, halign: 'center', cellPadding: 1 },
         bodyStyles: { fontSize: 6.5, cellPadding: 0.8 },
         columnStyles: {
-          0: { cellWidth: 7, halign: 'center' },
+          0: { cellWidth: 6, halign: 'center' },
           1: { cellWidth: 22, halign: 'center' },
           2: { cellWidth: 16, halign: 'center' },
-          3: { cellWidth: 30, halign: 'left' },
+          3: { cellWidth: 34, halign: 'left' },
           4: { cellWidth: 14, halign: 'center' },
-          5: { cellWidth: 35, halign: 'left' },  // Keterangan dibuat lebih lebar agar teks tidak terpotong
+          5: { cellWidth: 32, halign: 'left' },  // KETERANGAN
           6: { cellWidth: 22, halign: 'right' }
         },
         margin: { left: 8, right: 8 },
