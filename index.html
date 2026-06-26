@@ -1803,7 +1803,7 @@
                   <th>Nama Konsumen</th>
                   <th>No. HP</th>
                   <th>Tgl Order</th>
-                  <th>No. Order</th>
+                  <th>Order ke Pabrik</th>
                   <th>Keterangan</th>
                   <th>Aksi</th>
                 </tr>
@@ -1848,7 +1848,7 @@
                   <th>Nama Konsumen</th>
                   <th>No. HP</th>
                   <th>Tgl Order</th>
-                  <th>No. Order</th>
+                  <th>Order ke Pabrik</th>
                   <th>Keterangan</th>
                   <th>Aksi</th>
                 </tr>
@@ -1891,7 +1891,7 @@
             <div class="form-group"><label class="form-label">Nama Konsumen <span class="required">*</span></label><input class="form-input" type="text" name="NAMA KONSUMEN" required /></div>
             <div class="form-group"><label class="form-label">No. HP <span class="required">*</span></label><input class="form-input" type="tel" name="NO. HP" required /></div>
           </div>
-          <!-- FIELD NO. ORDER TIDAK ADA DI INPUT -->
+          <!-- FIELD ORDER KE PABRIK TIDAK ADA DI INPUT -->
         </form>
       </div>
       <div class="modal-footer">
@@ -1933,7 +1933,7 @@
           </div>
           
           <div class="form-group">
-            <label class="form-label"><span class="editable-label"><i class="fas fa-lock" style="color:var(--info);font-size:0.6rem;"></i> No. Order</span></label>
+            <label class="form-label"><span class="editable-label"><i class="fas fa-lock" style="color:var(--info);font-size:0.6rem;"></i> Order ke Pabrik</span></label>
             <input class="form-input" type="text" id="modalOrderPabrik" readonly style="background:var(--bg-card);cursor:not-allowed;opacity:0.7;" />
           </div>
           
@@ -2436,7 +2436,7 @@
           'NO. HP': d['NO. HP'],
           'Tgl Order': '',
           'No. Order': orderNo,
-          'NO. ORDER': '',
+          'ORDER KE PABRIK': '',
           'Keterangan Pemenuhan': '',
           'createdAt': firebase.firestore.FieldValue.serverTimestamp(),
           'createdBy': user ? user.email : '',
@@ -2456,7 +2456,7 @@
       });
     }
 
-    // ===== INLINE EDIT: No. Order =====
+    // ===== INLINE EDIT: Order ke Pabrik =====
     function editOrderPabrik(docId, td) {
       if (td.querySelector('input')) return;
       var currentValue = td.textContent.trim();
@@ -2485,13 +2485,13 @@
           td.textContent = currentValue || '-';
           return;
         }
-        var updates = { 'NO. ORDER': newValue };
+        var updates = { 'ORDER KE PABRIK': newValue };
         db.collection(ORDERS_COL).doc(docId).update(updates)
           .then(function() {
-            showToast('No. Order berhasil diupdate!', 'success');
+            showToast('Order ke Pabrik berhasil diupdate!', 'success');
             td.textContent = newValue || '-';
             var order = allOrders.find(function(o) { return o._docId === docId; });
-            if (order) order['NO. ORDER'] = newValue;
+            if (order) order['ORDER KE PABRIK'] = newValue;
           })
           .catch(function(err) {
             showToast('Gagal update: ' + err.message, 'error');
@@ -2549,7 +2549,7 @@
           ri = o._rowIndex,
           isNew = newRowIndices.has(ri),
           to = o['Tgl Order'] || '',
-          op = o['NO. ORDER'] || '',
+          op = o['ORDER KE PABRIK'] || '',
           k = o['Keterangan Pemenuhan'] || '',
           da = 'onclick="openEditModal(\'' + o._docId + '\')"';
 
@@ -2626,7 +2626,7 @@
       for (var i = 0; i < fd.length; i++) {
         var o = fd[i],
           to = o['Tgl Order'] || '',
-          op = o['NO. ORDER'] || '',
+          op = o['ORDER KE PABRIK'] || '',
           k = o['Keterangan Pemenuhan'] || '';
 
         h += '<tr>' +
@@ -2715,7 +2715,7 @@
         tglOrderInput.style.cursor = 'text';
         tglOrderInput.style.opacity = '1';
 
-        orderPabrikInput.value = o['NO. ORDER'] || '';
+        orderPabrikInput.value = o['ORDER KE PABRIK'] || '';
         orderPabrikInput.readOnly = false;
         orderPabrikInput.style.background = 'var(--bg-input)';
         orderPabrikInput.style.cursor = 'text';
@@ -2736,7 +2736,7 @@
         tglOrderInput.style.cursor = 'not-allowed';
         tglOrderInput.style.opacity = '0.7';
 
-        orderPabrikInput.value = o['NO. ORDER'] || '';
+        orderPabrikInput.value = o['ORDER KE PABRIK'] || '';
         orderPabrikInput.readOnly = true;
         orderPabrikInput.style.background = 'var(--bg-card)';
         orderPabrikInput.style.cursor = 'not-allowed';
@@ -2766,7 +2766,7 @@
       // Jika admin, update semua field
       if (isAdminUser) {
         updates['Tgl Order'] = document.getElementById('modalTglOrder').value;
-        updates['NO. ORDER'] = document.getElementById('modalOrderPabrik').value;
+        updates['ORDER KE PABRIK'] = document.getElementById('modalOrderPabrik').value;
         updates['Keterangan Pemenuhan'] = document.getElementById('modalKeterangan').value;
       }
 
@@ -2832,14 +2832,14 @@
         var eh = ['No', 'Status', 'Teknisi', 'Tgl Pengajuan',
           'No. Service', 'Type (IDNO)', 'No. Serie', 'No Gudang',
           'Nama Part', 'QTY', 'Prod.', 'Layanan', 'Nama Konsumen', 'No. HP',
-          'Tgl Order', 'No. Order', 'Keterangan'
+          'Tgl Order', 'Order ke Pabrik', 'Keterangan'
         ];
         var rows = fd.map(function(o, i) {
           return [i + 1, o['STATUS'] || '', o['TEKNISI'] || '', formatDateDisplay(o['TGL PENGAJUAN ORD'] || ''),
             o['NO. SERVICE CASE'] || '', o['TYPE (IDNO)'] || '', o['NO. SERIE'] || '', o['NO GUDANG'] || '',
             o['NAMA PART'] || '', o['QTY'] || '', o['PROD.'] || '', o['LAYANAN'] || '',
             o['NAMA KONSUMEN'] || '', o['NO. HP'] || '', formatDateDisplay(o['Tgl Order'] || ''),
-            o['NO. ORDER'] || '', o['Keterangan Pemenuhan'] || ''
+            o['ORDER KE PABRIK'] || '', o['Keterangan Pemenuhan'] || ''
           ];
         });
         var wb = XLSX.utils.book_new(),
@@ -2912,7 +2912,7 @@
     document.getElementById('inputModal').addEventListener('click', function(e) { if (e.target === this) closeInputModal(); });
     document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeEditModal(); });
 
-    console.log('✅ Aplikasi siap - No. Order ditampilkan di Edit Order, Nomor Order dihapus.');
+    console.log('✅ Aplikasi siap - Order ke Pabrik ditampilkan di Edit Order, Nomor Order dihapus.');
   </script>
 </body>
 </html>
