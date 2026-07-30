@@ -15,7 +15,7 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js">
     </script>
     <style>
-        /* ===== CSS LENGKAP (sama seperti sebelumnya) ===== */
+        /* ===== CSS LENGKAP (dengan progress upload) ===== */
         :root,
         [data-theme="dark"] {
             --bg-primary: #0b1120;
@@ -53,6 +53,11 @@
             --spinner-accent-track: rgba(0, 212, 170, 0.2);
             --radius: 8px;
             --radius-lg: 14px;
+            --filter-bg: rgba(0, 212, 170, 0.08);
+            --filter-border: rgba(0, 212, 170, 0.25);
+            --chat-file-bg: rgba(0, 212, 170, 0.05);
+            --progress-bg: rgba(0, 212, 170, 0.1);
+            --progress-fill: #00d4aa;
         }
         [data-theme="light"] {
             --bg-primary: #f0f4f8;
@@ -90,6 +95,11 @@
             --spinner-accent-track: rgba(13, 148, 136, 0.2);
             --radius: 8px;
             --radius-lg: 14px;
+            --filter-bg: rgba(13, 148, 136, 0.06);
+            --filter-border: rgba(13, 148, 136, 0.2);
+            --chat-file-bg: rgba(13, 148, 136, 0.05);
+            --progress-bg: rgba(13, 148, 136, 0.1);
+            --progress-fill: #0d9488;
         }
         *,
         *::before,
@@ -707,6 +717,7 @@
             padding: 5px;
             margin-bottom: 1.5rem;
             width: fit-content;
+            flex-wrap: wrap;
         }
         .main-tab {
             display: flex;
@@ -752,6 +763,529 @@
         }
         .tab-panel.active {
             display: block;
+        }
+
+        /* ===== UPLOAD PROGRESS STYLES ===== */
+        .upload-progress-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+        .upload-progress-overlay.active {
+            display: flex;
+        }
+        .upload-progress-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2rem 2.5rem;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            animation: modalSlide 0.3s ease-out;
+            box-shadow: 0 8px 60px rgba(0, 0, 0, 0.5);
+        }
+        .upload-progress-card .file-icon {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            animation: bounce 1s ease-in-out infinite;
+        }
+        @keyframes bounce {
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+        .upload-progress-card .file-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+            word-break: break-all;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .upload-progress-card .file-size {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+        .upload-progress-card .progress-container {
+            width: 100%;
+            height: 8px;
+            background: var(--progress-bg);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+        .upload-progress-card .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, var(--progress-fill), var(--accent-glow));
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .upload-progress-card .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: shimmer 1.5s ease-in-out infinite;
+            transform: translateX(-100%);
+        }
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(200%);
+            }
+        }
+        .upload-progress-card .progress-text {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .upload-progress-card .progress-status {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+        .upload-progress-card .progress-cancel {
+            margin-top: 1rem;
+            padding: 6px 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        .upload-progress-card .progress-cancel:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        .upload-progress-card .progress-complete {
+            display: none;
+            font-size: 2rem;
+            color: var(--success);
+            margin-bottom: 0.5rem;
+            animation: successPop 0.5s ease-out;
+        }
+        .upload-progress-card .progress-complete.show {
+            display: block;
+        }
+
+        /* ===== CHAT SERVICE STYLES ===== */
+        .chat-service-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .chat-service-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+        }
+        .chat-service-card:hover {
+            border-color: var(--accent);
+            box-shadow: var(--shadow-glow);
+        }
+        .chat-service-card h4 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .chat-service-card h4 i {
+            color: var(--accent);
+        }
+        .chat-box {
+            background: var(--bg-input);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            padding: 0.75rem;
+            max-height: 350px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .chat-box::-webkit-scrollbar {
+            width: 3px;
+        }
+        .chat-box::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+        .chat-msg-wrapper {
+            display: flex;
+            flex-direction: column;
+            max-width: 85%;
+            position: relative;
+        }
+        .chat-msg-wrapper.own {
+            align-self: flex-end;
+        }
+        .chat-msg-wrapper.other {
+            align-self: flex-start;
+        }
+        .chat-msg {
+            padding: 8px 12px;
+            border-radius: var(--radius);
+            font-size: 0.8rem;
+            word-break: break-word;
+            animation: afFade 0.3s ease-out;
+            position: relative;
+        }
+        .chat-msg-wrapper.own .chat-msg {
+            background: var(--accent);
+            color: #0b1120;
+            border-bottom-right-radius: 4px;
+        }
+        [data-theme="light"] .chat-msg-wrapper.own .chat-msg {
+            color: #fff;
+        }
+        .chat-msg-wrapper.other .chat-msg {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-bottom-left-radius: 4px;
+        }
+        .chat-msg .msg-meta {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .chat-msg-wrapper.own .msg-meta {
+            color: rgba(0, 0, 0, 0.5);
+        }
+        [data-theme="light"] .chat-msg-wrapper.own .msg-meta {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .chat-delete-btn {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: rgba(0, 0, 0, 0.3);
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.55rem;
+            padding: 2px 5px;
+            border-radius: 4px;
+            opacity: 0;
+            transition: all 0.2s ease;
+            z-index: 5;
+        }
+        .chat-delete-btn:hover {
+            background: var(--danger);
+            color: #fff;
+        }
+        .chat-msg-wrapper:hover .chat-delete-btn {
+            opacity: 1;
+        }
+        .chat-msg-wrapper.own .chat-delete-btn {
+            right: 2px;
+        }
+        .chat-msg-wrapper.other .chat-delete-btn {
+            right: 2px;
+        }
+        /* Chat file attachment styles */
+        .chat-file-attachment {
+            margin-top: 4px;
+            padding: 6px 10px;
+            background: var(--chat-file-bg);
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            max-width: 100%;
+        }
+        .chat-file-attachment:hover {
+            background: var(--accent-dim);
+            border-color: var(--accent);
+        }
+        .chat-file-attachment i {
+            font-size: 1rem;
+            color: var(--accent);
+        }
+        .chat-file-attachment .file-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            max-width: 150px;
+        }
+        .chat-file-attachment img {
+            max-width: 200px;
+            max-height: 150px;
+            border-radius: 4px;
+            object-fit: cover;
+            border: 1px solid var(--border);
+        }
+        .chat-file-attachment .file-preview {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .chat-input-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 0.5rem;
+            flex-wrap: wrap;
+        }
+        .chat-input-row input[type="text"] {
+            flex: 1;
+            min-width: 120px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 8px 12px;
+            font-family: inherit;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .chat-input-row input[type="text"]:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 2px var(--accent-dim);
+        }
+        .chat-input-row .chat-file-input-wrapper {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+        .chat-input-row .chat-file-input-wrapper input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+            width: 100%;
+        }
+        .chat-input-row .chat-file-input-wrapper .file-btn {
+            padding: 8px 12px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .chat-input-row .chat-file-input-wrapper .file-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-dim);
+        }
+        .chat-input-row button {
+            padding: 8px 16px;
+            border-radius: var(--radius);
+            border: none;
+            background: var(--accent);
+            color: #0b1120;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        [data-theme="light"] .chat-input-row button {
+            color: #fff;
+        }
+        .chat-input-row button:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 16px rgba(0, 212, 170, 0.3);
+        }
+        .chat-service-empty {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            font-style: italic;
+            text-align: center;
+            padding: 1rem 0;
+        }
+
+        /* ===== FILE SEARCH STYLES ===== */
+        .file-search-section {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            background: var(--bg-input);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+        .file-search-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .file-search-row .search-box {
+            flex: 1;
+            min-width: 200px;
+        }
+        .file-search-row .search-box input {
+            width: 100%;
+            padding: 8px 12px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.8rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .file-search-row .search-box input:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 2px var(--accent-dim);
+        }
+        .file-search-row .search-box input::placeholder {
+            color: var(--text-muted);
+        }
+        .file-search-row .filter-chips {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .file-search-row .filter-chips .chip {
+            padding: 4px 12px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: var(--chip-bg);
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .file-search-row .filter-chips .chip:hover {
+            border-color: var(--text-muted);
+        }
+        .file-search-row .filter-chips .chip.active {
+            background: var(--accent-dim);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+        .file-search-results {
+            margin-top: 0.75rem;
+            max-height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .file-search-results::-webkit-scrollbar {
+            width: 3px;
+        }
+        .file-search-results::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+        .file-search-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 6px 10px;
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            font-size: 0.75rem;
+            transition: all 0.2s ease;
+        }
+        .file-search-item:hover {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+        .file-search-item .file-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            overflow: hidden;
+            flex: 1;
+            min-width: 0;
+        }
+        .file-search-item .file-info i {
+            color: var(--accent);
+            flex-shrink: 0;
+        }
+        .file-search-item .file-info .file-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: var(--text-primary);
+        }
+        .file-search-item .file-info .file-meta {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+        .file-search-item .file-actions {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .file-search-item .file-actions button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            font-size: 0.7rem;
+        }
+        .file-search-item .file-actions button:hover {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+        .file-search-item .file-actions button.delete:hover {
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        .file-search-empty {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-style: italic;
+            text-align: center;
+            padding: 0.5rem 0;
         }
 
         /* ===== STATS ===== */
@@ -1017,6 +1551,85 @@
             background: linear-gradient(135deg, #228b4f, #1d6f42);
         }
 
+        /* ===== FILTER TEKNISI ===== */
+        .filter-teknisi-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            padding: 6px 0;
+            min-height: 40px;
+        }
+        .filter-teknisi-bar .filter-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .filter-teknisi-bar .filter-label .count-badge {
+            font-size: 0.6rem;
+            background: var(--bg-input);
+            padding: 1px 8px;
+            border-radius: 10px;
+            color: var(--text-muted);
+        }
+        .filter-teknisi-chip {
+            padding: 4px 14px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: var(--chip-bg);
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .filter-teknisi-chip:hover {
+            border-color: var(--text-muted);
+            color: var(--text-primary);
+            background: var(--accent-dim);
+        }
+        .filter-teknisi-chip.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #0b1120;
+            box-shadow: 0 0 12px rgba(0, 212, 170, 0.2);
+        }
+        [data-theme="light"] .filter-teknisi-chip.active {
+            color: #fff;
+        }
+        .filter-teknisi-chip.clear-filter {
+            border-color: var(--border);
+            color: var(--text-muted);
+        }
+        .filter-teknisi-chip.clear-filter.active {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.08);
+        }
+        .filter-teknisi-chip.clear-filter:hover {
+            border-color: var(--danger);
+            color: var(--danger);
+            background: rgba(239, 68, 68, 0.05);
+        }
+        .filter-teknisi-chip .chip-count {
+            font-size: 0.6rem;
+            opacity: 0.6;
+            margin-left: 4px;
+        }
+        .filter-teknisi-empty {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-style: italic;
+            padding: 4px 0;
+        }
+
         /* ===== TABLE ===== */
         .table-card {
             background: var(--bg-card);
@@ -1149,6 +1762,40 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             font-weight: 500;
             color: var(--text-primary);
+        }
+        .data-table tbody td.teknisi-cell {
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+        .data-table tbody td.teknisi-cell:hover {
+            color: var(--accent);
+            background: var(--accent-dim);
+            border-radius: 4px;
+        }
+        .data-table tbody td.teknisi-cell.filtered {
+            background: var(--filter-bg);
+            border-radius: 4px;
+            color: var(--accent);
+            font-weight: 700;
+        }
+        .data-table tbody td.teknisi-cell::after {
+            content: '\f0b0';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            font-size: 0.55rem;
+            color: var(--accent);
+            opacity: 0;
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            transition: opacity 0.2s;
+        }
+        .data-table tbody td.teknisi-cell:hover::after {
+            opacity: 0.6;
         }
         .data-table tbody td.editable-cell {
             position: relative;
@@ -1302,6 +1949,213 @@
             cursor: not-allowed;
             pointer-events: none;
         }
+        .action-btn.whatsapp {
+            color: #25D366;
+        }
+        .action-btn.whatsapp:hover {
+            background: rgba(37, 211, 102, 0.1);
+            border-color: #25D366;
+        }
+
+        /* ===== TRACKING STYLES ===== */
+        .tracking-container {
+            background: var(--bg-input);
+            border-radius: var(--radius);
+            padding: 1rem;
+            border: 1px solid var(--border);
+        }
+        .tracking-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .tracking-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tracking-title i {
+            font-size: 0.9rem;
+        }
+        .tracking-badge {
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 2px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+        .tracking-badge.pending {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+        }
+        .tracking-badge.proses {
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+        }
+        .tracking-badge.gotw {
+            background: rgba(139, 92, 246, 0.15);
+            color: #a78bfa;
+        }
+        .tracking-badge.terima {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+        }
+        .tracking-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .tracking-timeline::-webkit-scrollbar {
+            width: 3px;
+        }
+        .tracking-timeline::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+        .tracking-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 6px 8px;
+            border-radius: 6px;
+            background: var(--bg-card);
+            border-left: 3px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        .tracking-item:hover {
+            background: var(--bg-card-hover);
+        }
+        .tracking-item .tracking-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.6rem;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .tracking-item .tracking-icon.pending {
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+        }
+        .tracking-item .tracking-icon.proses {
+            background: rgba(168, 85, 247, 0.15);
+            color: #c084fc;
+        }
+        .tracking-item .tracking-icon.gotw {
+            background: rgba(139, 92, 246, 0.15);
+            color: #a78bfa;
+        }
+        .tracking-item .tracking-icon.terima {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+        }
+        .tracking-item .tracking-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .tracking-item .tracking-status {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        .tracking-item .tracking-desc {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            word-break: break-word;
+            white-space: normal;
+        }
+        .tracking-item .tracking-time {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            white-space: nowrap;
+            min-width: 70px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+        .tracking-item .tracking-remove {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            font-size: 0.65rem;
+            padding: 2px 4px;
+            transition: color 0.2s;
+            flex-shrink: 0;
+        }
+        .tracking-item .tracking-remove:hover {
+            color: var(--danger);
+        }
+        .tracking-add-form {
+            display: flex;
+            gap: 8px;
+            margin-top: 0.75rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+        .tracking-add-form select,
+        .tracking-add-form input {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            font-family: inherit;
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+        .tracking-add-form select:focus,
+        .tracking-add-form input:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 2px var(--accent-dim);
+        }
+        .tracking-add-form select {
+            flex: 1;
+            min-width: 100px;
+        }
+        .tracking-add-form input {
+            flex: 2;
+            min-width: 150px;
+        }
+        .tracking-add-form .btn {
+            padding: 6px 14px;
+            font-size: 0.7rem;
+            flex-shrink: 0;
+        }
+        .tracking-empty {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-style: italic;
+            text-align: center;
+            padding: 0.5rem 0;
+        }
+        .tracking-status-filter {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-bottom: 0.5rem;
+        }
+        .tracking-status-filter .chip {
+            font-size: 0.6rem;
+            padding: 2px 10px;
+        }
 
         /* ===== SKELETON ===== */
         .table-loading-skeleton {
@@ -1347,6 +2201,110 @@
         .empty-state p {
             color: var(--text-muted);
             font-size: 0.85rem;
+        }
+
+        /* ===== PAGINATION ===== */
+        .pagination-wrapper {
+            padding: 0.85rem 1.5rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .pagination-info {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .pagination-info .highlight {
+            color: var(--accent);
+            font-weight: 700;
+        }
+        .pagination-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .pagination-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 6px 16px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .pagination-btn:hover:not(:disabled) {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--accent-dim);
+        }
+        .pagination-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        .pagination-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #0b1120;
+        }
+        [data-theme="light"] .pagination-btn.active {
+            color: #fff;
+        }
+        .pagination-numbers {
+            display: flex;
+            gap: 4px;
+        }
+        .pagination-number {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            background: transparent;
+            color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .pagination-number:hover:not(.active):not(:disabled) {
+            border-color: var(--text-muted);
+            color: var(--text-primary);
+            background: var(--row-hover);
+        }
+        .pagination-number.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #0b1120;
+        }
+        [data-theme="light"] .pagination-number.active {
+            color: #fff;
+        }
+        .pagination-number:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .pagination-ellipsis {
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.78rem;
+            padding: 0 4px;
         }
 
         /* ===== MODAL ===== */
@@ -1690,8 +2648,248 @@
             .main-tab {
                 flex: 1;
                 justify-content: center;
-                padding: 10px 12px;
-                font-size: 0.78rem;
+                padding: 8px 12px;
+                font-size: 0.75rem;
+            }
+            .filter-teknisi-bar {
+                gap: 4px;
+            }
+            .filter-teknisi-chip {
+                font-size: 0.65rem;
+                padding: 3px 10px;
+            }
+            .pagination-wrapper {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.75rem;
+            }
+            .pagination-controls {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .pagination-numbers {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            .pagination-info {
+                justify-content: center;
+            }
+            .tracking-add-form {
+                flex-wrap: wrap;
+            }
+            .tracking-add-form select,
+            .tracking-add-form input {
+                flex: 1 1 100%;
+            }
+            .tracking-item .tracking-time {
+                white-space: normal;
+                min-width: auto;
+                text-align: left;
+                font-size: 0.55rem;
+            }
+            .tracking-item {
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .tracking-item .tracking-time {
+                width: 100%;
+                text-align: left;
+                padding-left: 34px;
+                font-size: 0.55rem;
+            }
+            .tracking-item .tracking-remove {
+                align-self: flex-start;
+            }
+            .tracking-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .tracking-add-form {
+                flex-direction: column;
+            }
+            .tracking-add-form select,
+            .tracking-add-form input,
+            .tracking-add-form .btn {
+                width: 100%;
+                flex: 1 1 auto;
+            }
+            .tracking-add-form .btn {
+                justify-content: center;
+            }
+            .tracking-container {
+                padding: 0.75rem;
+            }
+            .modal {
+                max-width: 100%;
+                margin: 0.5rem;
+                max-height: 95vh;
+            }
+            .modal-body {
+                padding: 1rem;
+                gap: 0.75rem;
+            }
+            .modal-footer {
+                padding: 0.75rem 1rem;
+                flex-wrap: wrap;
+            }
+            .modal-footer .btn {
+                flex: 1;
+                min-width: 80px;
+                justify-content: center;
+            }
+            .tracking-timeline {
+                max-height: 200px;
+            }
+            .chat-box {
+                max-height: 250px;
+            }
+            .chat-msg-wrapper {
+                max-width: 95%;
+            }
+            .chat-msg {
+                font-size: 0.75rem;
+            }
+            .chat-input-row input[type="text"] {
+                font-size: 0.75rem;
+                padding: 6px 10px;
+                min-width: 80px;
+            }
+            .chat-input-row button {
+                font-size: 0.75rem;
+                padding: 6px 12px;
+            }
+            .chat-file-attachment img {
+                max-width: 120px;
+                max-height: 100px;
+            }
+            .chat-file-attachment .file-name {
+                max-width: 80px;
+            }
+            .chat-input-row .chat-file-input-wrapper .file-btn {
+                font-size: 0.7rem;
+                padding: 6px 8px;
+            }
+            .chat-delete-btn {
+                opacity: 0.5;
+            }
+            .file-search-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .file-search-row .search-box {
+                min-width: auto;
+            }
+            .upload-progress-card {
+                padding: 1.5rem;
+            }
+            .upload-progress-card .file-icon {
+                font-size: 2.5rem;
+            }
+            .upload-progress-card .file-name {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-row,
+            .riwayat-stats {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.5rem;
+            }
+            .stat-card,
+            .riwayat-stat {
+                padding: 0.7rem 0.8rem;
+            }
+            .stat-value,
+            .rs-val {
+                font-size: 1.1rem;
+            }
+            .stat-label,
+            .rs-lbl {
+                font-size: 0.55rem;
+            }
+            .stat-icon,
+            .rs-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 0.7rem;
+            }
+            .tracking-item {
+                padding: 4px 6px;
+            }
+            .tracking-item .tracking-icon {
+                width: 20px;
+                height: 20px;
+                font-size: 0.5rem;
+            }
+            .tracking-item .tracking-status {
+                font-size: 0.65rem;
+            }
+            .tracking-item .tracking-desc {
+                font-size: 0.6rem;
+            }
+            .tracking-badge {
+                font-size: 0.5rem;
+                padding: 1px 8px;
+            }
+            .tracking-title {
+                font-size: 0.65rem;
+            }
+            .chat-msg {
+                font-size: 0.7rem;
+                padding: 6px 10px;
+            }
+            .chat-msg-wrapper {
+                max-width: 98%;
+            }
+            .chat-input-row input[type="text"] {
+                font-size: 0.7rem;
+                padding: 5px 8px;
+                min-width: 60px;
+            }
+            .chat-input-row button {
+                font-size: 0.7rem;
+                padding: 5px 10px;
+            }
+            .chat-input-row .chat-file-input-wrapper .file-btn {
+                font-size: 0.65rem;
+                padding: 5px 6px;
+            }
+            .chat-file-attachment img {
+                max-width: 80px;
+                max-height: 80px;
+            }
+            .chat-file-attachment .file-name {
+                max-width: 60px;
+                font-size: 0.6rem;
+            }
+            .chat-input-row {
+                gap: 4px;
+            }
+            .chat-delete-btn {
+                opacity: 0.7;
+                font-size: 0.5rem;
+                padding: 1px 4px;
+            }
+            .file-search-item {
+                flex-wrap: wrap;
+                gap: 4px;
+                font-size: 0.7rem;
+            }
+            .file-search-item .file-info .file-meta {
+                font-size: 0.55rem;
+            }
+            .upload-progress-card {
+                padding: 1rem;
+            }
+            .upload-progress-card .file-icon {
+                font-size: 2rem;
+            }
+            .upload-progress-card .file-name {
+                font-size: 0.7rem;
+            }
+            .upload-progress-card .progress-text {
+                font-size: 0.9rem;
             }
         }
     </style>
@@ -1773,6 +2971,7 @@
             <div class="main-tabs">
                 <button class="main-tab active" onclick="switchMainTab('aktif', this)"><i class="fas fa-tasks"></i> Order Aktif <span class="tab-count" id="tabCountAktif">0</span></button>
                 <button class="main-tab" onclick="switchMainTab('riwayat', this)"><i class="fas fa-history"></i> Riwayat Order <span class="tab-count" id="tabCountRiwayat">0</span></button>
+                <button class="main-tab" onclick="switchMainTab('serviceinfo', this)"><i class="fas fa-headset"></i> Service Informasi <span class="tab-count" id="tabCountService">0</span></button>
             </div>
 
             <!-- ===== TAB AKTIF ===== -->
@@ -1800,6 +2999,13 @@
                             <button class="btn btn-download btn-sm" onclick="downloadExcel('aktif')" id="btnDownload"><i class="fas fa-file-excel"></i> Download</button>
                         </div>
                     </div>
+                    <!-- Filter Teknisi Bar - Dynamic -->
+                    <div style="padding: 0.5rem 1.5rem 0.5rem 1.5rem; border-bottom: 1px solid var(--border);">
+                        <div class="filter-teknisi-bar" id="teknisiFilterAktif">
+                            <span class="filter-label"><i class="fas fa-user-cog"></i> Filter Teknisi: <span class="count-badge" id="teknisiCountAktif">0</span></span>
+                            <span class="filter-teknisi-empty" id="teknisiEmptyAktif">Belum ada data teknisi</span>
+                        </div>
+                    </div>
                     <div class="table-wrapper">
                         <div class="table-loading-skeleton" id="tableSkeleton">
                             <div class="skeleton-row"><div class="skeleton-cell" style="width:30px;"></div><div class="skeleton-cell" style="width:70px;"></div><div class="skeleton-cell" style="width:120px;"></div><div class="skeleton-cell" style="flex:1;"></div></div>
@@ -1823,7 +3029,7 @@
                                     <th>Nama Konsumen</th>
                                     <th>No. HP</th>
                                     <th>Tgl Order</th>
-                                    <th>TGL TERIMA PART</th>
+                                    <th>Tgl Terima Part</th>
                                     <th>Lama Pengiriman</th>
                                     <th>No. Order</th>
                                     <th>Keterangan</th>
@@ -1834,7 +3040,18 @@
                         </table>
                     </div>
                     <div class="empty-state" id="emptyState" style="display:none;"><i class="fas fa-inbox"></i><p>Tidak ada order aktif.</p></div>
-                    <div class="table-footer" id="tableFooter" style="display:none;"><span>Menampilkan <strong class="row-count" id="rowCount">0</strong> dari <strong class="row-count" id="rowTotal">0</strong> order</span><span style="display:flex;align-items:center;gap:6px;"><span class="sync-dot" style="width:6px;height:6px;"></span> Copyright © 2026, Gregorius Berlin</span></div>
+                    <!-- ===== PAGINATION AKTIF ===== -->
+                    <div class="pagination-wrapper" id="paginationAktif" style="display:none;">
+                        <div class="pagination-info">
+                            <span>Menampilkan <span class="highlight" id="paginationStartAktif">0</span> - <span class="highlight" id="paginationEndAktif">0</span> dari <span class="highlight" id="paginationTotalAktif">0</span> data</span>
+                        </div>
+                        <div class="pagination-controls">
+                            <button class="pagination-btn" id="prevPageAktif" onclick="changePage('aktif', -1)"><i class="fas fa-chevron-left"></i> Back</button>
+                            <div class="pagination-numbers" id="paginationNumbersAktif"></div>
+                            <button class="pagination-btn" id="nextPageAktif" onclick="changePage('aktif', 1)">Next <i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="table-footer" id="tableFooter" style="display:none;"><span>Menampilkan <strong class="row-count" id="rowCount">0</strong> dari <strong class="row-count" id="rowTotal">0</strong> order</span><span style="display:flex;align-items:center;gap:6px;"><span class="sync-dot" style="width:6px;height:6px;"></span> Copyright © 2026, GBS</span></div>
                 </div>
             </div>
 
@@ -1849,6 +3066,13 @@
                         <div class="toolbar-right">
                             <div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Cari riwayat..." id="searchRiwayat" oninput="debouncedSearchRiwayat()" /></div>
                             <button class="btn btn-download btn-sm" onclick="downloadExcel('riwayat')" id="btnDownloadRiwayat"><i class="fas fa-file-excel"></i> Download</button>
+                        </div>
+                    </div>
+                    <!-- Filter Teknisi Bar - Dynamic untuk Riwayat -->
+                    <div style="padding: 0.5rem 1.5rem 0.5rem 1.5rem; border-bottom: 1px solid var(--border);">
+                        <div class="filter-teknisi-bar" id="teknisiFilterRiwayat">
+                            <span class="filter-label"><i class="fas fa-user-cog"></i> Filter Teknisi: <span class="count-badge" id="teknisiCountRiwayat">0</span></span>
+                            <span class="filter-teknisi-empty" id="teknisiEmptyRiwayat">Belum ada data teknisi</span>
                         </div>
                     </div>
                     <div class="table-wrapper">
@@ -1870,7 +3094,7 @@
                                     <th>Nama Konsumen</th>
                                     <th>No. HP</th>
                                     <th>Tgl Order</th>
-                                    <th>TGL TERIMA PART</th>
+                                    <th>Tgl Terima Part</th>
                                     <th>Lama Pengiriman</th>
                                     <th>No. Order</th>
                                     <th>Keterangan</th>
@@ -1881,10 +3105,94 @@
                         </table>
                     </div>
                     <div class="empty-state" id="emptyRiwayat" style="display:none;"><i class="fas fa-archive"></i><p>Belum ada riwayat order.</p></div>
-                    <div class="table-footer" id="riwayatFooter" style="display:none;"><span>Menampilkan <strong class="row-count" id="riwayatCount">0</strong> riwayat order</span><span style="display:flex;align-items:center;gap:6px;"><span class="sync-dot" style="width:6px;height:6px;"></span> Copyright © 2026, Gregorius Berlin</span></div>
+                    <!-- ===== PAGINATION RIWAYAT ===== -->
+                    <div class="pagination-wrapper" id="paginationRiwayat" style="display:none;">
+                        <div class="pagination-info">
+                            <span>Menampilkan <span class="highlight" id="paginationStartRiwayat">0</span> - <span class="highlight" id="paginationEndRiwayat">0</span> dari <span class="highlight" id="paginationTotalRiwayat">0</span> data</span>
+                        </div>
+                        <div class="pagination-controls">
+                            <button class="pagination-btn" id="prevPageRiwayat" onclick="changePage('riwayat', -1)"><i class="fas fa-chevron-left"></i> Back</button>
+                            <div class="pagination-numbers" id="paginationNumbersRiwayat"></div>
+                            <button class="pagination-btn" id="nextPageRiwayat" onclick="changePage('riwayat', 1)">Next <i class="fas fa-chevron-right"></i></button>
+                        </div>
+                    </div>
+                    <div class="table-footer" id="riwayatFooter" style="display:none;"><span>Menampilkan <strong class="row-count" id="riwayatCount">0</strong> riwayat order</span><span style="display:flex;align-items:center;gap:6px;"><span class="sync-dot" style="width:6px;height:6px;"></span> Copyright © 2026, GBS</span></div>
+                </div>
+            </div>
+
+            <!-- ===== TAB SERVICE INFORMASI ===== -->
+            <div class="tab-panel" id="panelServiceinfo">
+                <div class="stats-row">
+                    <div class="stat-card"><div class="stat-icon total"><i class="fas fa-comments"></i></div><div><div class="stat-value" id="statChatTotal">0</div><div class="stat-label">Total Pesan</div></div></div>
+                    <div class="stat-card"><div class="stat-icon proses"><i class="fas fa-file"></i></div><div><div class="stat-value" id="statFileTotal">0</div><div class="stat-label">Total File</div></div></div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-toolbar">
+                        <h2><i class="fas fa-headset" style="color:var(--info);"></i> Service Informasi</h2>
+                        <div class="toolbar-right">
+                            <button class="btn btn-download btn-sm" onclick="downloadServiceInfo()"><i class="fas fa-file-excel"></i> Download</button>
+                            <button class="btn btn-danger btn-sm" onclick="clearAllServiceInfo()"><i class="fas fa-trash"></i> Hapus Semua</button>
+                        </div>
+                    </div>
+                    <div style="padding: 0 1.5rem 1rem 1.5rem;">
+                        <!-- ===== FILE SEARCH SECTION ===== -->
+                        <div class="file-search-section">
+                            <div class="file-search-row">
+                                <div class="search-box">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="fileSearchInput" placeholder="Cari file berdasarkan nama..." oninput="searchFiles()" />
+                                </div>
+                                <div class="filter-chips">
+                                    <button class="chip active" onclick="filterFileType('all', this)">Semua</button>
+                                    <button class="chip" onclick="filterFileType('image', this)"><i class="fas fa-image"></i> Gambar</button>
+                                    <button class="chip" onclick="filterFileType('pdf', this)"><i class="fas fa-file-pdf"></i> PDF</button>
+                                    <button class="chip" onclick="filterFileType('excel', this)"><i class="fas fa-file-excel"></i> Excel</button>
+                                </div>
+                            </div>
+                            <div class="file-search-results" id="fileSearchResults">
+                                <div class="file-search-empty">Ketik untuk mencari file...</div>
+                            </div>
+                        </div>
+
+                        <!-- ===== CHAT SECTION ===== -->
+                        <div class="chat-service-container">
+                            <div class="chat-service-card">
+                                <h4><i class="fas fa-comments"></i> Chat Service <span style="font-size:0.6rem;color:var(--text-muted);font-weight:400;">(kirim teks, gambar, PDF, Excel - hover untuk hapus)</span></h4>
+                                <div class="chat-box" id="chatBox">
+                                    <div class="chat-service-empty">Belum ada pesan</div>
+                                </div>
+                                <div class="chat-input-row">
+                                    <input type="text" id="chatInput" placeholder="Tulis pesan..." onkeydown="if(event.key==='Enter') sendChatMessage()" />
+                                    <div class="chat-file-input-wrapper">
+                                        <button class="file-btn" onclick="document.getElementById('chatFileInput').click()"><i class="fas fa-paperclip"></i></button>
+                                        <input type="file" id="chatFileInput" accept=".jpg,.jpeg,.png,.pdf,.xlsx,.xls,image/jpeg,image/jpg,image/png,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel" onchange="handleChatFileUpload(event)" />
+                                    </div>
+                                    <button onclick="sendChatMessage()"><i class="fas fa-paper-plane"></i> Kirim</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-footer"><span>Service Informasi &mdash; chat & file</span><span style="display:flex;align-items:center;gap:6px;"><span class="sync-dot" style="width:6px;height:6px;"></span> Copyright © 2026, GBS</span></div>
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- ==================== UPLOAD PROGRESS OVERLAY ==================== -->
+    <div class="upload-progress-overlay" id="uploadProgressOverlay">
+        <div class="upload-progress-card">
+            <div class="file-icon" id="uploadFileIcon"><i class="fas fa-file-upload"></i></div>
+            <div class="progress-complete" id="uploadComplete"><i class="fas fa-check-circle"></i></div>
+            <div class="file-name" id="uploadFileName">file.pdf</div>
+            <div class="file-size" id="uploadFileSize">1.2 MB</div>
+            <div class="progress-container">
+                <div class="progress-bar" id="uploadProgressBar"></div>
+            </div>
+            <div class="progress-text" id="uploadProgressText">0%</div>
+            <div class="progress-status" id="uploadStatusText">Mengupload...</div>
+            <button class="progress-cancel" id="uploadCancelBtn" onclick="cancelUpload()"><i class="fas fa-times"></i> Batal</button>
+        </div>
     </div>
 
     <!-- ==================== MODAL INPUT ==================== -->
@@ -1930,12 +3238,9 @@
             <div class="modal-header"><h3><i class="fas fa-edit"></i> Edit Order</h3><button class="modal-close" onclick="closeEditModal()"><i class="fas fa-times"></i></button></div>
             <div class="modal-body">
                 <input type="hidden" id="modalRowIndex" />
-                <!-- Info part & konsumen tanpa nomor order -->
                 <div style="background:rgba(128,128,128,0.1);border-radius:var(--radius);padding:0.85rem 1rem;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
                     <span style="font-size:0.78rem;color:var(--text-secondary);" id="modalPartInfo"></span>
                 </div>
-
-                <!-- STATUS - semua user bisa ubah -->
                 <div class="form-group">
                     <label class="form-label">Status</label>
                     <select class="form-select" id="modalStatus">
@@ -1946,8 +3251,6 @@
                         <option value="FINISH">FINISH</option>
                     </select>
                 </div>
-
-                <!-- FIELD LAIN - selalu terlihat, tapi dinonaktifkan untuk non-admin -->
                 <div id="adminOnlyFields">
                     <div class="form-group">
                         <label class="form-label"><span class="editable-label"><i class="fas fa-pen edit-icon"></i> Tgl Order</span></label>
@@ -1970,11 +3273,32 @@
                     </div>
                     <div class="form-group">
                         <label class="form-label"><span class="editable-label"><i class="fas fa-pen edit-icon"></i> Keterangan</span></label>
-                        <textarea class="form-textarea" id="modalKeterangan"></textarea>
+                        <textarea class="form-textarea" id="modalKeterangan" rows="2"></textarea>
+                    </div>
+                    <!-- ===== TRACKING SECTION ===== -->
+                    <div class="form-group">
+                        <label class="form-label"><span class="editable-label"><i class="fas fa-truck edit-icon"></i> Tracking Pengiriman</span></label>
+                        <div class="tracking-container">
+                            <div class="tracking-header">
+                                <div class="tracking-title"><i class="fas fa-map-pin"></i> Status Pengiriman</div>
+                                <span class="tracking-badge" id="trackingBadge">-</span>
+                            </div>
+                            <div class="tracking-timeline" id="trackingTimeline">
+                                <div class="tracking-empty">Belum ada update tracking</div>
+                            </div>
+                            <div class="tracking-add-form">
+                                <select id="trackingStatusSelect">
+                                    <option value="PENDING">PENDING</option>
+                                    <option value="PROSES">PROSES</option>
+                                    <option value="GOTW">GOTW</option>
+                                    <option value="TERIMA">TERIMA</option>
+                                </select>
+                                <input type="text" id="trackingDescInput" placeholder="Deskripsi update (opsional)" />
+                                <button class="btn btn-primary btn-sm" onclick="addTrackingUpdate()"><i class="fas fa-plus"></i> Tambah</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <!-- Pesan untuk non-admin -->
                 <div id="userOnlyMessage" style="display:none;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);border-radius:var(--radius);padding:12px 16px;color:var(--info);font-size:0.85rem;">
                     <i class="fas fa-info-circle" style="margin-right:8px;"></i>
                     Anda hanya dapat mengubah <strong>Status</strong>. Field lainnya hanya dapat diedit oleh <strong>Admin</strong>.
@@ -2009,10 +3333,52 @@
         firebase.initializeApp(firebaseConfig);
         var db = firebase.firestore(),
             auth = firebase.auth(),
-            ORDERS_COL = 'orders';
+            ORDERS_COL = 'orders',
+            SERVICE_COL = 'serviceInfo';
 
         var ADMIN_EMAIL = 'admin@app.local';
         var isAdmin = false;
+
+        // ===== GOFILE CONFIG =====
+        var GOFILE_API_TOKEN = 'YOUR_API_TOKEN'; // Ganti dengan token API GoFile Anda
+        var GOFILE_UPLOAD_URL = 'https://upload.gofile.io/uploadfile';
+
+        // ===== UPLOAD PROGRESS STATE =====
+        var currentUploadXhr = null;
+        var isUploading = false;
+
+        // ===== SUPPORTED FILE TYPES =====
+        var ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'pdf', 'xlsx', 'xls'];
+
+        // ===== STATE FILTER TEKNISI =====
+        var filterTeknisiAktif = null;
+        var filterTeknisiRiwayat = null;
+
+        // ===== STATE PAGINATION =====
+        var ITEMS_PER_PAGE = 10;
+        var currentPageAktif = 1;
+        var currentPageRiwayat = 1;
+
+        // ===== TEKNISI LIST =====
+        var TEKNISI_LIST = [
+            { nama: "YANDRI OTTU", nomor: "6282236369250" },
+            { nama: "HARMINDO LAMMA", nomor: "6285792383538" },
+            { nama: "INOSENCIUS FA'OT", nomor: "6281339239612" },
+            { nama: "RIZALDI ABDULLAH", nomor: "6281344134334" },
+            { nama: "KRISTIAN OPENG", nomor: "6282144373727" },
+            { nama: "MUHAMMAD FAUZI", nomor: "6281328162259" }
+        ];
+
+        // ===== TRACKING STATE =====
+        var currentTrackingDocId = null;
+        var trackingData = [];
+
+        var STATUS_MAP = {
+            'PENDING': { label: 'PENDING', icon: 'fa-clock', class: 'pending', color: '#f87171' },
+            'PROSES': { label: 'PROSES', icon: 'fa-spinner', class: 'proses', color: '#c084fc' },
+            'GOTW': { label: 'GOTW', icon: 'fa-truck', class: 'gotw', color: '#a78bfa' },
+            'TERIMA': { label: 'TERIMA', icon: 'fa-check-circle', class: 'terima', color: '#34d399' }
+        };
 
         // ===== INDEXEDDB =====
         var CACHE_DB = 'OrderKomponenCache',
@@ -2073,6 +3439,14 @@
             realtimeUnsubscribe = null,
             currentMainTab = 'aktif';
 
+        // ===== SERVICE INFO STATE =====
+        var serviceChats = [],
+            serviceUnsubscribe = null;
+
+        // ===== FILE SEARCH STATE =====
+        var fileSearchQuery = '';
+        var fileTypeFilter = 'all';
+
         function getAktifOrders() {
             return allOrders.filter(function(o) { return (o['STATUS'] || '').toUpperCase() !== 'FINISH'; });
         }
@@ -2081,9 +3455,253 @@
             return allOrders.filter(function(o) { return (o['STATUS'] || '').toUpperCase() === 'FINISH'; });
         }
 
+        // ===== FUNGSI UNTUK MENDAPATKAN TEKNISI UNIK DARI DATA =====
+        function getUniqueTeknisi(orders) {
+            var unique = {};
+            orders.forEach(function(o) {
+                var t = o['TEKNISI'] || '';
+                if (t.trim()) {
+                    unique[t] = (unique[t] || 0) + 1;
+                }
+            });
+            var sorted = Object.keys(unique).sort();
+            return sorted.map(function(nama) {
+                return { nama: nama, count: unique[nama] };
+            });
+        }
+
+        // ===== BUILD FILTER TEKNISI CHIPS DINAMIS =====
+        function buildTeknisiFilterChips() {
+            var aktifOrders = getAktifOrders();
+            var teknisiAktif = getUniqueTeknisi(aktifOrders);
+            buildFilterChips('teknisiFilterAktif', 'teknisiEmptyAktif', 'teknisiCountAktif', teknisiAktif, 'aktif');
+
+            var riwayatOrders = getRiwayatOrders();
+            var teknisiRiwayat = getUniqueTeknisi(riwayatOrders);
+            buildFilterChips('teknisiFilterRiwayat', 'teknisiEmptyRiwayat', 'teknisiCountRiwayat', teknisiRiwayat, 'riwayat');
+        }
+
+        function buildFilterChips(containerId, emptyId, countId, teknisiData, tab) {
+            var container = document.getElementById(containerId);
+            if (!container) return;
+
+            var chips = container.querySelectorAll('.filter-teknisi-chip');
+            chips.forEach(function(c) { c.remove(); });
+
+            var emptyEl = document.getElementById(emptyId);
+            var countEl = document.getElementById(countId);
+
+            if (countEl) countEl.textContent = teknisiData.length;
+
+            if (teknisiData.length === 0) {
+                if (emptyEl) emptyEl.style.display = 'block';
+                return;
+            }
+            if (emptyEl) emptyEl.style.display = 'none';
+
+            var clearChip = document.createElement('button');
+            clearChip.className = 'filter-teknisi-chip clear-filter' + (tab === 'aktif' ?
+                (filterTeknisiAktif === null ? ' active' : '') :
+                (filterTeknisiRiwayat === null ? ' active' : ''));
+            clearChip.textContent = 'Semua';
+            clearChip.onclick = function() {
+                filterByTeknisi(tab, null, this);
+                var bodyId = tab === 'aktif' ? 'tableBody' : 'riwayatBody';
+                document.querySelectorAll('#' + bodyId + ' .teknisi-cell.filtered').forEach(function(el) {
+                    el.classList.remove('filtered');
+                });
+                if (tab === 'aktif') currentPageAktif = 1;
+                else currentPageRiwayat = 1;
+            };
+            container.appendChild(clearChip);
+
+            teknisiData.forEach(function(item) {
+                var chip = document.createElement('button');
+                chip.className = 'filter-teknisi-chip' + (
+                    (tab === 'aktif' && filterTeknisiAktif === item.nama) ||
+                    (tab === 'riwayat' && filterTeknisiRiwayat === item.nama) ? ' active' : ''
+                );
+                chip.innerHTML = item.nama + ' <span class="chip-count">(' + item.count + ')</span>';
+                chip.onclick = function() {
+                    filterByTeknisi(tab, item.nama, this);
+                    var bodyId = tab === 'aktif' ? 'tableBody' : 'riwayatBody';
+                    document.querySelectorAll('#' + bodyId + ' .teknisi-cell.filtered').forEach(function(el) {
+                        el.classList.remove('filtered');
+                    });
+                    document.querySelectorAll('#' + bodyId + ' .teknisi-cell').forEach(function(el) {
+                        if (el.textContent.trim() === item.nama) {
+                            el.classList.add('filtered');
+                        }
+                    });
+                    if (tab === 'aktif') currentPageAktif = 1;
+                    else currentPageRiwayat = 1;
+                };
+                container.appendChild(chip);
+            });
+        }
+
+        // ===== FUNGSI FILTER TEKNISI =====
+        function filterByTeknisi(tab, teknisi, btn) {
+            var container = tab === 'aktif' ? document.getElementById('teknisiFilterAktif') : document.getElementById(
+                'teknisiFilterRiwayat');
+            if (!container) return;
+
+            var chips = container.querySelectorAll('.filter-teknisi-chip');
+            chips.forEach(function(c) { c.classList.remove('active'); });
+            if (btn) btn.classList.add('active');
+
+            if (tab === 'aktif') {
+                filterTeknisiAktif = teknisi;
+                renderAktifTable();
+            } else {
+                filterTeknisiRiwayat = teknisi;
+                renderRiwayatTable();
+            }
+        }
+
+        // ===== PAGINATION FUNCTIONS =====
+        function changePage(tab, direction) {
+            if (tab === 'aktif') {
+                var totalPages = Math.ceil(getFilteredAktifCount() / ITEMS_PER_PAGE);
+                var newPage = currentPageAktif + direction;
+                if (newPage < 1 || newPage > totalPages) return;
+                currentPageAktif = newPage;
+                renderAktifTable();
+            } else {
+                var totalPages = Math.ceil(getFilteredRiwayatCount() / ITEMS_PER_PAGE);
+                var newPage = currentPageRiwayat + direction;
+                if (newPage < 1 || newPage > totalPages) return;
+                currentPageRiwayat = newPage;
+                renderRiwayatTable();
+            }
+        }
+
+        function goToPage(tab, page) {
+            if (tab === 'aktif') {
+                var totalPages = Math.ceil(getFilteredAktifCount() / ITEMS_PER_PAGE);
+                if (page < 1 || page > totalPages) return;
+                currentPageAktif = page;
+                renderAktifTable();
+            } else {
+                var totalPages = Math.ceil(getFilteredRiwayatCount() / ITEMS_PER_PAGE);
+                if (page < 1 || page > totalPages) return;
+                currentPageRiwayat = page;
+                renderRiwayatTable();
+            }
+        }
+
+        function getFilteredAktifCount() {
+            var fd = getAktifOrders();
+            if (currentFilter !== 'all') fd = fd.filter(function(o) { return (o['STATUS'] || '').toUpperCase() ===
+                    currentFilter; });
+            if (filterTeknisiAktif) {
+                fd = fd.filter(function(o) { return (o['TEKNISI'] || '').toUpperCase() === filterTeknisiAktif
+                        .toUpperCase(); });
+            }
+            var sv = (document.getElementById('searchInput').value || '').toLowerCase();
+            if (sv) fd = fd.filter(function(o) {
+                return Object.values(o).some(function(v) { return String(v).toLowerCase().includes(sv); });
+            });
+            return fd.length;
+        }
+
+        function getFilteredRiwayatCount() {
+            var fd = getRiwayatOrders();
+            if (filterTeknisiRiwayat) {
+                fd = fd.filter(function(o) { return (o['TEKNISI'] || '').toUpperCase() === filterTeknisiRiwayat
+                        .toUpperCase(); });
+            }
+            var sv = (document.getElementById('searchRiwayat').value || '').toLowerCase();
+            if (sv) fd = fd.filter(function(o) {
+                return Object.values(o).some(function(v) { return String(v).toLowerCase().includes(sv); });
+            });
+            return fd.length;
+        }
+
+        function renderPagination(tab, totalItems) {
+            var totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+            var currentPage = tab === 'aktif' ? currentPageAktif : currentPageRiwayat;
+
+            var paginationWrapper = document.getElementById(tab === 'aktif' ? 'paginationAktif' : 'paginationRiwayat');
+            var numbersContainer = document.getElementById(tab === 'aktif' ? 'paginationNumbersAktif' :
+                'paginationNumbersRiwayat');
+            var prevBtn = document.getElementById(tab === 'aktif' ? 'prevPageAktif' : 'prevPageRiwayat');
+            var nextBtn = document.getElementById(tab === 'aktif' ? 'nextPageAktif' : 'nextPageRiwayat');
+            var startEl = document.getElementById(tab === 'aktif' ? 'paginationStartAktif' : 'paginationStartRiwayat');
+            var endEl = document.getElementById(tab === 'aktif' ? 'paginationEndAktif' : 'paginationEndRiwayat');
+            var totalEl = document.getElementById(tab === 'aktif' ? 'paginationTotalAktif' : 'paginationTotalRiwayat');
+
+            if (totalItems === 0) {
+                paginationWrapper.style.display = 'none';
+                return;
+            }
+
+            paginationWrapper.style.display = 'flex';
+
+            var start = (currentPage - 1) * ITEMS_PER_PAGE + 1;
+            var end = Math.min(currentPage * ITEMS_PER_PAGE, totalItems);
+
+            if (startEl) startEl.textContent = start;
+            if (endEl) endEl.textContent = end;
+            if (totalEl) totalEl.textContent = totalItems;
+
+            prevBtn.disabled = currentPage <= 1;
+            nextBtn.disabled = currentPage >= totalPages;
+
+            numbersContainer.innerHTML = '';
+            var maxVisible = 5;
+            var halfVisible = Math.floor(maxVisible / 2);
+
+            var startPage = Math.max(1, currentPage - halfVisible);
+            var endPage = Math.min(totalPages, currentPage + halfVisible);
+
+            if (endPage - startPage < maxVisible - 1) {
+                if (startPage === 1) {
+                    endPage = Math.min(totalPages, startPage + maxVisible - 1);
+                } else if (endPage === totalPages) {
+                    startPage = Math.max(1, endPage - maxVisible + 1);
+                }
+            }
+
+            if (startPage > 1) {
+                var firstBtn = document.createElement('button');
+                firstBtn.className = 'pagination-number';
+                firstBtn.textContent = '1';
+                firstBtn.onclick = function() { goToPage(tab, 1); };
+                numbersContainer.appendChild(firstBtn);
+                if (startPage > 2) {
+                    var ellipsis = document.createElement('span');
+                    ellipsis.className = 'pagination-ellipsis';
+                    ellipsis.textContent = '…';
+                    numbersContainer.appendChild(ellipsis);
+                }
+            }
+
+            for (var i = startPage; i <= endPage; i++) {
+                var btn = document.createElement('button');
+                btn.className = 'pagination-number' + (i === currentPage ? ' active' : '');
+                btn.textContent = i;
+                btn.onclick = function(page) { return function() { goToPage(tab, page); }; }(i);
+                numbersContainer.appendChild(btn);
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    var ellipsis2 = document.createElement('span');
+                    ellipsis2.className = 'pagination-ellipsis';
+                    ellipsis2.textContent = '…';
+                    numbersContainer.appendChild(ellipsis2);
+                }
+                var lastBtn = document.createElement('button');
+                lastBtn.className = 'pagination-number';
+                lastBtn.textContent = totalPages;
+                lastBtn.onclick = function() { goToPage(tab, totalPages); };
+                numbersContainer.appendChild(lastBtn);
+            }
+        }
+
         // ===== FUNGSI HITUNG JUMLAH HARI =====
         function editHitungJumlahHari() {
-            // Hanya admin yang bisa memicu perhitungan ini
             if (!isAdmin) return;
             var tglTerima = document.getElementById('modalTglTerimaPart').value;
             var docId = document.getElementById('modalRowIndex').value;
@@ -2100,6 +3718,772 @@
             var diffTime = Math.abs(d2 - d1);
             var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
             target.value = diffDays;
+        }
+
+        // ===== WHATSAPP NOTIFICATION =====
+        function getTeknisiPhone(nama) {
+            var found = TEKNISI_LIST.find(function(t) { return t.nama === nama; });
+            return found ? found.nomor : null;
+        }
+
+        function sendWATeknisi(docId) {
+            var order = allOrders.find(function(o) { return o._docId === docId; });
+            if (!order) return;
+
+            var namaTeknisi = order['TEKNISI'] || '-';
+            var nomor = getTeknisiPhone(namaTeknisi);
+            if (!nomor) {
+                showToast('Nomor HP teknisi tidak ditemukan untuk ' + namaTeknisi, 'error');
+                return;
+            }
+
+            function fmt(d) {
+                if (!d) return '-';
+                if (d.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                    var p = d.split('-');
+                    return p[2] + '/' + p[1] + '/' + p[0];
+                }
+                return d;
+            }
+
+            function val(v) {
+                return (v && v.trim()) ? v.trim() : '-';
+            }
+
+            var fields = {
+                'No. Order': val(order['No. Order']),
+                'Status': val(order['STATUS'] || 'PENDING'),
+                'Teknisi': val(order['TEKNISI']),
+                'Tgl Pengajuan': fmt(order['TGL PENGAJUAN ORD']),
+                'No. Service': val(order['NO. SERVICE CASE']),
+                'Type (IDNO)': val(order['TYPE (IDNO)']),
+                'No. Serie': val(order['NO. SERIE']),
+                'No Gudang': val(order['NO GUDANG']),
+                'Nama Part': val(order['NAMA PART']),
+                'QTY': val(order['QTY']),
+                'Prod.': val(order['PROD.']),
+                'Layanan': val(order['LAYANAN']),
+                'Nama Konsumen': val(order['NAMA KONSUMEN']),
+                'No. HP': val(order['NO. HP']),
+                'Tgl Order': fmt(order['Tgl Order']),
+                'Tgl Terima Part': fmt(order['TGL TERIMA PART']),
+                'Lama Pengiriman': val(order['JUMLAH']) + (order['JUMLAH'] ? ' hari' : ''),
+                'No. Order': val(order['ORDER KE PABRIK']),
+                'Keterangan': val(order['Keterangan Pemenuhan'])
+            };
+
+            var emojis = {
+                'No. Order': '📋',
+                'Status': '📋',
+                'Teknisi': '🔧',
+                'Tgl Pengajuan': '📅',
+                'No. Service': '🆔',
+                'Type (IDNO)': '📌',
+                'No. Serie': '🔢',
+                'No Gudang': '🏢',
+                'Nama Part': '🧩',
+                'QTY': '📦',
+                'Prod.': '🏭',
+                'Layanan': '🛠️',
+                'Nama Konsumen': '👤',
+                'No. HP': '📱',
+                'Tgl Order': '📅',
+                'Tgl Terima Part': '📅',
+                'Lama Pengiriman': '⏳',
+                'No. Order': '🏗️',
+                'Keterangan': '📝'
+            };
+
+            var pesan = '*NOTIFIKASI ORDER KOMPONEN*\n';
+            pesan += '━━━━━━━━━━━━━━━━━━━━━\n\n';
+            pesan += 'Kepada Yth. *' + fields['Teknisi'] + '*\n\n';
+            pesan += 'Dengan hormat,\n\n';
+            pesan += 'Kami informasikan bahwa status order komponen dengan rincian berikut:\n\n';
+
+            for (var key in fields) {
+                if (key === 'Teknisi') continue;
+                var emoji = emojis[key] || '•';
+                pesan += emoji + ' *' + key + '*: ' + fields[key] + '\n';
+            }
+
+            pesan += '\n━━━━━━━━━━━━━━━━━━━━━\n';
+            pesan += '*Terima kasih atas perhatiannya.*\n\n';
+            pesan += '*Order Komponen System*';
+
+            var url = 'https://wa.me/' + nomor + '?text=' + encodeURIComponent(pesan);
+            window.open(url, '_blank');
+        }
+
+        // ===== TRACKING FUNCTIONS =====
+        function getTrackingData(docId) {
+            var order = allOrders.find(function(o) { return o._docId === docId; });
+            if (!order) return [];
+            try {
+                var data = order['tracking'] || '[]';
+                return JSON.parse(data);
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function getTrackingStatus(docId) {
+            var data = getTrackingData(docId);
+            if (data.length === 0) return null;
+            return data[data.length - 1].status || null;
+        }
+
+        function renderTracking(docId) {
+            currentTrackingDocId = docId;
+            var data = getTrackingData(docId);
+            trackingData = data;
+
+            var timeline = document.getElementById('trackingTimeline');
+            var badge = document.getElementById('trackingBadge');
+
+            if (data.length === 0) {
+                timeline.innerHTML = '<div class="tracking-empty">Belum ada update tracking</div>';
+                badge.textContent = '-';
+                badge.className = 'tracking-badge';
+                return;
+            }
+
+            var lastStatus = data[data.length - 1].status || '';
+            var statusInfo = STATUS_MAP[lastStatus] || null;
+            if (statusInfo) {
+                badge.textContent = statusInfo.label;
+                badge.className = 'tracking-badge ' + statusInfo.class;
+            } else {
+                badge.textContent = lastStatus || '-';
+                badge.className = 'tracking-badge';
+            }
+
+            var html = '';
+            var sorted = data.slice().reverse();
+            sorted.forEach(function(item, index) {
+                var status = item.status || '';
+                var statusInfo = STATUS_MAP[status] || { label: status, icon: 'fa-circle', class: 'pending' };
+                var time = item.time || '';
+                var desc = item.desc || '';
+
+                var formattedTime = formatFullDateTime(time);
+
+                html += '<div class="tracking-item">';
+                html += '<div class="tracking-icon ' + statusInfo.class + '"><i class="fas ' + statusInfo.icon +
+                    '"></i></div>';
+                html += '<div class="tracking-content">';
+                html += '<div class="tracking-status">' + statusInfo.label + '</div>';
+                if (desc) {
+                    html += '<div class="tracking-desc">' + escapeHtml(desc) + '</div>';
+                }
+                html += '</div>';
+                html += '<div class="tracking-time">' + formattedTime + '</div>';
+                html += '<button class="tracking-remove" onclick="removeTrackingUpdate(' + index +
+                    ')" title="Hapus"><i class="fas fa-times"></i></button>';
+                html += '</div>';
+            });
+            timeline.innerHTML = html;
+        }
+
+        function formatFullDateTime(timeStr) {
+            if (!timeStr) return '-';
+            try {
+                var d = new Date(timeStr);
+                if (isNaN(d.getTime())) return timeStr;
+
+                var options = {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: false
+                };
+                var formatted = d.toLocaleDateString('id-ID', options);
+                formatted = formatted.replace(/\//g, '/');
+                return formatted;
+            } catch (e) {
+                return timeStr;
+            }
+        }
+
+        function addTrackingUpdate() {
+            if (!isAdmin) {
+                showToast('Hanya Admin yang bisa menambah tracking.', 'warning');
+                return;
+            }
+            var docId = document.getElementById('modalRowIndex').value;
+            if (!docId) return;
+
+            var statusSelect = document.getElementById('trackingStatusSelect');
+            var descInput = document.getElementById('trackingDescInput');
+
+            var status = statusSelect.value;
+            var desc = descInput.value.trim();
+
+            if (!status) {
+                showToast('Pilih status tracking!', 'warning');
+                return;
+            }
+
+            var order = allOrders.find(function(o) { return o._docId === docId; });
+            if (!order) return;
+
+            var currentData = getTrackingData(docId);
+
+            if (currentData.length > 0 && currentData[currentData.length - 1].status === status) {
+                showToast('Status ' + status + ' sudah terakhir. Gunakan status lain.', 'warning');
+                return;
+            }
+
+            var newEntry = {
+                status: status,
+                desc: desc || '',
+                time: new Date().toISOString()
+            };
+
+            currentData.push(newEntry);
+
+            db.collection(ORDERS_COL).doc(docId).update({
+                'tracking': JSON.stringify(currentData)
+            }).then(function() {
+                showToast('Tracking ' + status + ' ditambahkan!', 'success');
+                descInput.value = '';
+                renderTracking(docId);
+                if (order) order['tracking'] = JSON.stringify(currentData);
+                if (status !== 'TERIMA') {
+                    document.getElementById('modalStatus').value = status;
+                }
+                renderAll();
+            }).catch(function(err) {
+                showToast('Gagal: ' + err.message, 'error');
+            });
+        }
+
+        function removeTrackingUpdate(index) {
+            if (!isAdmin) {
+                showToast('Hanya Admin yang bisa menghapus tracking.', 'warning');
+                return;
+            }
+            var docId = document.getElementById('modalRowIndex').value;
+            if (!docId) return;
+
+            var currentData = getTrackingData(docId);
+            if (index >= currentData.length) return;
+
+            var originalIndex = currentData.length - 1 - index;
+
+            if (!confirm('Hapus update tracking ini?')) return;
+
+            currentData.splice(originalIndex, 1);
+
+            db.collection(ORDERS_COL).doc(docId).update({
+                'tracking': JSON.stringify(currentData)
+            }).then(function() {
+                showToast('Tracking dihapus!', 'success');
+                renderTracking(docId);
+                var order = allOrders.find(function(o) { return o._docId === docId; });
+                if (order) order['tracking'] = JSON.stringify(currentData);
+                renderAll();
+            }).catch(function(err) {
+                showToast('Gagal: ' + err.message, 'error');
+            });
+        }
+
+        // ===== UPLOAD PROGRESS FUNCTIONS =====
+        function showUploadProgress(fileName, fileSize) {
+            var overlay = document.getElementById('uploadProgressOverlay');
+            var fileIcon = document.getElementById('uploadFileIcon');
+            var complete = document.getElementById('uploadComplete');
+            var nameEl = document.getElementById('uploadFileName');
+            var sizeEl = document.getElementById('uploadFileSize');
+            var bar = document.getElementById('uploadProgressBar');
+            var text = document.getElementById('uploadProgressText');
+            var status = document.getElementById('uploadStatusText');
+            var cancelBtn = document.getElementById('uploadCancelBtn');
+
+            // Reset
+            fileIcon.style.display = 'block';
+            complete.className = 'progress-complete';
+            complete.style.display = 'none';
+            bar.style.width = '0%';
+            text.textContent = '0%';
+            status.textContent = 'Mengupload...';
+            cancelBtn.style.display = 'inline-block';
+            isUploading = true;
+
+            // Set file info
+            nameEl.textContent = fileName;
+            sizeEl.textContent = formatFileSize(fileSize);
+
+            overlay.classList.add('active');
+        }
+
+        function updateUploadProgress(percent) {
+            var bar = document.getElementById('uploadProgressBar');
+            var text = document.getElementById('uploadProgressText');
+            bar.style.width = percent + '%';
+            text.textContent = percent + '%';
+        }
+
+        function hideUploadProgress(success) {
+            var overlay = document.getElementById('uploadProgressOverlay');
+            var fileIcon = document.getElementById('uploadFileIcon');
+            var complete = document.getElementById('uploadComplete');
+            var status = document.getElementById('uploadStatusText');
+            var cancelBtn = document.getElementById('uploadCancelBtn');
+
+            if (success) {
+                fileIcon.style.display = 'none';
+                complete.style.display = 'block';
+                complete.className = 'progress-complete show';
+                status.textContent = 'Upload selesai!';
+                cancelBtn.style.display = 'none';
+                setTimeout(function() {
+                    overlay.classList.remove('active');
+                    isUploading = false;
+                }, 1500);
+            } else {
+                overlay.classList.remove('active');
+                isUploading = false;
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        function cancelUpload() {
+            if (currentUploadXhr) {
+                currentUploadXhr.abort();
+                currentUploadXhr = null;
+            }
+            isUploading = false;
+            hideUploadProgress(false);
+            showToast('Upload dibatalkan.', 'warning');
+        }
+
+        // ===== SERVICE INFO FUNCTIONS =====
+        function loadServiceInfo() {
+            if (serviceUnsubscribe) {
+                serviceUnsubscribe();
+                serviceUnsubscribe = null;
+            }
+
+            serviceUnsubscribe = db.collection(SERVICE_COL).orderBy('timestamp', 'desc').onSnapshot(function(snap) {
+                var chats = [];
+
+                snap.forEach(function(doc) {
+                    var data = doc.data();
+                    data._docId = doc.id;
+
+                    if (data.timestamp && data.timestamp.toDate) {
+                        data.timestamp = data.timestamp.toDate().toISOString();
+                    } else if (data.timestamp && typeof data.timestamp === 'string') {
+                        // sudah string
+                    } else if (!data.timestamp) {
+                        data.timestamp = new Date().toISOString();
+                    }
+
+                    chats.push(data);
+                });
+
+                serviceChats = chats;
+                renderChatService();
+                updateChatStats();
+                searchFiles();
+            }, function(err) {
+                console.error('ServiceInfo error:', err);
+                showToast('Error load chat: ' + err.message, 'error');
+            });
+        }
+
+        function renderChatService() {
+            var chatBox = document.getElementById('chatBox');
+            if (serviceChats.length === 0) {
+                chatBox.innerHTML = '<div class="chat-service-empty">Belum ada pesan</div>';
+            } else {
+                var chatHtml = '';
+                var currentUser = auth.currentUser;
+                var userEmail = currentUser ? currentUser.email : '';
+                var sortedChats = serviceChats.slice().reverse();
+                sortedChats.forEach(function(chat) {
+                    var isOwn = chat.email === userEmail;
+                    var time = chat.timestamp ? formatFullDateTime(chat.timestamp) : '';
+
+                    chatHtml += '<div class="chat-msg-wrapper ' + (isOwn ? 'own' : 'other') + '">';
+                    chatHtml += '<div class="chat-msg">';
+                    chatHtml += '<button class="chat-delete-btn" onclick="deleteChatMessage(\'' + chat
+                        ._docId + '\')" title="Hapus pesan"><i class="fas fa-times"></i></button>';
+                    chatHtml += '<div>' + escapeHtml(chat.message) + '</div>';
+
+                    if (chat.fileUrl && chat.fileName) {
+                        var fileNameLower = chat.fileName.toLowerCase();
+                        var isImage = chat.fileType && chat.fileType.startsWith('image/');
+                        var isPdf = fileNameLower.endsWith('.pdf');
+                        var isExcel = fileNameLower.endsWith('.xlsx') || fileNameLower.endsWith('.xls');
+                        var isPng = fileNameLower.endsWith('.png');
+
+                        if (isPng || fileNameLower.endsWith('.png')) {
+                            isImage = true;
+                        }
+
+                        var icon = 'fa-file';
+                        if (isImage) icon = 'fa-file-image';
+                        else if (isPdf) icon = 'fa-file-pdf';
+                        else if (isExcel) icon = 'fa-file-excel';
+
+                        chatHtml += '<div class="chat-file-attachment" onclick="window.open(\'' + chat
+                            .fileUrl + '\', \'_blank\')">';
+                        if (isImage) {
+                            chatHtml += '<div class="file-preview">';
+                            chatHtml += '<img src="' + chat.fileUrl + '" alt="' + escapeHtml(chat.fileName) +
+                                '" />';
+                            chatHtml += '</div>';
+                        } else {
+                            chatHtml += '<i class="fas ' + icon + '"></i>';
+                            chatHtml += '<span class="file-name">' + escapeHtml(chat.fileName) + '</span>';
+                        }
+                        chatHtml += '</div>';
+                    }
+
+                    chatHtml += '<div class="msg-meta">';
+                    chatHtml += '<span>' + escapeHtml(chat.name || chat.email) + '</span>';
+                    if (time) chatHtml += ' <span>• ' + time + '</span>';
+                    chatHtml += '</div>';
+                    chatHtml += '</div>';
+                    chatHtml += '</div>';
+                });
+                chatBox.innerHTML = chatHtml;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+
+        function updateChatStats() {
+            var totalChats = serviceChats.length;
+            var totalFiles = serviceChats.filter(function(c) { return c.fileUrl && c.fileName; }).length;
+            document.getElementById('statChatTotal').textContent = totalChats;
+            document.getElementById('statFileTotal').textContent = totalFiles;
+            document.getElementById('tabCountService').textContent = totalChats;
+        }
+
+        // ===== FILE SEARCH FUNCTIONS =====
+        function searchFiles() {
+            var input = document.getElementById('fileSearchInput');
+            var query = input ? input.value.trim().toLowerCase() : '';
+            fileSearchQuery = query;
+
+            var resultsContainer = document.getElementById('fileSearchResults');
+            var fileItems = serviceChats.filter(function(chat) {
+                if (!chat.fileUrl || !chat.fileName) return false;
+
+                var fileName = chat.fileName.toLowerCase();
+                var matchesQuery = fileName.includes(query);
+
+                var matchesType = true;
+                if (fileTypeFilter === 'image') {
+                    var isImage = chat.fileType && chat.fileType.startsWith('image/');
+                    var fileNameLower = chat.fileName.toLowerCase();
+                    if (fileNameLower.endsWith('.jpg') || fileNameLower.endsWith('.jpeg') || fileNameLower.endsWith(
+                            '.png')) {
+                        isImage = true;
+                    }
+                    matchesType = isImage;
+                } else if (fileTypeFilter === 'pdf') {
+                    var isPdf = chat.fileName.toLowerCase().endsWith('.pdf');
+                    matchesType = isPdf;
+                } else if (fileTypeFilter === 'excel') {
+                    var isExcel = chat.fileName.toLowerCase().endsWith('.xlsx') || chat.fileName.toLowerCase().endsWith(
+                        '.xls');
+                    matchesType = isExcel;
+                }
+
+                return matchesQuery && matchesType;
+            });
+
+            if (fileItems.length === 0) {
+                if (query || fileTypeFilter !== 'all') {
+                    resultsContainer.innerHTML = '<div class="file-search-empty">Tidak ada file yang ditemukan</div>';
+                } else {
+                    resultsContainer.innerHTML = '<div class="file-search-empty">Ketik untuk mencari file...</div>';
+                }
+                return;
+            }
+
+            var html = '';
+            fileItems.forEach(function(file) {
+                var fileNameLower = file.fileName.toLowerCase();
+                var isImage = file.fileType && file.fileType.startsWith('image/');
+                var isPdf = fileNameLower.endsWith('.pdf');
+                var isExcel = fileNameLower.endsWith('.xlsx') || fileNameLower.endsWith('.xls');
+                var isPng = fileNameLower.endsWith('.png');
+
+                if (isPng || fileNameLower.endsWith('.png')) {
+                    isImage = true;
+                }
+
+                var icon = 'fa-file';
+                if (isImage) icon = 'fa-file-image';
+                else if (isPdf) icon = 'fa-file-pdf';
+                else if (isExcel) icon = 'fa-file-excel';
+
+                var size = file.fileSize ? (file.fileSize / 1024).toFixed(1) + ' KB' : '';
+                var time = file.timestamp ? formatFullDateTime(file.timestamp) : '';
+
+                html += '<div class="file-search-item">';
+                html += '<div class="file-info">';
+                html += '<i class="fas ' + icon + '"></i>';
+                html += '<span class="file-name">' + escapeHtml(file.fileName) + '</span>';
+                html += '<span class="file-meta">' + size + ' • ' + time + '</span>';
+                html += '</div>';
+                html += '<div class="file-actions">';
+                html += '<button onclick="window.open(\'' + file.fileUrl + '\', \'_blank\')" title="Download"><i class="fas fa-download"></i></button>';
+                if (isAdmin) {
+                    html += '<button class="delete" onclick="deleteFileFromSearch(\'' + file._docId +
+                        '\')" title="Hapus"><i class="fas fa-trash"></i></button>';
+                }
+                html += '</div>';
+                html += '</div>';
+            });
+
+            resultsContainer.innerHTML = html;
+        }
+
+        function filterFileType(type, btn) {
+            fileTypeFilter = type;
+            var chips = document.querySelectorAll('.file-search-section .filter-chips .chip');
+            chips.forEach(function(c) { c.classList.remove('active'); });
+            if (btn) btn.classList.add('active');
+            searchFiles();
+        }
+
+        function deleteFileFromSearch(docId) {
+            if (!isAdmin) {
+                showToast('Hanya Admin yang bisa menghapus file.', 'warning');
+                return;
+            }
+
+            var file = serviceChats.find(function(c) { return c._docId === docId; });
+            if (!file) {
+                showToast('File tidak ditemukan.', 'error');
+                return;
+            }
+
+            if (!confirm('Hapus file ' + file.fileName + '?')) return;
+
+            db.collection(SERVICE_COL).doc(docId).delete().then(function() {
+                showToast('File dihapus!', 'success');
+            }).catch(function(err) {
+                showToast('Gagal hapus: ' + err.message, 'error');
+            });
+        }
+
+        // ===== DELETE CHAT MESSAGE =====
+        function deleteChatMessage(docId) {
+            if (!isAdmin) {
+                showToast('Hanya Admin yang bisa menghapus pesan.', 'warning');
+                return;
+            }
+
+            if (!confirm('Hapus pesan ini?')) return;
+
+            db.collection(SERVICE_COL).doc(docId).delete().then(function() {
+                showToast('Pesan dihapus!', 'success');
+            }).catch(function(err) {
+                showToast('Gagal hapus: ' + err.message, 'error');
+            });
+        }
+
+        function sendChatMessage() {
+            var input = document.getElementById('chatInput');
+            var message = input.value.trim();
+            if (!message) return;
+
+            var user = auth.currentUser;
+            if (!user) {
+                showToast('Anda harus login.', 'warning');
+                return;
+            }
+
+            db.collection(SERVICE_COL).add({
+                type: 'chat',
+                message: message,
+                email: user.email,
+                name: user.displayName || user.email.split('@')[0],
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            }).then(function() {
+                input.value = '';
+                showToast('Pesan terkirim!', 'success');
+            }).catch(function(err) {
+                showToast('Gagal kirim: ' + err.message, 'error');
+            });
+        }
+
+        // ===== HANDLE CHAT FILE UPLOAD VIA GOFILE WITH PROGRESS =====
+        function handleChatFileUpload(event) {
+            var file = event.target.files[0];
+            if (!file) return;
+
+            var fileNameLower = file.name.toLowerCase();
+            var isValidExtension = ALLOWED_EXTENSIONS.some(function(ext) {
+                return fileNameLower.endsWith('.' + ext);
+            });
+
+            var maxSize = 10 * 1024 * 1024; // 10MB
+
+            if (!isValidExtension) {
+                showToast('File harus JPG, PNG, PDF, atau Excel (XLSX/XLS).', 'error');
+                event.target.value = '';
+                return;
+            }
+            if (file.size > maxSize) {
+                showToast('File melebihi 10MB.', 'error');
+                event.target.value = '';
+                return;
+            }
+
+            var user = auth.currentUser;
+            if (!user) {
+                showToast('Anda harus login.', 'warning');
+                event.target.value = '';
+                return;
+            }
+
+            // Show progress overlay
+            showUploadProgress(file.name, file.size);
+
+            var formData = new FormData();
+            formData.append('file', file);
+
+            currentUploadXhr = new XMLHttpRequest();
+            currentUploadXhr.open('POST', GOFILE_UPLOAD_URL, true);
+
+            if (GOFILE_API_TOKEN && GOFILE_API_TOKEN !== 'YOUR_API_TOKEN') {
+                currentUploadXhr.setRequestHeader('Authorization', 'Bearer ' + GOFILE_API_TOKEN);
+            }
+
+            // Track upload progress
+            currentUploadXhr.upload.addEventListener('progress', function(e) {
+                if (e.lengthComputable) {
+                    var percent = Math.round((e.loaded / e.total) * 100);
+                    updateUploadProgress(percent);
+                }
+            });
+
+            currentUploadXhr.onload = function() {
+                currentUploadXhr = null;
+                if (isUploading) {
+                    if (this.status === 200) {
+                        try {
+                            var response = JSON.parse(this.responseText);
+                            if (response.status === 'ok' && response.data && response.data.downloadPage) {
+                                var downloadUrl = response.data.downloadPage;
+                                var fileUrl = response.data.fileUrl || downloadUrl;
+
+                                db.collection(SERVICE_COL).add({
+                                    type: 'chat',
+                                    message: '📎 ' + file.name,
+                                    email: user.email,
+                                    name: user.displayName || user.email.split('@')[0],
+                                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                                    fileUrl: fileUrl || downloadUrl,
+                                    fileName: file.name,
+                                    fileType: file.type || 'application/octet-stream',
+                                    fileSize: file.size,
+                                    source: 'gofile'
+                                }).then(function() {
+                                    hideUploadProgress(true);
+                                    showToast('File ' + file.name + ' terkirim!', 'success');
+                                    event.target.value = '';
+                                }).catch(function(err) {
+                                    hideUploadProgress(false);
+                                    showToast('Gagal simpan: ' + err.message, 'error');
+                                    event.target.value = '';
+                                });
+                            } else {
+                                hideUploadProgress(false);
+                                showToast('Upload GoFile gagal: ' + (response.message || 'Unknown error'), 'error');
+                                event.target.value = '';
+                            }
+                        } catch (e) {
+                            hideUploadProgress(false);
+                            showToast('Error parsing response: ' + e.message, 'error');
+                            event.target.value = '';
+                        }
+                    } else {
+                        hideUploadProgress(false);
+                        showToast('Upload GoFile gagal (status ' + this.status + ')', 'error');
+                        event.target.value = '';
+                    }
+                }
+            };
+
+            currentUploadXhr.onerror = function() {
+                currentUploadXhr = null;
+                if (isUploading) {
+                    hideUploadProgress(false);
+                    showToast('Error upload ke GoFile', 'error');
+                    event.target.value = '';
+                }
+            };
+
+            currentUploadXhr.onabort = function() {
+                currentUploadXhr = null;
+                if (isUploading) {
+                    hideUploadProgress(false);
+                    event.target.value = '';
+                }
+            };
+
+            currentUploadXhr.send(formData);
+        }
+
+        function downloadServiceInfo() {
+            if (serviceChats.length === 0) {
+                showToast('Tidak ada data chat.', 'error');
+                return;
+            }
+
+            var chatData = serviceChats.map(function(c, i) {
+                var attachment = c.fileName ? ' (📎 ' + c.fileName + ')' : '';
+                return {
+                    'No': i + 1,
+                    'Nama': c.name || c.email,
+                    'Pesan': c.message + attachment,
+                    'Waktu': c.timestamp ? formatFullDateTime(c.timestamp) : ''
+                };
+            });
+
+            var ws = XLSX.utils.json_to_sheet(chatData);
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Service Chat');
+
+            var t = new Date(),
+                ds = t.getFullYear() + '' + String(t.getMonth() + 1).padStart(2, '0') + String(t.getDate())
+                .padStart(2, '0');
+            XLSX.writeFile(wb, 'Service_Chat_' + ds + '.xlsx');
+            showToast('Service Chat berhasil didownload!', 'success');
+        }
+
+        function clearAllServiceInfo() {
+            if (!isAdmin) {
+                showToast('Hanya Admin yang bisa menghapus semua.', 'warning');
+                return;
+            }
+
+            if (!confirm('Hapus semua chat dan file? Tindakan ini tidak bisa dibatalkan!')) return;
+
+            var batch = db.batch();
+            serviceChats.forEach(function(doc) {
+                var ref = db.collection(SERVICE_COL).doc(doc._docId);
+                batch.delete(ref);
+            });
+            batch.commit().then(function() {
+                showToast('Semua data chat & file dihapus!', 'success');
+            }).catch(function(err) {
+                showToast('Gagal hapus: ' + err.message, 'error');
+            });
         }
 
         // ===== AUTH FUNCTIONS =====
@@ -2199,11 +4583,14 @@
             closeUserDD();
             if (realtimeUnsubscribe) { realtimeUnsubscribe();
                 realtimeUnsubscribe = null; }
+            if (serviceUnsubscribe) { serviceUnsubscribe();
+                serviceUnsubscribe = null; }
             auth.signOut().then(function() {
                 allOrders = [];
                 newRowIndices.clear();
                 isFirstLoad = true;
                 isAdmin = false;
+                serviceChats = [];
                 document.getElementById('tableBody').innerHTML = '';
                 document.getElementById('riwayatBody').innerHTML = '';
                 document.getElementById('dataTableEl').style.display = 'none';
@@ -2213,8 +4600,9 @@
                 document.getElementById('tableFooter').style.display = 'none';
                 document.getElementById('emptyRiwayat').style.display = 'none';
                 document.getElementById('riwayatFooter').style.display = 'none';
-                ['statTotal', 'statPending', 'statProses', 'statGotw', 'statReady', 'statRiwayat', 'tabCountAktif', 'tabCountRiwayat']
-                .forEach(function(id) { document.getElementById(id).textContent = '0'; });
+                ['statTotal', 'statPending', 'statProses', 'statGotw', 'statReady', 'statRiwayat', 'tabCountAktif',
+                    'tabCountRiwayat', 'statChatTotal', 'statFileTotal', 'tabCountService'
+                ].forEach(function(id) { document.getElementById(id).textContent = '0'; });
                 document.getElementById('loginForm').reset();
                 document.getElementById('registerForm').reset();
                 document.getElementById('pwStrBar').style.width = '0';
@@ -2280,7 +4668,12 @@
             document.querySelectorAll('.main-tab').forEach(function(t) { t.classList.remove('active'); });
             document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
             btn.classList.add('active');
-            document.getElementById(tab === 'aktif' ? 'panelAktif' : 'panelRiwayat').classList.add('active');
+            document.getElementById(tab === 'aktif' ? 'panelAktif' : tab === 'riwayat' ? 'panelRiwayat' :
+                'panelServiceinfo').classList.add('active');
+
+            if (tab === 'serviceinfo') {
+                loadServiceInfo();
+            }
         }
 
         auth.onAuthStateChanged(function(user) {
@@ -2293,6 +4686,7 @@
                     window._appStarted = true;
                     setDefaultDate();
                     startDataEngine();
+                    loadServiceInfo();
                 } else {
                     renderAll();
                 }
@@ -2352,6 +4746,7 @@
         }
 
         function renderAll() {
+            buildTeknisiFilterChips();
             renderAktifTable();
             renderRiwayatTable();
             updateAllStats();
@@ -2401,12 +4796,18 @@
 
         function debouncedSearch() {
             clearTimeout(searchDebounceTimer);
-            searchDebounceTimer = setTimeout(renderAktifTable, 150);
+            searchDebounceTimer = setTimeout(function() {
+                currentPageAktif = 1;
+                renderAktifTable();
+            }, 150);
         }
 
         function debouncedSearchRiwayat() {
             clearTimeout(searchRiwayatTimer);
-            searchRiwayatTimer = setTimeout(renderRiwayatTable, 150);
+            searchRiwayatTimer = setTimeout(function() {
+                currentPageRiwayat = 1;
+                renderRiwayatTable();
+            }, 150);
         }
 
         // ===== MODAL INPUT =====
@@ -2474,9 +4875,6 @@
             }
             if (parseInt(d['QTY']) < 1) { showToast('QTY harus minimal 1!', 'error'); return; }
 
-            var tglTerima = '';
-            var jumlah = '';
-
             var sb = document.getElementById('submitBtn'),
                 fl2 = document.getElementById('formLoading');
             sb.disabled = true;
@@ -2501,10 +4899,11 @@
                     'NO. HP': d['NO. HP'],
                     'Tgl Order': '',
                     'No. Order': orderNo,
-                    'TGL TERIMA PART': tglTerima,
-                    'JUMLAH': jumlah,
+                    'TGL TERIMA PART': '',
+                    'JUMLAH': '',
                     'ORDER KE PABRIK': d['ORDER KE PABRIK'] || '',
                     'Keterangan Pemenuhan': '',
+                    'tracking': '[]',
                     'createdAt': firebase.firestore.FieldValue.serverTimestamp(),
                     'createdBy': user ? user.email : '',
                     'createdByName': user ? (user.displayName || user.email.split('@')[0]) : ''
@@ -2674,30 +5073,56 @@
                 ft = document.getElementById('tableFooter');
 
             var fd = getAktifOrders();
+
             if (currentFilter !== 'all') fd = fd.filter(function(o) { return (o['STATUS'] || '').toUpperCase() ===
                     currentFilter; });
+
+            if (filterTeknisiAktif) {
+                fd = fd.filter(function(o) { return (o['TEKNISI'] || '').toUpperCase() === filterTeknisiAktif
+                        .toUpperCase(); });
+            }
+
             var sv = (document.getElementById('searchInput').value || '').toLowerCase();
             if (sv) fd = fd.filter(function(o) {
                 return Object.values(o).some(function(v) { return String(v).toLowerCase().includes(sv); });
             });
 
+            var totalItems = fd.length;
+            var totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+            if (currentPageAktif > totalPages && totalPages > 0) currentPageAktif = totalPages;
+            if (currentPageAktif < 1) currentPageAktif = 1;
+
+            var startIdx = (currentPageAktif - 1) * ITEMS_PER_PAGE;
+            var endIdx = Math.min(startIdx + ITEMS_PER_PAGE, totalItems);
+            var pageData = fd.slice(startIdx, endIdx);
+
             if (sk) sk.style.display = 'none';
             if (te) te.style.display = 'table';
 
-            if (fd.length === 0) {
+            if (pageData.length === 0 && totalItems === 0) {
                 tb.innerHTML = '';
                 es.style.display = 'block';
                 ft.style.display = 'none';
+                document.getElementById('paginationAktif').style.display = 'none';
                 return;
             }
+            if (pageData.length === 0 && totalItems > 0) {
+                currentPageAktif = 1;
+                renderAktifTable();
+                return;
+            }
+
             es.style.display = 'none';
             ft.style.display = 'flex';
-            document.getElementById('rowCount').textContent = fd.length;
-            document.getElementById('rowTotal').textContent = getAktifOrders().length;
+            document.getElementById('rowCount').textContent = pageData.length;
+            document.getElementById('rowTotal').textContent = totalItems;
+
+            renderPagination('aktif', totalItems);
 
             var h = '';
-            for (var i = 0; i < fd.length; i++) {
-                var o = fd[i],
+            for (var i = 0; i < pageData.length; i++) {
+                var o = pageData[i],
                     s = o['STATUS'] || 'PENDING',
                     sc = getStatusClass(s),
                     ri = o._rowIndex,
@@ -2707,16 +5132,22 @@
                     jml = o['JUMLAH'] || '',
                     op = o['ORDER KE PABRIK'] || '',
                     k = o['Keterangan Pemenuhan'] || '',
-                    da = 'onclick="openEditModal(\'' + o._docId + '\')"';
+                    da = 'onclick="openEditModal(\'' + o._docId + '\')"',
+                    teknisi = o['TEKNISI'] || '';
 
-                // Format jumlah dengan satuan "hari"
+                var isFiltered = filterTeknisiAktif && teknisi.toUpperCase() === filterTeknisiAktif.toUpperCase();
+                var teknisiClass = 'teknisi-cell' + (isFiltered ? ' filtered' : '');
+
                 var jmlDisplay = jml ? escapeHtml(jml) + ' hari' : '-';
 
                 h += '<tr class="' + (isNew ? 'new-row' : '') + '">' +
-                    '<td>' + (i + 1) + '</td>' +
+                    '<td>' + (startIdx + i + 1) + '</td>' +
                     '<td><span class="status-badge ' + sc + '"><span class="status-dot"></span>' + escapeHtml(s) +
                     '</span></td>' +
-                    '<td class="name-cell">' + escapeHtml(o['TEKNISI'] || '') + '</td>' +
+                    '<td class="' + teknisiClass + '" onclick="filterByTeknisi(\'aktif\', \'' + escapeHtml(teknisi) +
+                    '\', this.closest(\'.filter-teknisi-bar\').querySelector(\'.filter-teknisi-chip:not(.clear-filter)\'))">' +
+                    escapeHtml(teknisi) +
+                    '</td>' +
                     '<td>' + formatDateDisplay(o['TGL PENGAJUAN ORD'] || '') + '</td>' +
                     '<td>' + escapeHtml(o['NO. SERVICE CASE'] || '') + '</td>' +
                     '<td>' + escapeHtml(o['TYPE (IDNO)'] || '') + '</td>' +
@@ -2737,8 +5168,12 @@
                     '\', this)" title="Double‑klik untuk edit (Admin only)" style="cursor:text;">' +
                     escapeHtml(op || '-') + '</td>' +
                     '<td class="editable-cell" ' + da + '>' + escapeHtml(k || '-') + '</td>' +
-                    '<td><div class="action-btns"><button class="action-btn" ' + da +
-                    '><i class="fas fa-pen"></i></button><button class="action-btn locked" title="Hanya FINISH bisa dihapus"><i class="fas fa-trash"></i></button></div></td>' +
+                    '<td><div class="action-btns">' +
+                    '<button class="action-btn" ' + da + '><i class="fas fa-pen"></i></button>' +
+                    '<button class="action-btn whatsapp" onclick="sendWATeknisi(\'' + o._docId +
+                    '\')" title="Kirim WA ke Teknisi"><i class="fab fa-whatsapp"></i></button>' +
+                    '<button class="action-btn locked" title="Hanya FINISH bisa dihapus"><i class="fas fa-trash"></i></button>' +
+                    '</div></td>' +
                     '</tr>';
             }
             tb.innerHTML = h;
@@ -2758,22 +5193,47 @@
                 ft = document.getElementById('riwayatFooter');
 
             var fd = getRiwayatOrders();
+
+            if (filterTeknisiRiwayat) {
+                fd = fd.filter(function(o) { return (o['TEKNISI'] || '').toUpperCase() === filterTeknisiRiwayat
+                        .toUpperCase(); });
+            }
+
             var sv = (document.getElementById('searchRiwayat').value || '').toLowerCase();
             if (sv) fd = fd.filter(function(o) {
                 return Object.values(o).some(function(v) { return String(v).toLowerCase().includes(sv); });
             });
 
-            if (fd.length === 0) {
+            var totalItems = fd.length;
+            var totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+            if (currentPageRiwayat > totalPages && totalPages > 0) currentPageRiwayat = totalPages;
+            if (currentPageRiwayat < 1) currentPageRiwayat = 1;
+
+            var startIdx = (currentPageRiwayat - 1) * ITEMS_PER_PAGE;
+            var endIdx = Math.min(startIdx + ITEMS_PER_PAGE, totalItems);
+            var pageData = fd.slice(startIdx, endIdx);
+
+            if (pageData.length === 0 && totalItems === 0) {
                 tb.innerHTML = '';
                 es.style.display = 'block';
                 te.style.display = 'none';
                 ft.style.display = 'none';
+                document.getElementById('paginationRiwayat').style.display = 'none';
                 return;
             }
+            if (pageData.length === 0 && totalItems > 0) {
+                currentPageRiwayat = 1;
+                renderRiwayatTable();
+                return;
+            }
+
             es.style.display = 'none';
             te.style.display = 'table';
             ft.style.display = 'flex';
-            document.getElementById('riwayatCount').textContent = fd.length;
+            document.getElementById('riwayatCount').textContent = pageData.length;
+
+            renderPagination('riwayat', totalItems);
 
             var canEdit = isAdmin,
                 cellClass = canEdit ? 'editable-cell' : 'locked-cell',
@@ -2787,20 +5247,27 @@
                 delActionClose = canEdit ? '\')"' : '';
 
             var h = '';
-            for (var i = 0; i < fd.length; i++) {
-                var o = fd[i],
+            for (var i = 0; i < pageData.length; i++) {
+                var o = pageData[i],
                     to = o['Tgl Order'] || '',
                     ttp = o['TGL TERIMA PART'] || '',
                     jml = o['JUMLAH'] || '',
                     op = o['ORDER KE PABRIK'] || '',
-                    k = o['Keterangan Pemenuhan'] || '';
+                    k = o['Keterangan Pemenuhan'] || '',
+                    teknisi = o['TEKNISI'] || '';
+
+                var isFiltered = filterTeknisiRiwayat && teknisi.toUpperCase() === filterTeknisiRiwayat.toUpperCase();
+                var teknisiClass = 'teknisi-cell' + (isFiltered ? ' filtered' : '');
 
                 var jmlDisplay = jml ? escapeHtml(jml) + ' hari' : '-';
 
                 h += '<tr>' +
-                    '<td>' + (i + 1) + '</td>' +
+                    '<td>' + (startIdx + i + 1) + '</td>' +
                     '<td><span class="status-badge finish"><span class="status-dot"></span>FINISH</span></td>' +
-                    '<td class="name-cell">' + escapeHtml(o['TEKNISI'] || '') + '</td>' +
+                    '<td class="' + teknisiClass + '" onclick="filterByTeknisi(\'riwayat\', \'' + escapeHtml(teknisi) +
+                    '\', this.closest(\'.filter-teknisi-bar\').querySelector(\'.filter-teknisi-chip:not(.clear-filter)\'))">' +
+                    escapeHtml(teknisi) +
+                    '</td>' +
                     '<td>' + formatDateDisplay(o['TGL PENGAJUAN ORD'] || '') + '</td>' +
                     '<td>' + escapeHtml(o['NO. SERVICE CASE'] || '') + '</td>' +
                     '<td>' + escapeHtml(o['TYPE (IDNO)'] || '') + '</td>' +
@@ -2829,11 +5296,14 @@
                     '<td class="' + cellClass + '" ' + editAction + o._docId + editActionClose + '>' + escapeHtml(k ||
                         '-') +
                     '</td>' +
-                    '<td><div class="action-btns"><button class="action-btn' + btnEditClass + '" ' + editAction + o
-                    ._docId +
-                    editActionClose + btnEditTitle + '><i class="fas fa-pen"></i></button><button class="action-btn delete' +
-                    btnDelClass + '" ' + delAction + o._docId + delActionClose + btnDelTitle +
-                    '><i class="fas fa-trash"></i></button></div></td>' +
+                    '<td><div class="action-btns">' +
+                    '<button class="action-btn' + btnEditClass + '" ' + editAction + o._docId +
+                    editActionClose + btnEditTitle + '><i class="fas fa-pen"></i></button>' +
+                    '<button class="action-btn whatsapp" onclick="sendWATeknisi(\'' + o._docId +
+                    '\')" title="Kirim WA ke Teknisi"><i class="fab fa-whatsapp"></i></button>' +
+                    '<button class="action-btn delete' + btnDelClass + '" ' + delAction + o._docId +
+                    delActionClose + btnDelTitle + '><i class="fas fa-trash"></i></button>' +
+                    '</div></td>' +
                     '</tr>';
             }
             tb.innerHTML = h;
@@ -2882,11 +5352,8 @@
             }
 
             document.getElementById('modalRowIndex').value = docId;
-
-            // Set status (semua user bisa lihat dan ubah)
             document.getElementById('modalStatus').value = (o['STATUS'] || 'PENDING').toUpperCase();
 
-            // Ambil referensi elemen
             var adminFields = document.getElementById('adminOnlyFields');
             var userMsg = document.getElementById('userOnlyMessage');
 
@@ -2896,29 +5363,30 @@
             var orderPabrikEl = document.getElementById('modalOrderPabrik');
             var keteranganEl = document.getElementById('modalKeterangan');
 
-            // Isi nilai semua field (admin & non-admin sama-sama melihat data)
             tglOrderEl.value = o['Tgl Order'] || '';
             tglTerimaEl.value = o['TGL TERIMA PART'] || '';
             jumlahEl.value = o['JUMLAH'] || '';
             orderPabrikEl.value = o['ORDER KE PABRIK'] || '';
             keteranganEl.value = o['Keterangan Pemenuhan'] || '';
 
-            // Tampilkan info part & konsumen (tanpa nomor order)
             document.getElementById('modalPartInfo').textContent = (o['NAMA PART'] || '-') + ' | ' + (o['NAMA KONSUMEN'] ||
                 '-');
 
             if (isAdmin) {
-                // Admin: semua field aktif & terlihat
                 adminFields.style.display = 'block';
                 userMsg.style.display = 'none';
                 tglOrderEl.disabled = false;
                 tglTerimaEl.disabled = false;
-                // Jumlah tetap readonly (otomatis)
                 jumlahEl.readOnly = true;
                 orderPabrikEl.disabled = false;
                 keteranganEl.disabled = false;
+                renderTracking(docId);
+                document.getElementById('trackingDescInput').value = '';
+                document.querySelector('.tracking-add-form').style.display = 'flex';
+                document.querySelectorAll('.tracking-remove').forEach(function(el) {
+                    el.style.display = 'block';
+                });
             } else {
-                // Non-admin: field terlihat tapi dinonaktifkan
                 adminFields.style.display = 'block';
                 userMsg.style.display = 'block';
                 tglOrderEl.disabled = true;
@@ -2926,6 +5394,11 @@
                 jumlahEl.readOnly = true;
                 orderPabrikEl.disabled = true;
                 keteranganEl.disabled = true;
+                renderTracking(docId);
+                document.querySelector('.tracking-add-form').style.display = 'none';
+                document.querySelectorAll('.tracking-remove').forEach(function(el) {
+                    el.style.display = 'none';
+                });
             }
 
             document.getElementById('editModal').classList.add('active');
@@ -2939,7 +5412,6 @@
                 'STATUS': status
             };
 
-            // Jika admin, tambahkan field lain
             if (isAdmin) {
                 var tglTerima = document.getElementById('modalTglTerimaPart').value;
                 var order = allOrders.find(function(o) { return o._docId === docId; });
@@ -3027,7 +5499,6 @@
                     'Tgl Order', 'Tgl Terima Part', 'Lama Pengiriman', 'No. Order', 'Keterangan'
                 ];
                 var rows = fd.map(function(o, i) {
-                    // Format Jumlah dengan satuan "hari" untuk Excel
                     var jml = o['JUMLAH'] || '';
                     var jmlDisplay = jml ? jml + ' hari' : '';
                     return [i + 1, o['STATUS'] || '', o['TEKNISI'] || '', formatDateDisplay(o['TGL PENGAJUAN ORD'] ||
@@ -3061,6 +5532,10 @@
             var f = getAktifOrders();
             if (currentFilter !== 'all') f = f.filter(function(o) { return (o['STATUS'] || '').toUpperCase() ===
                     currentFilter; });
+            if (filterTeknisiAktif) {
+                f = f.filter(function(o) { return (o['TEKNISI'] || '').toUpperCase() === filterTeknisiAktif
+                        .toUpperCase(); });
+            }
             var s = (document.getElementById('searchInput').value || '').toLowerCase();
             if (s) f = f.filter(function(o) {
                 return Object.values(o).some(function(v) { return String(v).toLowerCase().includes(s); });
@@ -3072,6 +5547,7 @@
             currentFilter = s;
             document.querySelectorAll('.filter-chips .chip').forEach(function(x) { x.classList.remove('active'); });
             c.classList.add('active');
+            currentPageAktif = 1;
             renderAktifTable();
         }
 
@@ -3106,12 +5582,21 @@
                 closeUserDD();
                 var so = document.getElementById('successOverlay');
                 if (so.classList.contains('active')) so.classList.remove('active');
+                if (isUploading) {
+                    cancelUpload();
+                }
             }
         });
         document.getElementById('inputModal').addEventListener('click', function(e) { if (e.target === this) closeInputModal(); });
         document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeEditModal(); });
 
-        console.log('✅ Aplikasi siap - Status: PENDING, PROSES, GOTW, READY, FINISH');
+        console.log('✅ Aplikasi siap - dengan animasi progress upload!');
+        console.log('📎 Kirim file: JPG, PNG, PDF, XLSX/XLS via GoFile.io');
+        console.log('📊 Progress bar dan persentase saat upload file');
+        console.log('🔍 Cari file berdasarkan nama dan filter (Gambar/PDF/Excel)');
+        console.log('💬 Chat menampilkan tanggal dan jam dengan format DD/MM/YYYY HH:MM');
+        console.log('🗑️ Hover pesan untuk melihat tombol hapus (Admin only)');
+        console.log('❌ Tombol Batal untuk membatalkan upload');
     </script>
 </body>
 </html>
