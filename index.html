@@ -6,16 +6,12 @@
     <title>📦 Order Komponen System</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js">
-    </script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js">
-    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <style>
-        /* ===== CSS LENGKAP (dengan progress upload) ===== */
+        /* ===== CSS LENGKAP ===== */
         :root,
         [data-theme="dark"] {
             --bg-primary: #0b1120;
@@ -43,8 +39,6 @@
             --row-hover: rgba(0, 212, 170, 0.03);
             --new-row-bg: rgba(0, 212, 170, 0.06);
             --overlay-bg: rgba(0, 0, 0, 0.6);
-            --info-box-bg: rgba(0, 212, 170, 0.06);
-            --info-box-border: rgba(0, 212, 170, 0.15);
             --chip-bg: transparent;
             --toast-bg: #1a2332;
             --modal-bg: #1a2332;
@@ -54,7 +48,6 @@
             --radius: 8px;
             --radius-lg: 14px;
             --filter-bg: rgba(0, 212, 170, 0.08);
-            --filter-border: rgba(0, 212, 170, 0.25);
             --chat-file-bg: rgba(0, 212, 170, 0.05);
             --progress-bg: rgba(0, 212, 170, 0.1);
             --progress-fill: #00d4aa;
@@ -91,8 +84,6 @@
             --row-hover: rgba(13, 148, 136, 0.04);
             --new-row-bg: rgba(13, 148, 136, 0.06);
             --overlay-bg: rgba(0, 0, 0, 0.3);
-            --info-box-bg: rgba(13, 148, 136, 0.05);
-            --info-box-border: rgba(13, 148, 136, 0.15);
             --chip-bg: #ffffff;
             --toast-bg: #ffffff;
             --modal-bg: #ffffff;
@@ -102,7 +93,6 @@
             --radius: 8px;
             --radius-lg: 14px;
             --filter-bg: rgba(13, 148, 136, 0.06);
-            --filter-border: rgba(13, 148, 136, 0.2);
             --chat-file-bg: rgba(13, 148, 136, 0.05);
             --progress-bg: rgba(13, 148, 136, 0.1);
             --progress-fill: #0d9488;
@@ -113,11 +103,7 @@
             --gotw-border: rgba(217, 119, 6, 0.2);
             --gotw-bg: rgba(217, 119, 6, 0.12);
         }
-        *, *::before, *::after {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
         html { scroll-behavior: smooth; }
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -130,10 +116,8 @@
         body::before {
             content: '';
             position: fixed;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
             background: radial-gradient(ellipse at 20% 20%, rgba(0, 212, 170, 0.06) 0%, transparent 50%),
                 radial-gradient(ellipse at 80% 80%, rgba(59, 130, 246, 0.04) 0%, transparent 50%);
             pointer-events: none;
@@ -167,10 +151,8 @@
         .auth-screen::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
             background: radial-gradient(ellipse at 30% 30%, rgba(0, 212, 170, 0.08) 0%, transparent 50%),
                 radial-gradient(ellipse at 70% 70%, rgba(59, 130, 246, 0.05) 0%, transparent 50%);
             pointer-events: none;
@@ -437,6 +419,7 @@
             display: flex;
             align-items: center;
             gap: 8px;
+            flex-wrap: wrap;
         }
         .role-badge {
             font-size: 0.6rem;
@@ -669,7 +652,6 @@
             z-index: 9999;
             align-items: center;
             justify-content: center;
-            animation: fadeIn 0.3s ease-out;
         }
         .upload-progress-overlay.active { display: flex; }
         .upload-progress-card {
@@ -699,7 +681,6 @@
             color: var(--text-primary);
             margin-bottom: 0.25rem;
             word-break: break-all;
-            max-width: 100%;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -730,10 +711,7 @@
         .upload-progress-card .progress-bar::after {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            inset: 0;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
             animation: shimmer 1.5s ease-in-out infinite;
             transform: translateX(-100%);
@@ -775,15 +753,11 @@
             font-size: 2rem;
             color: var(--success);
             margin-bottom: 0.5rem;
-            animation: successPop 0.5s ease-out;
         }
         .upload-progress-card .progress-complete.show { display: block; }
 
         /* ===== CHAT SERVICE STYLES ===== */
-        .chat-service-container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
+        .chat-service-container { max-width: 900px; margin: 0 auto; }
         .chat-service-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
@@ -831,7 +805,6 @@
             border-radius: var(--radius);
             font-size: 0.8rem;
             word-break: break-word;
-            animation: afFade 0.3s ease-out;
             position: relative;
         }
         .chat-msg-wrapper.own .chat-msg {
@@ -871,13 +844,8 @@
             transition: all 0.2s ease;
             z-index: 5;
         }
-        .chat-delete-btn:hover {
-            background: var(--danger);
-            color: #fff;
-        }
+        .chat-delete-btn:hover { background: var(--danger); color: #fff; }
         .chat-msg-wrapper:hover .chat-delete-btn { opacity: 1; }
-        .chat-msg-wrapper.own .chat-delete-btn { right: 2px; }
-        .chat-msg-wrapper.other .chat-delete-btn { right: 2px; }
         .chat-file-attachment {
             margin-top: 4px;
             padding: 6px 10px;
@@ -897,10 +865,7 @@
             background: var(--accent-dim);
             border-color: var(--accent);
         }
-        .chat-file-attachment i {
-            font-size: 1rem;
-            color: var(--accent);
-        }
+        .chat-file-attachment i { font-size: 1rem; color: var(--accent); }
         .chat-file-attachment .file-name {
             overflow: hidden;
             text-overflow: ellipsis;
@@ -936,7 +901,6 @@
             font-size: 0.8rem;
             color: var(--text-primary);
             outline: none;
-            transition: all 0.3s ease;
         }
         .chat-input-row input[type="text"]:focus {
             border-color: var(--border-focus);
@@ -1011,10 +975,7 @@
             flex-wrap: wrap;
             align-items: center;
         }
-        .file-search-row .search-box {
-            flex: 1;
-            min-width: 200px;
-        }
+        .file-search-row .search-box { flex: 1; min-width: 200px; }
         .file-search-row .search-box input {
             width: 100%;
             padding: 8px 12px;
@@ -1025,7 +986,6 @@
             font-family: inherit;
             font-size: 0.8rem;
             outline: none;
-            transition: all 0.3s ease;
         }
         .file-search-row .search-box input:focus {
             border-color: var(--border-focus);
@@ -1088,10 +1048,7 @@
             flex: 1;
             min-width: 0;
         }
-        .file-search-item .file-info i {
-            color: var(--accent);
-            flex-shrink: 0;
-        }
+        .file-search-item .file-info i { color: var(--accent); flex-shrink: 0; }
         .file-search-item .file-info .file-name {
             overflow: hidden;
             text-overflow: ellipsis;
@@ -1103,11 +1060,7 @@
             color: var(--text-muted);
             flex-shrink: 0;
         }
-        .file-search-item .file-actions {
-            display: flex;
-            gap: 4px;
-            flex-shrink: 0;
-        }
+        .file-search-item .file-actions { display: flex; gap: 4px; flex-shrink: 0; }
         .file-search-item .file-actions button {
             background: none;
             border: none;
@@ -1168,9 +1121,7 @@
         .stat-icon.total { background: rgba(0,212,170,0.12); color: var(--accent); }
         .stat-icon.pending { background: rgba(239,68,68,0.12); color: var(--danger); }
         .stat-icon.proses { background: rgba(168,85,247,0.12); color: #a855f7; }
-        /* READY → GREEN */
         .stat-icon.ready { background: var(--ready-bg); color: var(--ready-color); }
-        /* GOTW → old READY color (amber) */
         .stat-icon.gotw { background: var(--gotw-bg); color: var(--gotw-color); }
         .stat-value {
             font-size: 1.4rem;
@@ -1259,21 +1210,14 @@
             gap: 1rem;
             margin-bottom: 1.25rem;
         }
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
         .form-label {
             font-size: 0.75rem;
             font-weight: 600;
             color: var(--text-secondary);
             letter-spacing: 0.3px;
         }
-        .form-label .required {
-            color: var(--danger);
-            margin-left: 2px;
-        }
+        .form-label .required { color: var(--danger); margin-left: 2px; }
         .form-input,
         .form-select,
         .form-textarea {
@@ -1303,14 +1247,8 @@
             background-position: right 12px center;
             padding-right: 36px;
         }
-        .form-select option {
-            background: var(--bg-card);
-            color: var(--text-primary);
-        }
-        .form-textarea {
-            resize: vertical;
-            min-height: 70px;
-        }
+        .form-select option { background: var(--bg-card); color: var(--text-primary); }
+        .form-textarea { resize: vertical; min-height: 70px; }
 
         /* ===== BUTTONS ===== */
         .btn {
@@ -1355,10 +1293,7 @@
             color: var(--danger);
         }
         .btn-danger:hover { background: rgba(239,68,68,0.2); }
-        .btn-sm {
-            padding: 6px 14px;
-            font-size: 0.78rem;
-        }
+        .btn-sm { padding: 6px 14px; font-size: 0.78rem; }
         .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
@@ -1497,10 +1432,7 @@
             border-color: var(--border-focus);
             box-shadow: 0 0 0 3px var(--accent-dim);
         }
-        .search-box i {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
+        .search-box i { color: var(--text-muted); font-size: 0.85rem; }
         .search-box input {
             background: none;
             border: none;
@@ -1512,11 +1444,7 @@
             width: 200px;
         }
         .search-box input::placeholder { color: var(--text-muted); }
-        .filter-chips {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
+        .filter-chips { display: flex; gap: 6px; flex-wrap: wrap; }
         .chip {
             padding: 5px 14px;
             border-radius: 20px;
@@ -1597,19 +1525,6 @@
             color: var(--accent);
             font-weight: 700;
         }
-        .data-table tbody td.teknisi-cell::after {
-            content: '\f0b0';
-            font-family: 'Font Awesome 6 Free';
-            font-weight: 900;
-            font-size: 0.55rem;
-            color: var(--accent);
-            opacity: 0;
-            position: absolute;
-            top: 4px;
-            right: 4px;
-            transition: opacity 0.2s;
-        }
-        .data-table tbody td.teknisi-cell:hover::after { opacity: 0.6; }
         .data-table tbody td.editable-cell {
             position: relative;
             cursor: pointer;
@@ -1667,13 +1582,11 @@
             border: 1px solid rgba(168,85,247,0.2);
         }
         [data-theme="light"] .status-badge.proses { color: #9333ea; }
-        /* GOTW → old READY color (amber) */
         .status-badge.gotw {
             background: var(--gotw-bg);
             color: var(--gotw-color);
             border: 1px solid var(--gotw-border);
         }
-        /* READY → GREEN */
         .status-badge.ready {
             background: var(--ready-bg);
             color: var(--ready-color);
@@ -1697,10 +1610,7 @@
         .status-badge.finish .status-dot { background: #60a5fa; }
 
         /* ===== ACTION ===== */
-        .action-btns {
-            display: flex;
-            gap: 5px;
-        }
+        .action-btns { display: flex; gap: 5px; }
         .action-btn {
             width: 28px;
             height: 28px;
@@ -1770,22 +1680,10 @@
             text-transform: uppercase;
             white-space: nowrap;
         }
-        .tracking-badge.pending {
-            background: rgba(239,68,68,0.15);
-            color: #f87171;
-        }
-        .tracking-badge.proses {
-            background: rgba(168,85,247,0.15);
-            color: #c084fc;
-        }
-        .tracking-badge.gotw {
-            background: var(--gotw-bg);
-            color: var(--gotw-color);
-        }
-        .tracking-badge.terima {
-            background: var(--ready-bg);
-            color: var(--ready-color);
-        }
+        .tracking-badge.pending { background: rgba(239,68,68,0.15); color: #f87171; }
+        .tracking-badge.proses { background: rgba(168,85,247,0.15); color: #c084fc; }
+        .tracking-badge.gotw { background: var(--gotw-bg); color: var(--gotw-color); }
+        .tracking-badge.terima { background: var(--ready-bg); color: var(--ready-color); }
         .tracking-timeline {
             display: flex;
             flex-direction: column;
@@ -1818,26 +1716,11 @@
             flex-shrink: 0;
             margin-top: 2px;
         }
-        .tracking-item .tracking-icon.pending {
-            background: rgba(239,68,68,0.15);
-            color: #f87171;
-        }
-        .tracking-item .tracking-icon.proses {
-            background: rgba(168,85,247,0.15);
-            color: #c084fc;
-        }
-        .tracking-item .tracking-icon.gotw {
-            background: var(--gotw-bg);
-            color: var(--gotw-color);
-        }
-        .tracking-item .tracking-icon.terima {
-            background: var(--ready-bg);
-            color: var(--ready-color);
-        }
-        .tracking-item .tracking-content {
-            flex: 1;
-            min-width: 0;
-        }
+        .tracking-item .tracking-icon.pending { background: rgba(239,68,68,0.15); color: #f87171; }
+        .tracking-item .tracking-icon.proses { background: rgba(168,85,247,0.15); color: #c084fc; }
+        .tracking-item .tracking-icon.gotw { background: var(--gotw-bg); color: var(--gotw-color); }
+        .tracking-item .tracking-icon.terima { background: var(--ready-bg); color: var(--ready-color); }
+        .tracking-item .tracking-content { flex: 1; min-width: 0; }
         .tracking-item .tracking-status {
             font-size: 0.75rem;
             font-weight: 700;
@@ -1908,16 +1791,6 @@
             text-align: center;
             padding: 0.5rem 0;
         }
-        .tracking-status-filter {
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap;
-            margin-bottom: 0.5rem;
-        }
-        .tracking-status-filter .chip {
-            font-size: 0.6rem;
-            padding: 2px 10px;
-        }
 
         /* ===== SKELETON ===== */
         .table-loading-skeleton {
@@ -1928,11 +1801,7 @@
             align-items: center;
             gap: 1rem;
         }
-        .skeleton-row {
-            display: flex;
-            gap: 1rem;
-            width: 100%;
-        }
+        .skeleton-row { display: flex; gap: 1rem; width: 100%; }
         .skeleton-cell {
             height: 14px;
             border-radius: 4px;
@@ -1940,26 +1809,16 @@
             background-size: 200% 100%;
             animation: shimmer 1.5s ease-in-out infinite;
         }
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
 
         /* ===== EMPTY ===== */
-        .empty-state {
-            padding: 3rem 2rem;
-            text-align: center;
-        }
+        .empty-state { padding: 3rem 2rem; text-align: center; }
         .empty-state i {
             font-size: 2.5rem;
             color: var(--text-muted);
             margin-bottom: 0.75rem;
             opacity: 0.4;
         }
-        .empty-state p {
-            color: var(--text-muted);
-            font-size: 0.85rem;
-        }
+        .empty-state p { color: var(--text-muted); font-size: 0.85rem; }
 
         /* ===== PAGINATION ===== */
         .pagination-wrapper {
@@ -1978,15 +1837,8 @@
             align-items: center;
             gap: 6px;
         }
-        .pagination-info .highlight {
-            color: var(--accent);
-            font-weight: 700;
-        }
-        .pagination-controls {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+        .pagination-info .highlight { color: var(--accent); font-weight: 700; }
+        .pagination-controls { display: flex; align-items: center; gap: 8px; }
         .pagination-btn {
             display: inline-flex;
             align-items: center;
@@ -2008,21 +1860,14 @@
             color: var(--accent);
             background: var(--accent-dim);
         }
-        .pagination-btn:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-            transform: none !important;
-        }
+        .pagination-btn:disabled { opacity: 0.3; cursor: not-allowed; }
         .pagination-btn.active {
             background: var(--accent);
             border-color: var(--accent);
             color: #0b1120;
         }
         [data-theme="light"] .pagination-btn.active { color: #fff; }
-        .pagination-numbers {
-            display: flex;
-            gap: 4px;
-        }
+        .pagination-numbers { display: flex; gap: 4px; }
         .pagination-number {
             width: 32px;
             height: 32px;
@@ -2050,10 +1895,7 @@
             color: #0b1120;
         }
         [data-theme="light"] .pagination-number.active { color: #fff; }
-        .pagination-number:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
+        .pagination-number:disabled { opacity: 0.3; cursor: not-allowed; }
         .pagination-ellipsis {
             color: var(--text-muted);
             font-family: 'JetBrains Mono', monospace;
@@ -2182,9 +2024,7 @@
         .toast.info i { color: var(--info); }
         .toast.warning { border-left: 3px solid var(--warning); }
         .toast.warning i { color: var(--warning); }
-        .toast.removing {
-            animation: toastOut 0.3s ease-in forwards;
-        }
+        .toast.removing { animation: toastOut 0.3s ease-in forwards; }
         @keyframes toastIn {
             from { opacity: 0; transform: translateX(60px); }
             to { opacity: 1; transform: translateX(0); }
@@ -2288,9 +2128,172 @@
             font-size: 0.75rem;
             color: var(--text-muted);
         }
-        .table-footer .row-count {
-            font-family: 'JetBrains Mono', monospace;
+        .table-footer .row-count { font-family: 'JetBrains Mono', monospace; }
+
+        /* ===== USER VERIFICATION STYLES ===== */
+        .verification-badge {
+            font-size: 0.6rem;
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            margin-left: 6px;
         }
+        .verification-badge.verified {
+            background: rgba(16,185,129,0.15);
+            color: #10b981;
+            border: 1px solid rgba(16,185,129,0.3);
+        }
+        .verification-badge.unverified {
+            background: rgba(245,158,11,0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245,158,11,0.3);
+        }
+        .user-verify-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            transition: all 0.3s ease;
+        }
+        .user-verify-card:hover {
+            border-color: var(--accent);
+            box-shadow: var(--shadow-glow);
+        }
+        .user-verify-card.unverified-card {
+            border-left: 3px solid var(--warning);
+        }
+        .user-verify-card.verified-card {
+            border-left: 3px solid var(--success);
+        }
+        .user-verify-card .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 200px;
+        }
+        .user-verify-card .user-avatar-lg {
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent), #00a88a);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            font-weight: 800;
+            color: #0b1120;
+            flex-shrink: 0;
+        }
+        [data-theme="light"] .user-verify-card .user-avatar-lg { color: #fff; }
+        .user-verify-card .user-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            min-width: 0;
+            flex: 1;
+        }
+        .user-verify-card .user-details .user-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            word-break: break-word;
+        }
+        .user-verify-card .user-details .user-email {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            word-break: break-all;
+        }
+        .user-verify-card .user-details .user-date {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+        }
+        .user-verify-card .user-actions {
+            display: flex;
+            gap: 6px;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+        .verify-btn {
+            padding: 6px 14px;
+            border-radius: var(--radius);
+            border: none;
+            font-family: inherit;
+            font-size: 0.75rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+        .verify-btn.approve {
+            background: rgba(16,185,129,0.12);
+            color: #10b981;
+            border: 1px solid rgba(16,185,129,0.3);
+        }
+        .verify-btn.approve:hover {
+            background: rgba(16,185,129,0.25);
+            box-shadow: 0 0 16px rgba(16,185,129,0.2);
+            transform: translateY(-1px);
+        }
+        .verify-btn.reject {
+            background: rgba(239,68,68,0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239,68,68,0.3);
+        }
+        .verify-btn.reject:hover {
+            background: rgba(239,68,68,0.2);
+            box-shadow: 0 0 16px rgba(239,68,68,0.2);
+            transform: translateY(-1px);
+        }
+        .verify-btn.delete-user {
+            background: rgba(239,68,68,0.08);
+            color: #ef4444;
+            border: 1px solid rgba(239,68,68,0.25);
+        }
+        .verify-btn.delete-user:hover {
+            background: rgba(239,68,68,0.25);
+            box-shadow: 0 0 16px rgba(239,68,68,0.3);
+            transform: translateY(-1px);
+        }
+        .verify-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        .verification-empty {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .verification-empty i {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: 0.5rem;
+            opacity: 0.4;
+        }
+        .user-verify-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 1.5rem;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .user-verify-list::-webkit-scrollbar { width: 4px; }
+        .user-verify-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
         /* ===== RESPONSIVE ===== */
         @media (max-width: 768px) {
@@ -2381,6 +2384,17 @@
             .upload-progress-card { padding: 1.5rem; }
             .upload-progress-card .file-icon { font-size: 2.5rem; }
             .upload-progress-card .file-name { font-size: 0.8rem; }
+            .user-verify-card {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .user-verify-card .user-actions {
+                justify-content: stretch;
+            }
+            .user-verify-card .user-actions .verify-btn {
+                flex: 1;
+                justify-content: center;
+            }
         }
         @media (max-width: 480px) {
             .stats-row, .riwayat-stats {
@@ -2391,41 +2405,14 @@
             .stat-value, .rs-val { font-size: 1.1rem; }
             .stat-label, .rs-lbl { font-size: 0.55rem; }
             .stat-icon, .rs-icon { width: 32px; height: 32px; font-size: 0.7rem; }
-            .tracking-item { padding: 4px 6px; }
-            .tracking-item .tracking-icon { width: 20px; height: 20px; font-size: 0.5rem; }
-            .tracking-item .tracking-status { font-size: 0.65rem; }
-            .tracking-item .tracking-desc { font-size: 0.6rem; }
-            .tracking-badge { font-size: 0.5rem; padding: 1px 8px; }
-            .tracking-title { font-size: 0.65rem; }
-            .chat-msg { font-size: 0.7rem; padding: 6px 10px; }
-            .chat-msg-wrapper { max-width: 98%; }
-            .chat-input-row input[type="text"] {
-                font-size: 0.7rem;
-                padding: 5px 8px;
-                min-width: 60px;
-            }
-            .chat-input-row button {
+            .user-verify-card { padding: 0.85rem; }
+            .user-verify-card .user-avatar-lg { width: 36px; height: 36px; font-size: 0.85rem; }
+            .user-verify-card .user-details .user-name { font-size: 0.78rem; }
+            .user-verify-card .user-details .user-email { font-size: 0.65rem; }
+            .user-verify-card .user-actions .verify-btn {
                 font-size: 0.7rem;
                 padding: 5px 10px;
             }
-            .chat-input-row .chat-file-input-wrapper .file-btn {
-                font-size: 0.65rem;
-                padding: 5px 6px;
-            }
-            .chat-file-attachment img { max-width: 80px; max-height: 80px; }
-            .chat-file-attachment .file-name { max-width: 60px; font-size: 0.6rem; }
-            .chat-input-row { gap: 4px; }
-            .chat-delete-btn {
-                opacity: 0.7;
-                font-size: 0.5rem;
-                padding: 1px 4px;
-            }
-            .file-search-item { flex-wrap: wrap; gap: 4px; font-size: 0.7rem; }
-            .file-search-item .file-info .file-meta { font-size: 0.55rem; }
-            .upload-progress-card { padding: 1rem; }
-            .upload-progress-card .file-icon { font-size: 2rem; }
-            .upload-progress-card .file-name { font-size: 0.7rem; }
-            .upload-progress-card .progress-text { font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -2445,7 +2432,6 @@
             </div>
             <div class="aerr" id="authError"><i class="fas fa-exclamation-circle"></i><span id="authErrorText"></span></div>
 
-            <!-- Login -->
             <form class="auth-form active" id="loginForm" onsubmit="handleLogin(event)" novalidate>
                 <div class="fg"><label class="fl">Email</label><input class="fi" type="email" id="loginEmail" placeholder="nama@contoh.com" required autocomplete="email" /></div>
                 <div class="fg"><label class="fl">Password</label>
@@ -2458,7 +2444,6 @@
                 <div class="aftr"><a onclick="handleForgotPassword()">Lupa password?</a></div>
             </form>
 
-            <!-- Register -->
             <form class="auth-form" id="registerForm" onsubmit="handleRegister(event)" novalidate>
                 <div class="fg"><label class="fl">Nama Lengkap <span class="rq">*</span></label><input class="fi" type="text" id="regName" placeholder="Nama lengkap" required /></div>
                 <div class="fg"><label class="fl">Email <span class="rq">*</span></label><input class="fi" type="email" id="regEmail" placeholder="nama@contoh.com" required autocomplete="email" /></div>
@@ -2477,6 +2462,7 @@
                     </div>
                 </div>
                 <button type="submit" class="abtn" id="registerBtn"><i class="fas fa-user-plus"></i> Daftar</button>
+                <div class="aftr" style="font-size:0.72rem;">Setelah mendaftar, akun Anda akan menunggu <strong>verifikasi Admin</strong> sebelum dapat digunakan.</div>
             </form>
         </div>
     </div>
@@ -2507,6 +2493,7 @@
                 <button class="main-tab active" onclick="switchMainTab('aktif', this)"><i class="fas fa-tasks"></i> Order Aktif <span class="tab-count" id="tabCountAktif">0</span></button>
                 <button class="main-tab" onclick="switchMainTab('riwayat', this)"><i class="fas fa-history"></i> Riwayat Order <span class="tab-count" id="tabCountRiwayat">0</span></button>
                 <button class="main-tab" onclick="switchMainTab('serviceinfo', this)"><i class="fas fa-headset"></i> Service Informasi <span class="tab-count" id="tabCountService">0</span></button>
+                <button class="main-tab" id="tabVerifikasiUser" onclick="switchMainTab('verifikasi', this)" style="display:none;"><i class="fas fa-user-check"></i> Verifikasi User <span class="tab-count" id="tabCountVerifikasi">0</span></button>
             </div>
 
             <!-- ===== TAB AKTIF ===== -->
@@ -2534,7 +2521,6 @@
                             <button class="btn btn-download btn-sm" onclick="downloadExcel('aktif')" id="btnDownload"><i class="fas fa-file-excel"></i> Download</button>
                         </div>
                     </div>
-                    <!-- Filter Teknisi Bar - Dynamic -->
                     <div style="padding: 0.5rem 1.5rem 0.5rem 1.5rem; border-bottom: 1px solid var(--border);">
                         <div class="filter-teknisi-bar" id="teknisiFilterAktif">
                             <span class="filter-label"><i class="fas fa-user-cog"></i> Filter Teknisi: <span class="count-badge" id="teknisiCountAktif">0</span></span>
@@ -2575,7 +2561,6 @@
                         </table>
                     </div>
                     <div class="empty-state" id="emptyState" style="display:none;"><i class="fas fa-inbox"></i><p>Tidak ada order aktif.</p></div>
-                    <!-- ===== PAGINATION AKTIF ===== -->
                     <div class="pagination-wrapper" id="paginationAktif" style="display:none;">
                         <div class="pagination-info">
                             <span>Menampilkan <span class="highlight" id="paginationStartAktif">0</span> - <span class="highlight" id="paginationEndAktif">0</span> dari <span class="highlight" id="paginationTotalAktif">0</span> data</span>
@@ -2603,7 +2588,6 @@
                             <button class="btn btn-download btn-sm" onclick="downloadExcel('riwayat')" id="btnDownloadRiwayat"><i class="fas fa-file-excel"></i> Download</button>
                         </div>
                     </div>
-                    <!-- Filter Teknisi Bar - Dynamic untuk Riwayat -->
                     <div style="padding: 0.5rem 1.5rem 0.5rem 1.5rem; border-bottom: 1px solid var(--border);">
                         <div class="filter-teknisi-bar" id="teknisiFilterRiwayat">
                             <span class="filter-label"><i class="fas fa-user-cog"></i> Filter Teknisi: <span class="count-badge" id="teknisiCountRiwayat">0</span></span>
@@ -2640,7 +2624,6 @@
                         </table>
                     </div>
                     <div class="empty-state" id="emptyRiwayat" style="display:none;"><i class="fas fa-archive"></i><p>Belum ada riwayat order.</p></div>
-                    <!-- ===== PAGINATION RIWAYAT ===== -->
                     <div class="pagination-wrapper" id="paginationRiwayat" style="display:none;">
                         <div class="pagination-info">
                             <span>Menampilkan <span class="highlight" id="paginationStartRiwayat">0</span> - <span class="highlight" id="paginationEndRiwayat">0</span> dari <span class="highlight" id="paginationTotalRiwayat">0</span> data</span>
@@ -2671,7 +2654,6 @@
                         </div>
                     </div>
                     <div style="padding: 0 1.5rem 1rem 1.5rem;">
-                        <!-- ===== FILE SEARCH SECTION ===== -->
                         <div class="file-search-section">
                             <div class="file-search-row">
                                 <div class="search-box">
@@ -2690,7 +2672,6 @@
                             </div>
                         </div>
 
-                        <!-- ===== CHAT SECTION ===== -->
                         <div class="chat-service-container">
                             <div class="chat-service-card">
                                 <h4><i class="fas fa-comments"></i> Chat Service <span style="font-size:0.6rem;color:var(--text-muted);font-weight:400;">(kirim teks, gambar, PDF, Excel - hover untuk hapus)</span></h4>
@@ -2709,6 +2690,28 @@
                         </div>
                     </div>
                     <div class="table-footer"><span>Service Informasi &mdash; chat & file</span><span style="display:flex;align-items:center;gap:6px;"><span class="sync-dot" style="width:6px;height:6px;"></span> Copyright © 2026, GBS</span></div>
+                </div>
+            </div>
+
+            <!-- ===== TAB VERIFIKASI USER (ADMIN ONLY) ===== -->
+            <div class="tab-panel" id="panelVerifikasi">
+                <div class="stats-row">
+                    <div class="stat-card"><div class="stat-icon total"><i class="fas fa-users"></i></div><div><div class="stat-value" id="statTotalUsers">0</div><div class="stat-label">Total User</div></div></div>
+                    <div class="stat-card"><div class="stat-icon ready"><i class="fas fa-user-check"></i></div><div><div class="stat-value" id="statVerifiedUsers">0</div><div class="stat-label">Terverifikasi</div></div></div>
+                    <div class="stat-card"><div class="stat-icon gotw"><i class="fas fa-user-clock"></i></div><div><div class="stat-value" id="statUnverifiedUsers">0</div><div class="stat-label">Belum Verifikasi</div></div></div>
+                </div>
+                <div class="table-card">
+                    <div class="table-toolbar">
+                        <h2><i class="fas fa-user-check" style="color:var(--accent);"></i> Verifikasi User</h2>
+                        <div class="toolbar-right">
+                            <div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Cari user..." id="searchUser" oninput="renderUserVerification()" /></div>
+                            <button class="btn btn-secondary btn-sm" onclick="loadUsers()"><i class="fas fa-sync"></i> Refresh</button>
+                        </div>
+                    </div>
+                    <div class="user-verify-list" id="userVerifyList">
+                        <div class="verification-empty"><i class="fas fa-spinner fa-spin"></i><p>Memuat data user...</p></div>
+                    </div>
+                    <div class="table-footer"><span>Verifikasi User &mdash; hanya admin</span><span style="display:flex;align-items:center;gap:6px;"><span class="sync-dot" style="width:6px;height:6px;"></span> Copyright © 2026, GBS</span></div>
                 </div>
             </div>
         </main>
@@ -2810,7 +2813,6 @@
                         <label class="form-label"><span class="editable-label"><i class="fas fa-pen edit-icon"></i> Keterangan</span></label>
                         <textarea class="form-textarea" id="modalKeterangan" rows="2"></textarea>
                     </div>
-                    <!-- ===== TRACKING SECTION ===== -->
                     <div class="form-group">
                         <label class="form-label"><span class="editable-label"><i class="fas fa-truck edit-icon"></i> Tracking Pengiriman</span></label>
                         <div class="tracking-container">
@@ -2869,32 +2871,26 @@
         var db = firebase.firestore(),
             auth = firebase.auth(),
             ORDERS_COL = 'orders',
-            SERVICE_COL = 'serviceInfo';
+            SERVICE_COL = 'serviceInfo',
+            USERS_COL = 'users';
 
         var ADMIN_EMAIL = 'admin@app.local';
         var isAdmin = false;
 
         // ===== GOFILE CONFIG =====
-        var GOFILE_API_TOKEN = 'YOUR_API_TOKEN'; // Ganti dengan token API GoFile Anda
+        var GOFILE_API_TOKEN = 'YOUR_API_TOKEN';
         var GOFILE_UPLOAD_URL = 'https://upload.gofile.io/uploadfile';
 
-        // ===== UPLOAD PROGRESS STATE =====
+        // ===== STATE =====
         var currentUploadXhr = null;
         var isUploading = false;
-
-        // ===== SUPPORTED FILE TYPES =====
         var ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'pdf', 'xlsx', 'xls'];
-
-        // ===== STATE FILTER TEKNISI =====
         var filterTeknisiAktif = null;
         var filterTeknisiRiwayat = null;
-
-        // ===== STATE PAGINATION =====
         var ITEMS_PER_PAGE = 10;
         var currentPageAktif = 1;
         var currentPageRiwayat = 1;
 
-        // ===== TEKNISI LIST =====
         var TEKNISI_LIST = [
             { nama: "YANDRI OTTU", nomor: "6282236369250" },
             { nama: "HARMINDO LAMMA", nomor: "6285792383538" },
@@ -2904,7 +2900,6 @@
             { nama: "MUHAMMAD FAUZI", nomor: "6281328162259" }
         ];
 
-        // ===== TRACKING STATE =====
         var currentTrackingDocId = null;
         var trackingData = [];
 
@@ -2915,9 +2910,12 @@
             'TERIMA': { label: 'TERIMA', icon: 'fa-check-circle', class: 'terima', color: '#10b981' }
         };
 
+        // ===== USER VERIFICATION STATE =====
+        var allUsers = [];
+        var usersUnsubscribe = null;
+
         // ===== INDEXEDDB =====
-        var CACHE_DB = 'OrderKomponenCache',
-            CACHE_STORE = 'orders';
+        var CACHE_DB = 'OrderKomponenCache', CACHE_STORE = 'orders';
         var idbInstance = null;
 
         function openIDB() {
@@ -2927,16 +2925,10 @@
                 r.onupgradeneeded = function(e) {
                     e.target.result.createObjectStore(CACHE_STORE, { keyPath: '_docId' });
                 };
-                r.onsuccess = function(e) {
-                    idbInstance = e.target.result;
-                    res(idbInstance);
-                };
-                r.onerror = function(e) {
-                    rej(e.target.error);
-                };
+                r.onsuccess = function(e) { idbInstance = e.target.result; res(idbInstance); };
+                r.onerror = function(e) { rej(e.target.error); };
             });
         }
-
         function cacheToLocal(d) {
             openIDB().then(function(idb) {
                 var tx = idb.transaction(CACHE_STORE, 'readwrite'),
@@ -2945,7 +2937,6 @@
                 d.forEach(function(i) { s.put(i); });
             }).catch(function() {});
         }
-
         function loadFromCache() {
             return openIDB().then(function(idb) {
                 return new Promise(function(res, rej) {
@@ -2957,14 +2948,13 @@
                 });
             }).catch(function() { return []; });
         }
-
         function removeCacheItem(id) {
             openIDB().then(function(idb) {
                 idb.transaction(CACHE_STORE, 'readwrite').objectStore(CACHE_STORE).delete(id);
             }).catch(function() {});
         }
 
-        // ===== STATE =====
+        // ===== STATE ORDERS =====
         var allOrders = [],
             currentFilter = 'all',
             newRowIndices = new Set(),
@@ -2974,60 +2964,40 @@
             realtimeUnsubscribe = null,
             currentMainTab = 'aktif';
 
-        // ===== SERVICE INFO STATE =====
-        var serviceChats = [],
-            serviceUnsubscribe = null;
-
-        // ===== FILE SEARCH STATE =====
+        var serviceChats = [], serviceUnsubscribe = null;
         var fileSearchQuery = '';
         var fileTypeFilter = 'all';
 
         function getAktifOrders() {
             return allOrders.filter(function(o) { return (o['STATUS'] || '').toUpperCase() !== 'FINISH'; });
         }
-
         function getRiwayatOrders() {
             return allOrders.filter(function(o) { return (o['STATUS'] || '').toUpperCase() === 'FINISH'; });
         }
-
-        // ===== FUNGSI UNTUK MENDAPATKAN TEKNISI UNIK DARI DATA =====
         function getUniqueTeknisi(orders) {
             var unique = {};
             orders.forEach(function(o) {
                 var t = o['TEKNISI'] || '';
-                if (t.trim()) {
-                    unique[t] = (unique[t] || 0) + 1;
-                }
+                if (t.trim()) unique[t] = (unique[t] || 0) + 1;
             });
-            var sorted = Object.keys(unique).sort();
-            return sorted.map(function(nama) {
+            return Object.keys(unique).sort().map(function(nama) {
                 return { nama: nama, count: unique[nama] };
             });
         }
 
-        // ===== BUILD FILTER TEKNISI CHIPS DINAMIS =====
         function buildTeknisiFilterChips() {
-            var aktifOrders = getAktifOrders();
-            var teknisiAktif = getUniqueTeknisi(aktifOrders);
-            buildFilterChips('teknisiFilterAktif', 'teknisiEmptyAktif', 'teknisiCountAktif', teknisiAktif, 'aktif');
-
-            var riwayatOrders = getRiwayatOrders();
-            var teknisiRiwayat = getUniqueTeknisi(riwayatOrders);
-            buildFilterChips('teknisiFilterRiwayat', 'teknisiEmptyRiwayat', 'teknisiCountRiwayat', teknisiRiwayat, 'riwayat');
+            buildFilterChips('teknisiFilterAktif', 'teknisiEmptyAktif', 'teknisiCountAktif', getUniqueTeknisi(getAktifOrders()), 'aktif');
+            buildFilterChips('teknisiFilterRiwayat', 'teknisiEmptyRiwayat', 'teknisiCountRiwayat', getUniqueTeknisi(getRiwayatOrders()), 'riwayat');
         }
 
         function buildFilterChips(containerId, emptyId, countId, teknisiData, tab) {
             var container = document.getElementById(containerId);
             if (!container) return;
-
             var chips = container.querySelectorAll('.filter-teknisi-chip');
             chips.forEach(function(c) { c.remove(); });
-
             var emptyEl = document.getElementById(emptyId);
             var countEl = document.getElementById(countId);
-
             if (countEl) countEl.textContent = teknisiData.length;
-
             if (teknisiData.length === 0) {
                 if (emptyEl) emptyEl.style.display = 'block';
                 return;
@@ -3064,9 +3034,7 @@
                         el.classList.remove('filtered');
                     });
                     document.querySelectorAll('#' + bodyId + ' .teknisi-cell').forEach(function(el) {
-                        if (el.textContent.trim() === item.nama) {
-                            el.classList.add('filtered');
-                        }
+                        if (el.textContent.trim() === item.nama) el.classList.add('filtered');
                     });
                     if (tab === 'aktif') currentPageAktif = 1;
                     else currentPageRiwayat = 1;
@@ -3075,26 +3043,16 @@
             });
         }
 
-        // ===== FUNGSI FILTER TEKNISI =====
         function filterByTeknisi(tab, teknisi, btn) {
-            var container = tab === 'aktif' ? document.getElementById('teknisiFilterAktif') : document.getElementById(
-                'teknisiFilterRiwayat');
+            var container = tab === 'aktif' ? document.getElementById('teknisiFilterAktif') : document.getElementById('teknisiFilterRiwayat');
             if (!container) return;
-
-            var chips = container.querySelectorAll('.filter-teknisi-chip');
-            chips.forEach(function(c) { c.classList.remove('active'); });
+            container.querySelectorAll('.filter-teknisi-chip').forEach(function(c) { c.classList.remove('active'); });
             if (btn) btn.classList.add('active');
-
-            if (tab === 'aktif') {
-                filterTeknisiAktif = teknisi;
-                renderAktifTable();
-            } else {
-                filterTeknisiRiwayat = teknisi;
-                renderRiwayatTable();
-            }
+            if (tab === 'aktif') { filterTeknisiAktif = teknisi; renderAktifTable(); }
+            else { filterTeknisiRiwayat = teknisi; renderRiwayatTable(); }
         }
 
-        // ===== PAGINATION FUNCTIONS =====
+        // ===== PAGINATION =====
         function changePage(tab, direction) {
             if (tab === 'aktif') {
                 var totalPages = Math.ceil(getFilteredAktifCount() / ITEMS_PER_PAGE);
@@ -3110,7 +3068,6 @@
                 renderRiwayatTable();
             }
         }
-
         function goToPage(tab, page) {
             if (tab === 'aktif') {
                 var totalPages = Math.ceil(getFilteredAktifCount() / ITEMS_PER_PAGE);
@@ -3124,28 +3081,19 @@
                 renderRiwayatTable();
             }
         }
-
         function getFilteredAktifCount() {
             var fd = getAktifOrders();
-            if (currentFilter !== 'all') fd = fd.filter(function(o) { return (o['STATUS'] || '').toUpperCase() ===
-                    currentFilter; });
-            if (filterTeknisiAktif) {
-                fd = fd.filter(function(o) { return (o['TEKNISI'] || '').toUpperCase() === filterTeknisiAktif
-                        .toUpperCase(); });
-            }
+            if (currentFilter !== 'all') fd = fd.filter(function(o) { return (o['STATUS'] || '').toUpperCase() === currentFilter; });
+            if (filterTeknisiAktif) fd = fd.filter(function(o) { return (o['TEKNISI'] || '').toUpperCase() === filterTeknisiAktif.toUpperCase(); });
             var sv = (document.getElementById('searchInput').value || '').toLowerCase();
             if (sv) fd = fd.filter(function(o) {
                 return Object.values(o).some(function(v) { return String(v).toLowerCase().includes(sv); });
             });
             return fd.length;
         }
-
         function getFilteredRiwayatCount() {
             var fd = getRiwayatOrders();
-            if (filterTeknisiRiwayat) {
-                fd = fd.filter(function(o) { return (o['TEKNISI'] || '').toUpperCase() === filterTeknisiRiwayat
-                        .toUpperCase(); });
-            }
+            if (filterTeknisiRiwayat) fd = fd.filter(function(o) { return (o['TEKNISI'] || '').toUpperCase() === filterTeknisiRiwayat.toUpperCase(); });
             var sv = (document.getElementById('searchRiwayat').value || '').toLowerCase();
             if (sv) fd = fd.filter(function(o) {
                 return Object.values(o).some(function(v) { return String(v).toLowerCase().includes(sv); });
@@ -3156,48 +3104,31 @@
         function renderPagination(tab, totalItems) {
             var totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
             var currentPage = tab === 'aktif' ? currentPageAktif : currentPageRiwayat;
-
             var paginationWrapper = document.getElementById(tab === 'aktif' ? 'paginationAktif' : 'paginationRiwayat');
-            var numbersContainer = document.getElementById(tab === 'aktif' ? 'paginationNumbersAktif' :
-                'paginationNumbersRiwayat');
+            var numbersContainer = document.getElementById(tab === 'aktif' ? 'paginationNumbersAktif' : 'paginationNumbersRiwayat');
             var prevBtn = document.getElementById(tab === 'aktif' ? 'prevPageAktif' : 'prevPageRiwayat');
             var nextBtn = document.getElementById(tab === 'aktif' ? 'nextPageAktif' : 'nextPageRiwayat');
             var startEl = document.getElementById(tab === 'aktif' ? 'paginationStartAktif' : 'paginationStartRiwayat');
             var endEl = document.getElementById(tab === 'aktif' ? 'paginationEndAktif' : 'paginationEndRiwayat');
             var totalEl = document.getElementById(tab === 'aktif' ? 'paginationTotalAktif' : 'paginationTotalRiwayat');
 
-            if (totalItems === 0) {
-                paginationWrapper.style.display = 'none';
-                return;
-            }
-
+            if (totalItems === 0) { paginationWrapper.style.display = 'none'; return; }
             paginationWrapper.style.display = 'flex';
-
             var start = (currentPage - 1) * ITEMS_PER_PAGE + 1;
             var end = Math.min(currentPage * ITEMS_PER_PAGE, totalItems);
-
             if (startEl) startEl.textContent = start;
             if (endEl) endEl.textContent = end;
             if (totalEl) totalEl.textContent = totalItems;
-
             prevBtn.disabled = currentPage <= 1;
             nextBtn.disabled = currentPage >= totalPages;
-
             numbersContainer.innerHTML = '';
-            var maxVisible = 5;
-            var halfVisible = Math.floor(maxVisible / 2);
-
+            var maxVisible = 5, halfVisible = Math.floor(maxVisible / 2);
             var startPage = Math.max(1, currentPage - halfVisible);
             var endPage = Math.min(totalPages, currentPage + halfVisible);
-
             if (endPage - startPage < maxVisible - 1) {
-                if (startPage === 1) {
-                    endPage = Math.min(totalPages, startPage + maxVisible - 1);
-                } else if (endPage === totalPages) {
-                    startPage = Math.max(1, endPage - maxVisible + 1);
-                }
+                if (startPage === 1) endPage = Math.min(totalPages, startPage + maxVisible - 1);
+                else if (endPage === totalPages) startPage = Math.max(1, endPage - maxVisible + 1);
             }
-
             if (startPage > 1) {
                 var firstBtn = document.createElement('button');
                 firstBtn.className = 'pagination-number';
@@ -3211,7 +3142,6 @@
                     numbersContainer.appendChild(ellipsis);
                 }
             }
-
             for (var i = startPage; i <= endPage; i++) {
                 var btn = document.createElement('button');
                 btn.className = 'pagination-number' + (i === currentPage ? ' active' : '');
@@ -3219,7 +3149,6 @@
                 btn.onclick = function(page) { return function() { goToPage(tab, page); }; }(i);
                 numbersContainer.appendChild(btn);
             }
-
             if (endPage < totalPages) {
                 if (endPage < totalPages - 1) {
                     var ellipsis2 = document.createElement('span');
@@ -3235,7 +3164,6 @@
             }
         }
 
-        // ===== FUNGSI HITUNG JUMLAH HARI =====
         function editHitungJumlahHari() {
             if (!isAdmin) return;
             var tglTerima = document.getElementById('modalTglTerimaPart').value;
@@ -3244,18 +3172,12 @@
             if (!order) return;
             var tglPengajuan = order['TGL PENGAJUAN ORD'] || '';
             var target = document.getElementById('modalJumlah');
-            if (!tglPengajuan || !tglTerima) {
-                target.value = '';
-                return;
-            }
-            var d1 = new Date(tglPengajuan);
-            var d2 = new Date(tglTerima);
+            if (!tglPengajuan || !tglTerima) { target.value = ''; return; }
+            var d1 = new Date(tglPengajuan), d2 = new Date(tglTerima);
             var diffTime = Math.abs(d2 - d1);
-            var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            target.value = diffDays;
+            target.value = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         }
 
-        // ===== WHATSAPP NOTIFICATION =====
         function getTeknisiPhone(nama) {
             var found = TEKNISI_LIST.find(function(t) { return t.nama === nama; });
             return found ? found.nomor : null;
@@ -3264,14 +3186,9 @@
         function sendWATeknisi(docId) {
             var order = allOrders.find(function(o) { return o._docId === docId; });
             if (!order) return;
-
             var namaTeknisi = order['TEKNISI'] || '-';
             var nomor = getTeknisiPhone(namaTeknisi);
-            if (!nomor) {
-                showToast('Nomor HP teknisi tidak ditemukan untuk ' + namaTeknisi, 'error');
-                return;
-            }
-
+            if (!nomor) { showToast('Nomor HP teknisi tidak ditemukan untuk ' + namaTeknisi, 'error'); return; }
             function fmt(d) {
                 if (!d) return '-';
                 if (d.match(/^\d{4}-\d{2}-\d{2}$/)) {
@@ -3280,15 +3197,16 @@
                 }
                 return d;
             }
+            function val(v) { return (v && v.trim()) ? v.trim() : '-'; }
 
-            function val(v) {
-                return (v && v.trim()) ? v.trim() : '-';
-            }
-
+            var pesan = '*NOTIFIKASI ORDER KOMPONEN*\n';
+            pesan += '━━━━━━━━━━━━━━━━━━━━━\n\n';
+            pesan += 'Kepada Yth. *' + val(order['TEKNISI']) + '*\n\n';
+            pesan += 'Dengan hormat,\n\n';
+            pesan += 'Kami informasikan bahwa status order komponen dengan rincian berikut:\n\n';
             var fields = {
                 'No. Order': val(order['No. Order']),
                 'Status': val(order['STATUS'] || 'PENDING'),
-                'Teknisi': val(order['TEKNISI']),
                 'Tgl Pengajuan': fmt(order['TGL PENGAJUAN ORD']),
                 'No. Service': val(order['NO. SERVICE CASE']),
                 'Type (IDNO)': val(order['TYPE (IDNO)']),
@@ -3303,117 +3221,57 @@
                 'Tgl Order': fmt(order['Tgl Order']),
                 'Tgl Terima Part': fmt(order['TGL TERIMA PART']),
                 'Lama Pengiriman': val(order['JUMLAH']) + (order['JUMLAH'] ? ' hari' : ''),
-                'No. Order': val(order['ORDER KE PABRIK']),
+                'No. Order Pabrik': val(order['ORDER KE PABRIK']),
                 'Keterangan': val(order['Keterangan Pemenuhan'])
             };
-
-            var emojis = {
-                'No. Order': '📋',
-                'Status': '📋',
-                'Teknisi': '🔧',
-                'Tgl Pengajuan': '📅',
-                'No. Service': '🆔',
-                'Type (IDNO)': '📌',
-                'No. Serie': '🔢',
-                'No Gudang': '🏢',
-                'Nama Part': '🧩',
-                'QTY': '📦',
-                'Prod.': '🏭',
-                'Layanan': '🛠️',
-                'Nama Konsumen': '👤',
-                'No. HP': '📱',
-                'Tgl Order': '📅',
-                'Tgl Terima Part': '📅',
-                'Lama Pengiriman': '⏳',
-                'No. Order': '🏗️',
-                'Keterangan': '📝'
-            };
-
-            var pesan = '*NOTIFIKASI ORDER KOMPONEN*\n';
-            pesan += '━━━━━━━━━━━━━━━━━━━━━\n\n';
-            pesan += 'Kepada Yth. *' + fields['Teknisi'] + '*\n\n';
-            pesan += 'Dengan hormat,\n\n';
-            pesan += 'Kami informasikan bahwa status order komponen dengan rincian berikut:\n\n';
-
+            var emojis = { 'No. Order': '📋', 'Status': '📋', 'Tgl Pengajuan': '📅', 'No. Service': '🆔',
+                'Type (IDNO)': '📌', 'No. Serie': '🔢', 'No Gudang': '🏢', 'Nama Part': '🧩', 'QTY': '📦',
+                'Prod.': '🏭', 'Layanan': '🛠️', 'Nama Konsumen': '👤', 'No. HP': '📱', 'Tgl Order': '📅',
+                'Tgl Terima Part': '📅', 'Lama Pengiriman': '⏳', 'No. Order Pabrik': '🏗️', 'Keterangan': '📝' };
             for (var key in fields) {
-                if (key === 'Teknisi') continue;
-                var emoji = emojis[key] || '•';
-                pesan += emoji + ' *' + key + '*: ' + fields[key] + '\n';
+                pesan += (emojis[key] || '•') + ' *' + key + '*: ' + fields[key] + '\n';
             }
-
             pesan += '\n━━━━━━━━━━━━━━━━━━━━━\n';
-            pesan += '*Terima kasih atas perhatiannya.*\n\n';
-            pesan += '*Order Komponen System*';
-
-            var url = 'https://wa.me/' + nomor + '?text=' + encodeURIComponent(pesan);
-            window.open(url, '_blank');
+            pesan += '*Terima kasih atas perhatiannya.*\n\n*Order Komponen System*';
+            window.open('https://wa.me/' + nomor + '?text=' + encodeURIComponent(pesan), '_blank');
         }
 
-        // ===== TRACKING FUNCTIONS =====
         function getTrackingData(docId) {
             var order = allOrders.find(function(o) { return o._docId === docId; });
             if (!order) return [];
-            try {
-                var data = order['tracking'] || '[]';
-                return JSON.parse(data);
-            } catch (e) {
-                return [];
-            }
-        }
-
-        function getTrackingStatus(docId) {
-            var data = getTrackingData(docId);
-            if (data.length === 0) return null;
-            return data[data.length - 1].status || null;
+            try { return JSON.parse(order['tracking'] || '[]'); } catch (e) { return []; }
         }
 
         function renderTracking(docId) {
             currentTrackingDocId = docId;
             var data = getTrackingData(docId);
             trackingData = data;
-
             var timeline = document.getElementById('trackingTimeline');
             var badge = document.getElementById('trackingBadge');
-
             if (data.length === 0) {
                 timeline.innerHTML = '<div class="tracking-empty">Belum ada update tracking</div>';
                 badge.textContent = '-';
                 badge.className = 'tracking-badge';
                 return;
             }
-
             var lastStatus = data[data.length - 1].status || '';
             var statusInfo = STATUS_MAP[lastStatus] || null;
-            if (statusInfo) {
-                badge.textContent = statusInfo.label;
-                badge.className = 'tracking-badge ' + statusInfo.class;
-            } else {
-                badge.textContent = lastStatus || '-';
-                badge.className = 'tracking-badge';
-            }
+            if (statusInfo) { badge.textContent = statusInfo.label; badge.className = 'tracking-badge ' + statusInfo.class; }
+            else { badge.textContent = lastStatus || '-'; badge.className = 'tracking-badge'; }
 
             var html = '';
-            var sorted = data.slice().reverse();
-            sorted.forEach(function(item, index) {
+            data.slice().reverse().forEach(function(item, index) {
                 var status = item.status || '';
-                var statusInfo = STATUS_MAP[status] || { label: status, icon: 'fa-circle', class: 'pending' };
-                var time = item.time || '';
-                var desc = item.desc || '';
-
-                var formattedTime = formatFullDateTime(time);
-
+                var si = STATUS_MAP[status] || { label: status, icon: 'fa-circle', class: 'pending' };
+                var time = item.time || '', desc = item.desc || '';
                 html += '<div class="tracking-item">';
-                html += '<div class="tracking-icon ' + statusInfo.class + '"><i class="fas ' + statusInfo.icon +
-                    '"></i></div>';
+                html += '<div class="tracking-icon ' + si.class + '"><i class="fas ' + si.icon + '"></i></div>';
                 html += '<div class="tracking-content">';
-                html += '<div class="tracking-status">' + statusInfo.label + '</div>';
-                if (desc) {
-                    html += '<div class="tracking-desc">' + escapeHtml(desc) + '</div>';
-                }
+                html += '<div class="tracking-status">' + si.label + '</div>';
+                if (desc) html += '<div class="tracking-desc">' + escapeHtml(desc) + '</div>';
                 html += '</div>';
-                html += '<div class="tracking-time">' + formattedTime + '</div>';
-                html += '<button class="tracking-remove" onclick="removeTrackingUpdate(' + index +
-                    ')" title="Hapus"><i class="fas fa-times"></i></button>';
+                html += '<div class="tracking-time">' + formatFullDateTime(time) + '</div>';
+                html += '<button class="tracking-remove" onclick="removeTrackingUpdate(' + index + ')" title="Hapus"><i class="fas fa-times"></i></button>';
                 html += '</div>';
             });
             timeline.innerHTML = html;
@@ -3424,225 +3282,119 @@
             try {
                 var d = new Date(timeStr);
                 if (isNaN(d.getTime())) return timeStr;
-
-                var options = {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: false
-                };
-                var formatted = d.toLocaleDateString('id-ID', options);
-                formatted = formatted.replace(/\//g, '/');
-                return formatted;
-            } catch (e) {
-                return timeStr;
-            }
+                return d.toLocaleDateString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric',
+                    hour: '2-digit', minute: '2-digit', hour12: false });
+            } catch (e) { return timeStr; }
         }
 
-        // ===== addTrackingUpdate - auto set status to READY when TERIMA =====
         function addTrackingUpdate() {
-            if (!isAdmin) {
-                showToast('Hanya Admin yang bisa menambah tracking.', 'warning');
-                return;
-            }
+            if (!isAdmin) { showToast('Hanya Admin yang bisa menambah tracking.', 'warning'); return; }
             var docId = document.getElementById('modalRowIndex').value;
             if (!docId) return;
-
-            var statusSelect = document.getElementById('trackingStatusSelect');
-            var descInput = document.getElementById('trackingDescInput');
-
-            var status = statusSelect.value;
-            var desc = descInput.value.trim();
-
-            if (!status) {
-                showToast('Pilih status tracking!', 'warning');
-                return;
-            }
-
+            var status = document.getElementById('trackingStatusSelect').value;
+            var desc = document.getElementById('trackingDescInput').value.trim();
+            if (!status) { showToast('Pilih status tracking!', 'warning'); return; }
             var order = allOrders.find(function(o) { return o._docId === docId; });
             if (!order) return;
-
             var currentData = getTrackingData(docId);
-
-            // Cegah duplikasi status terakhir yang sama
             if (currentData.length > 0 && currentData[currentData.length - 1].status === status) {
-                showToast('Status ' + status + ' sudah terakhir. Gunakan status lain.', 'warning');
-                return;
+                showToast('Status ' + status + ' sudah terakhir. Gunakan status lain.', 'warning'); return;
             }
-
-            var newEntry = {
-                status: status,
-                desc: desc || '',
-                time: new Date().toISOString()
-            };
-
-            currentData.push(newEntry);
-
-            // Siapkan data update
-            var updateData = {
-                'tracking': JSON.stringify(currentData)
-            };
-
-            // Jika status tracking = TERIMA, ubah status utama order menjadi READY
-            if (status === 'TERIMA') {
-                updateData['STATUS'] = 'READY';
-            }
-
+            currentData.push({ status: status, desc: desc || '', time: new Date().toISOString() });
+            var updateData = { 'tracking': JSON.stringify(currentData) };
+            if (status === 'TERIMA') updateData['STATUS'] = 'READY';
             db.collection(ORDERS_COL).doc(docId).update(updateData).then(function() {
                 showToast('Tracking ' + status + ' ditambahkan!', 'success');
-                descInput.value = '';
+                document.getElementById('trackingDescInput').value = '';
                 renderTracking(docId);
-
-                // Update objek order di memory dan UI
                 if (order) {
                     order['tracking'] = JSON.stringify(currentData);
                     if (status === 'TERIMA') {
                         order['STATUS'] = 'READY';
                         document.getElementById('modalStatus').value = 'READY';
                         showToast('✅ Status order berubah menjadi READY karena part telah diterima.', 'success');
-                    } else {
-                        document.getElementById('modalStatus').value = status;
-                    }
+                    } else document.getElementById('modalStatus').value = status;
                 }
                 renderAll();
-            }).catch(function(err) {
-                showToast('Gagal: ' + err.message, 'error');
-            });
+            }).catch(function(err) { showToast('Gagal: ' + err.message, 'error'); });
         }
 
-        // ===== removeTrackingUpdate =====
         function removeTrackingUpdate(index) {
-            if (!isAdmin) {
-                showToast('Hanya Admin yang bisa menghapus tracking.', 'warning');
-                return;
-            }
+            if (!isAdmin) { showToast('Hanya Admin yang bisa menghapus tracking.', 'warning'); return; }
             var docId = document.getElementById('modalRowIndex').value;
             if (!docId) return;
-
             var currentData = getTrackingData(docId);
             if (index >= currentData.length) return;
-
             var originalIndex = currentData.length - 1 - index;
-
             if (!confirm('Hapus update tracking ini?')) return;
-
             currentData.splice(originalIndex, 1);
-
-            db.collection(ORDERS_COL).doc(docId).update({
-                'tracking': JSON.stringify(currentData)
-            }).then(function() {
+            db.collection(ORDERS_COL).doc(docId).update({ 'tracking': JSON.stringify(currentData) }).then(function() {
                 showToast('Tracking dihapus!', 'success');
                 renderTracking(docId);
                 var order = allOrders.find(function(o) { return o._docId === docId; });
                 if (order) order['tracking'] = JSON.stringify(currentData);
                 renderAll();
-            }).catch(function(err) {
-                showToast('Gagal: ' + err.message, 'error');
-            });
+            }).catch(function(err) { showToast('Gagal: ' + err.message, 'error'); });
         }
 
-        // ===== UPLOAD PROGRESS FUNCTIONS =====
+        // ===== UPLOAD PROGRESS =====
         function showUploadProgress(fileName, fileSize) {
             var overlay = document.getElementById('uploadProgressOverlay');
             var fileIcon = document.getElementById('uploadFileIcon');
             var complete = document.getElementById('uploadComplete');
-            var nameEl = document.getElementById('uploadFileName');
-            var sizeEl = document.getElementById('uploadFileSize');
-            var bar = document.getElementById('uploadProgressBar');
-            var text = document.getElementById('uploadProgressText');
-            var status = document.getElementById('uploadStatusText');
-            var cancelBtn = document.getElementById('uploadCancelBtn');
-
-            // Reset
             fileIcon.style.display = 'block';
             complete.className = 'progress-complete';
             complete.style.display = 'none';
-            bar.style.width = '0%';
-            text.textContent = '0%';
-            status.textContent = 'Mengupload...';
-            cancelBtn.style.display = 'inline-block';
+            document.getElementById('uploadProgressBar').style.width = '0%';
+            document.getElementById('uploadProgressText').textContent = '0%';
+            document.getElementById('uploadStatusText').textContent = 'Mengupload...';
+            document.getElementById('uploadCancelBtn').style.display = 'inline-block';
             isUploading = true;
-
-            // Set file info
-            nameEl.textContent = fileName;
-            sizeEl.textContent = formatFileSize(fileSize);
-
+            document.getElementById('uploadFileName').textContent = fileName;
+            document.getElementById('uploadFileSize').textContent = formatFileSize(fileSize);
             overlay.classList.add('active');
         }
-
         function updateUploadProgress(percent) {
-            var bar = document.getElementById('uploadProgressBar');
-            var text = document.getElementById('uploadProgressText');
-            bar.style.width = percent + '%';
-            text.textContent = percent + '%';
+            document.getElementById('uploadProgressBar').style.width = percent + '%';
+            document.getElementById('uploadProgressText').textContent = percent + '%';
         }
-
         function hideUploadProgress(success) {
             var overlay = document.getElementById('uploadProgressOverlay');
             var fileIcon = document.getElementById('uploadFileIcon');
             var complete = document.getElementById('uploadComplete');
-            var status = document.getElementById('uploadStatusText');
-            var cancelBtn = document.getElementById('uploadCancelBtn');
-
             if (success) {
                 fileIcon.style.display = 'none';
                 complete.style.display = 'block';
                 complete.className = 'progress-complete show';
-                status.textContent = 'Upload selesai!';
-                cancelBtn.style.display = 'none';
-                setTimeout(function() {
-                    overlay.classList.remove('active');
-                    isUploading = false;
-                }, 1500);
-            } else {
-                overlay.classList.remove('active');
-                isUploading = false;
-            }
+                document.getElementById('uploadStatusText').textContent = 'Upload selesai!';
+                document.getElementById('uploadCancelBtn').style.display = 'none';
+                setTimeout(function() { overlay.classList.remove('active'); isUploading = false; }, 1500);
+            } else { overlay.classList.remove('active'); isUploading = false; }
         }
-
         function formatFileSize(bytes) {
             if (bytes < 1024) return bytes + ' B';
             if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
             return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
         }
-
         function cancelUpload() {
-            if (currentUploadXhr) {
-                currentUploadXhr.abort();
-                currentUploadXhr = null;
-            }
+            if (currentUploadXhr) { currentUploadXhr.abort(); currentUploadXhr = null; }
             isUploading = false;
             hideUploadProgress(false);
             showToast('Upload dibatalkan.', 'warning');
         }
 
-        // ===== SERVICE INFO FUNCTIONS =====
+        // ===== SERVICE INFO =====
         function loadServiceInfo() {
-            if (serviceUnsubscribe) {
-                serviceUnsubscribe();
-                serviceUnsubscribe = null;
-            }
-
+            if (serviceUnsubscribe) { serviceUnsubscribe(); serviceUnsubscribe = null; }
             serviceUnsubscribe = db.collection(SERVICE_COL).orderBy('timestamp', 'desc').onSnapshot(function(snap) {
                 var chats = [];
-
                 snap.forEach(function(doc) {
                     var data = doc.data();
                     data._docId = doc.id;
-
-                    if (data.timestamp && data.timestamp.toDate) {
-                        data.timestamp = data.timestamp.toDate().toISOString();
-                    } else if (data.timestamp && typeof data.timestamp === 'string') {
-                        // sudah string
-                    } else if (!data.timestamp) {
-                        data.timestamp = new Date().toISOString();
-                    }
-
+                    if (data.timestamp && data.timestamp.toDate) data.timestamp = data.timestamp.toDate().toISOString();
+                    else if (!data.timestamp) data.timestamp = new Date().toISOString();
                     chats.push(data);
                 });
-
                 serviceChats = chats;
                 renderChatService();
                 updateChatStats();
@@ -3661,53 +3413,35 @@
                 var chatHtml = '';
                 var currentUser = auth.currentUser;
                 var userEmail = currentUser ? currentUser.email : '';
-                var sortedChats = serviceChats.slice().reverse();
-                sortedChats.forEach(function(chat) {
+                serviceChats.slice().reverse().forEach(function(chat) {
                     var isOwn = chat.email === userEmail;
                     var time = chat.timestamp ? formatFullDateTime(chat.timestamp) : '';
-
                     chatHtml += '<div class="chat-msg-wrapper ' + (isOwn ? 'own' : 'other') + '">';
                     chatHtml += '<div class="chat-msg">';
-                    chatHtml += '<button class="chat-delete-btn" onclick="deleteChatMessage(\'' + chat
-                        ._docId + '\')" title="Hapus pesan"><i class="fas fa-times"></i></button>';
+                    chatHtml += '<button class="chat-delete-btn" onclick="deleteChatMessage(\'' + chat._docId + '\')" title="Hapus pesan"><i class="fas fa-times"></i></button>';
                     chatHtml += '<div>' + escapeHtml(chat.message) + '</div>';
-
                     if (chat.fileUrl && chat.fileName) {
                         var fileNameLower = chat.fileName.toLowerCase();
                         var isImage = chat.fileType && chat.fileType.startsWith('image/');
                         var isPdf = fileNameLower.endsWith('.pdf');
                         var isExcel = fileNameLower.endsWith('.xlsx') || fileNameLower.endsWith('.xls');
-                        var isPng = fileNameLower.endsWith('.png');
-
-                        if (isPng || fileNameLower.endsWith('.png')) {
-                            isImage = true;
-                        }
-
+                        if (fileNameLower.endsWith('.png')) isImage = true;
                         var icon = 'fa-file';
                         if (isImage) icon = 'fa-file-image';
                         else if (isPdf) icon = 'fa-file-pdf';
                         else if (isExcel) icon = 'fa-file-excel';
-
-                        chatHtml += '<div class="chat-file-attachment" onclick="window.open(\'' + chat
-                            .fileUrl + '\', \'_blank\')">';
+                        chatHtml += '<div class="chat-file-attachment" onclick="window.open(\'' + chat.fileUrl + '\', \'_blank\')">';
                         if (isImage) {
-                            chatHtml += '<div class="file-preview">';
-                            chatHtml += '<img src="' + chat.fileUrl + '" alt="' + escapeHtml(chat.fileName) +
-                                '" />';
-                            chatHtml += '</div>';
+                            chatHtml += '<div class="file-preview"><img src="' + chat.fileUrl + '" alt="' + escapeHtml(chat.fileName) + '" /></div>';
                         } else {
-                            chatHtml += '<i class="fas ' + icon + '"></i>';
-                            chatHtml += '<span class="file-name">' + escapeHtml(chat.fileName) + '</span>';
+                            chatHtml += '<i class="fas ' + icon + '"></i><span class="file-name">' + escapeHtml(chat.fileName) + '</span>';
                         }
                         chatHtml += '</div>';
                     }
-
                     chatHtml += '<div class="msg-meta">';
                     chatHtml += '<span>' + escapeHtml(chat.name || chat.email) + '</span>';
                     if (time) chatHtml += ' <span>• ' + time + '</span>';
-                    chatHtml += '</div>';
-                    chatHtml += '</div>';
-                    chatHtml += '</div>';
+                    chatHtml += '</div></div></div>';
                 });
                 chatBox.innerHTML = chatHtml;
                 chatBox.scrollTop = chatBox.scrollHeight;
@@ -3722,209 +3456,116 @@
             document.getElementById('tabCountService').textContent = totalChats;
         }
 
-        // ===== FILE SEARCH FUNCTIONS =====
         function searchFiles() {
             var input = document.getElementById('fileSearchInput');
             var query = input ? input.value.trim().toLowerCase() : '';
             fileSearchQuery = query;
-
             var resultsContainer = document.getElementById('fileSearchResults');
             var fileItems = serviceChats.filter(function(chat) {
                 if (!chat.fileUrl || !chat.fileName) return false;
-
                 var fileName = chat.fileName.toLowerCase();
                 var matchesQuery = fileName.includes(query);
-
                 var matchesType = true;
                 if (fileTypeFilter === 'image') {
                     var isImage = chat.fileType && chat.fileType.startsWith('image/');
-                    var fileNameLower = chat.fileName.toLowerCase();
-                    if (fileNameLower.endsWith('.jpg') || fileNameLower.endsWith('.jpeg') || fileNameLower.endsWith(
-                            '.png')) {
-                        isImage = true;
-                    }
+                    if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg') || fileName.endsWith('.png')) isImage = true;
                     matchesType = isImage;
                 } else if (fileTypeFilter === 'pdf') {
-                    var isPdf = chat.fileName.toLowerCase().endsWith('.pdf');
-                    matchesType = isPdf;
+                    matchesType = fileName.endsWith('.pdf');
                 } else if (fileTypeFilter === 'excel') {
-                    var isExcel = chat.fileName.toLowerCase().endsWith('.xlsx') || chat.fileName.toLowerCase().endsWith(
-                        '.xls');
-                    matchesType = isExcel;
+                    matchesType = fileName.endsWith('.xlsx') || fileName.endsWith('.xls');
                 }
-
                 return matchesQuery && matchesType;
             });
-
             if (fileItems.length === 0) {
-                if (query || fileTypeFilter !== 'all') {
-                    resultsContainer.innerHTML = '<div class="file-search-empty">Tidak ada file yang ditemukan</div>';
-                } else {
-                    resultsContainer.innerHTML = '<div class="file-search-empty">Ketik untuk mencari file...</div>';
-                }
+                resultsContainer.innerHTML = '<div class="file-search-empty">' + (query || fileTypeFilter !== 'all' ? 'Tidak ada file yang ditemukan' : 'Ketik untuk mencari file...') + '</div>';
                 return;
             }
-
             var html = '';
             fileItems.forEach(function(file) {
                 var fileNameLower = file.fileName.toLowerCase();
                 var isImage = file.fileType && file.fileType.startsWith('image/');
                 var isPdf = fileNameLower.endsWith('.pdf');
                 var isExcel = fileNameLower.endsWith('.xlsx') || fileNameLower.endsWith('.xls');
-                var isPng = fileNameLower.endsWith('.png');
-
-                if (isPng || fileNameLower.endsWith('.png')) {
-                    isImage = true;
-                }
-
+                if (fileNameLower.endsWith('.png')) isImage = true;
                 var icon = 'fa-file';
                 if (isImage) icon = 'fa-file-image';
                 else if (isPdf) icon = 'fa-file-pdf';
                 else if (isExcel) icon = 'fa-file-excel';
-
                 var size = file.fileSize ? (file.fileSize / 1024).toFixed(1) + ' KB' : '';
                 var time = file.timestamp ? formatFullDateTime(file.timestamp) : '';
-
                 html += '<div class="file-search-item">';
                 html += '<div class="file-info">';
                 html += '<i class="fas ' + icon + '"></i>';
                 html += '<span class="file-name">' + escapeHtml(file.fileName) + '</span>';
                 html += '<span class="file-meta">' + size + ' • ' + time + '</span>';
-                html += '</div>';
-                html += '<div class="file-actions">';
+                html += '</div><div class="file-actions">';
                 html += '<button onclick="window.open(\'' + file.fileUrl + '\', \'_blank\')" title="Download"><i class="fas fa-download"></i></button>';
-                if (isAdmin) {
-                    html += '<button class="delete" onclick="deleteFileFromSearch(\'' + file._docId +
-                        '\')" title="Hapus"><i class="fas fa-trash"></i></button>';
-                }
-                html += '</div>';
-                html += '</div>';
+                if (isAdmin) html += '<button class="delete" onclick="deleteFileFromSearch(\'' + file._docId + '\')" title="Hapus"><i class="fas fa-trash"></i></button>';
+                html += '</div></div>';
             });
-
             resultsContainer.innerHTML = html;
         }
 
         function filterFileType(type, btn) {
             fileTypeFilter = type;
-            var chips = document.querySelectorAll('.file-search-section .filter-chips .chip');
-            chips.forEach(function(c) { c.classList.remove('active'); });
+            document.querySelectorAll('.file-search-section .filter-chips .chip').forEach(function(c) { c.classList.remove('active'); });
             if (btn) btn.classList.add('active');
             searchFiles();
         }
-
         function deleteFileFromSearch(docId) {
-            if (!isAdmin) {
-                showToast('Hanya Admin yang bisa menghapus file.', 'warning');
-                return;
-            }
-
+            if (!isAdmin) { showToast('Hanya Admin yang bisa menghapus file.', 'warning'); return; }
             var file = serviceChats.find(function(c) { return c._docId === docId; });
-            if (!file) {
-                showToast('File tidak ditemukan.', 'error');
-                return;
-            }
-
+            if (!file) { showToast('File tidak ditemukan.', 'error'); return; }
             if (!confirm('Hapus file ' + file.fileName + '?')) return;
-
             db.collection(SERVICE_COL).doc(docId).delete().then(function() {
                 showToast('File dihapus!', 'success');
-            }).catch(function(err) {
-                showToast('Gagal hapus: ' + err.message, 'error');
-            });
+            }).catch(function(err) { showToast('Gagal hapus: ' + err.message, 'error'); });
         }
-
-        // ===== DELETE CHAT MESSAGE =====
         function deleteChatMessage(docId) {
-            if (!isAdmin) {
-                showToast('Hanya Admin yang bisa menghapus pesan.', 'warning');
-                return;
-            }
-
+            if (!isAdmin) { showToast('Hanya Admin yang bisa menghapus pesan.', 'warning'); return; }
             if (!confirm('Hapus pesan ini?')) return;
-
             db.collection(SERVICE_COL).doc(docId).delete().then(function() {
                 showToast('Pesan dihapus!', 'success');
-            }).catch(function(err) {
-                showToast('Gagal hapus: ' + err.message, 'error');
-            });
+            }).catch(function(err) { showToast('Gagal hapus: ' + err.message, 'error'); });
         }
-
         function sendChatMessage() {
             var input = document.getElementById('chatInput');
             var message = input.value.trim();
             if (!message) return;
-
             var user = auth.currentUser;
-            if (!user) {
-                showToast('Anda harus login.', 'warning');
-                return;
-            }
-
+            if (!user) { showToast('Anda harus login.', 'warning'); return; }
             db.collection(SERVICE_COL).add({
-                type: 'chat',
-                message: message,
+                type: 'chat', message: message,
                 email: user.email,
                 name: user.displayName || user.email.split('@')[0],
                 timestamp: firebase.firestore.FieldValue.serverTimestamp()
             }).then(function() {
                 input.value = '';
                 showToast('Pesan terkirim!', 'success');
-            }).catch(function(err) {
-                showToast('Gagal kirim: ' + err.message, 'error');
-            });
+            }).catch(function(err) { showToast('Gagal kirim: ' + err.message, 'error'); });
         }
-
-        // ===== HANDLE CHAT FILE UPLOAD VIA GOFILE WITH PROGRESS =====
         function handleChatFileUpload(event) {
             var file = event.target.files[0];
             if (!file) return;
-
             var fileNameLower = file.name.toLowerCase();
-            var isValidExtension = ALLOWED_EXTENSIONS.some(function(ext) {
-                return fileNameLower.endsWith('.' + ext);
-            });
-
-            var maxSize = 10 * 1024 * 1024; // 10MB
-
-            if (!isValidExtension) {
-                showToast('File harus JPG, PNG, PDF, atau Excel (XLSX/XLS).', 'error');
-                event.target.value = '';
-                return;
-            }
-            if (file.size > maxSize) {
-                showToast('File melebihi 10MB.', 'error');
-                event.target.value = '';
-                return;
-            }
-
+            var isValidExtension = ALLOWED_EXTENSIONS.some(function(ext) { return fileNameLower.endsWith('.' + ext); });
+            var maxSize = 10 * 1024 * 1024;
+            if (!isValidExtension) { showToast('File harus JPG, PNG, PDF, atau Excel (XLSX/XLS).', 'error'); event.target.value = ''; return; }
+            if (file.size > maxSize) { showToast('File melebihi 10MB.', 'error'); event.target.value = ''; return; }
             var user = auth.currentUser;
-            if (!user) {
-                showToast('Anda harus login.', 'warning');
-                event.target.value = '';
-                return;
-            }
-
-            // Show progress overlay
+            if (!user) { showToast('Anda harus login.', 'warning'); event.target.value = ''; return; }
             showUploadProgress(file.name, file.size);
-
             var formData = new FormData();
             formData.append('file', file);
-
             currentUploadXhr = new XMLHttpRequest();
             currentUploadXhr.open('POST', GOFILE_UPLOAD_URL, true);
-
             if (GOFILE_API_TOKEN && GOFILE_API_TOKEN !== 'YOUR_API_TOKEN') {
                 currentUploadXhr.setRequestHeader('Authorization', 'Bearer ' + GOFILE_API_TOKEN);
             }
-
-            // Track upload progress
             currentUploadXhr.upload.addEventListener('progress', function(e) {
-                if (e.lengthComputable) {
-                    var percent = Math.round((e.loaded / e.total) * 100);
-                    updateUploadProgress(percent);
-                }
+                if (e.lengthComputable) updateUploadProgress(Math.round((e.loaded / e.total) * 100));
             });
-
             currentUploadXhr.onload = function() {
                 currentUploadXhr = null;
                 if (isUploading) {
@@ -3934,18 +3575,15 @@
                             if (response.status === 'ok' && response.data && response.data.downloadPage) {
                                 var downloadUrl = response.data.downloadPage;
                                 var fileUrl = response.data.fileUrl || downloadUrl;
-
                                 db.collection(SERVICE_COL).add({
-                                    type: 'chat',
-                                    message: '📎 ' + file.name,
+                                    type: 'chat', message: '📎 ' + file.name,
                                     email: user.email,
                                     name: user.displayName || user.email.split('@')[0],
                                     timestamp: firebase.firestore.FieldValue.serverTimestamp(),
                                     fileUrl: fileUrl || downloadUrl,
                                     fileName: file.name,
                                     fileType: file.type || 'application/octet-stream',
-                                    fileSize: file.size,
-                                    source: 'gofile'
+                                    fileSize: file.size, source: 'gofile'
                                 }).then(function() {
                                     hideUploadProgress(true);
                                     showToast('File ' + file.name + ' terkirim!', 'success');
@@ -3972,75 +3610,43 @@
                     }
                 }
             };
-
             currentUploadXhr.onerror = function() {
                 currentUploadXhr = null;
-                if (isUploading) {
-                    hideUploadProgress(false);
-                    showToast('Error upload ke GoFile', 'error');
-                    event.target.value = '';
-                }
+                if (isUploading) { hideUploadProgress(false); showToast('Error upload ke GoFile', 'error'); event.target.value = ''; }
             };
-
             currentUploadXhr.onabort = function() {
                 currentUploadXhr = null;
-                if (isUploading) {
-                    hideUploadProgress(false);
-                    event.target.value = '';
-                }
+                if (isUploading) { hideUploadProgress(false); event.target.value = ''; }
             };
-
             currentUploadXhr.send(formData);
         }
-
         function downloadServiceInfo() {
-            if (serviceChats.length === 0) {
-                showToast('Tidak ada data chat.', 'error');
-                return;
-            }
-
+            if (serviceChats.length === 0) { showToast('Tidak ada data chat.', 'error'); return; }
             var chatData = serviceChats.map(function(c, i) {
                 var attachment = c.fileName ? ' (📎 ' + c.fileName + ')' : '';
-                return {
-                    'No': i + 1,
-                    'Nama': c.name || c.email,
-                    'Pesan': c.message + attachment,
-                    'Waktu': c.timestamp ? formatFullDateTime(c.timestamp) : ''
-                };
+                return { 'No': i + 1, 'Nama': c.name || c.email, 'Pesan': c.message + attachment,
+                    'Waktu': c.timestamp ? formatFullDateTime(c.timestamp) : '' };
             });
-
             var ws = XLSX.utils.json_to_sheet(chatData);
             var wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Service Chat');
-
-            var t = new Date(),
-                ds = t.getFullYear() + '' + String(t.getMonth() + 1).padStart(2, '0') + String(t.getDate())
-                .padStart(2, '0');
+            var t = new Date(), ds = t.getFullYear() + '' + String(t.getMonth() + 1).padStart(2, '0') + String(t.getDate()).padStart(2, '0');
             XLSX.writeFile(wb, 'Service_Chat_' + ds + '.xlsx');
             showToast('Service Chat berhasil didownload!', 'success');
         }
-
         function clearAllServiceInfo() {
-            if (!isAdmin) {
-                showToast('Hanya Admin yang bisa menghapus semua.', 'warning');
-                return;
-            }
-
+            if (!isAdmin) { showToast('Hanya Admin yang bisa menghapus semua.', 'warning'); return; }
             if (!confirm('Hapus semua chat dan file? Tindakan ini tidak bisa dibatalkan!')) return;
-
             var batch = db.batch();
             serviceChats.forEach(function(doc) {
-                var ref = db.collection(SERVICE_COL).doc(doc._docId);
-                batch.delete(ref);
+                batch.delete(db.collection(SERVICE_COL).doc(doc._docId));
             });
             batch.commit().then(function() {
                 showToast('Semua data chat & file dihapus!', 'success');
-            }).catch(function(err) {
-                showToast('Gagal hapus: ' + err.message, 'error');
-            });
+            }).catch(function(err) { showToast('Gagal hapus: ' + err.message, 'error'); });
         }
 
-        // ===== AUTH FUNCTIONS =====
+        // ===== AUTH =====
         function switchAuthTab(t, b) {
             document.querySelectorAll('.auth-tab').forEach(function(x) { x.classList.remove('active'); });
             document.querySelectorAll('.auth-form').forEach(function(x) { x.classList.remove('active'); });
@@ -4048,35 +3654,47 @@
             document.getElementById(t === 'login' ? 'loginForm' : 'registerForm').classList.add('active');
             hideAuthErr();
         }
-
         function showAuthErr(m) {
             document.getElementById('authErrorText').textContent = m;
             document.getElementById('authError').classList.add('show');
         }
-
-        function hideAuthErr() {
-            document.getElementById('authError').classList.remove('show');
-        }
+        function hideAuthErr() { document.getElementById('authError').classList.remove('show'); }
 
         function handleLogin(e) {
             e.preventDefault();
             hideAuthErr();
-            var em = document.getElementById('loginEmail').value.trim(),
-                pw = document.getElementById('loginPassword').value;
+            var em = document.getElementById('loginEmail').value.trim(), pw = document.getElementById('loginPassword').value;
             if (!em || !pw) { showAuthErr('Email dan password wajib diisi.'); return; }
             var b = document.getElementById('loginBtn');
             b.disabled = true;
             b.innerHTML = '<div class="spinner"></div> Memproses...';
-            auth.signInWithEmailAndPassword(em, pw).then(function() {
+            auth.signInWithEmailAndPassword(em, pw).then(function(cred) {
+                if (cred.user.email !== ADMIN_EMAIL) {
+                    return db.collection(USERS_COL).doc(cred.user.uid).get().then(function(doc) {
+                        if (doc.exists && doc.data().verified === true) return true;
+                        else if (doc.exists && doc.data().verified !== true) { auth.signOut(); throw new Error('unverified'); }
+                        else {
+                            return db.collection(USERS_COL).doc(cred.user.uid).set({
+                                name: cred.user.displayName || cred.user.email.split('@')[0],
+                                email: cred.user.email,
+                                verified: false,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                                lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                            }).then(function() { auth.signOut(); throw new Error('unverified'); });
+                        }
+                    });
+                }
+                return true;
+            }).then(function() {
                 b.disabled = false;
                 b.innerHTML = '<i class="fas fa-sign-in-alt"></i> Masuk';
             }).catch(function(er) {
                 b.disabled = false;
                 b.innerHTML = '<i class="fas fa-sign-in-alt"></i> Masuk';
                 var m = 'Login gagal.';
-                if (er.code === 'auth/user-not-found') m = 'Email tidak terdaftar.';
-                else if (er.code === 'auth/wrong-password' || er.code === 'auth/invalid-credential') m =
-                    'Email atau password salah.';
+                if (er.message === 'unverified') m = 'Akun Anda belum diverifikasi oleh Admin. Silakan hubungi Admin.';
+                else if (er.code === 'auth/user-not-found') m = 'Email tidak terdaftar.';
+                else if (er.code === 'auth/wrong-password' || er.code === 'auth/invalid-credential') m = 'Email atau password salah.';
                 else if (er.code === 'auth/invalid-email') m = 'Format email tidak valid.';
                 else if (er.code === 'auth/too-many-requests') m = 'Terlalu banyak percobaan. Coba lagi nanti.';
                 else m = er.message;
@@ -4099,11 +3717,18 @@
             b.disabled = true;
             b.innerHTML = '<div class="spinner"></div> Mendaftar...';
             auth.createUserWithEmailAndPassword(em, pw).then(function(c) {
-                return c.user.updateProfile({ displayName: n });
+                return c.user.updateProfile({ displayName: n }).then(function() {
+                    return db.collection(USERS_COL).doc(c.user.uid).set({
+                        name: n, email: em, verified: false,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                });
             }).then(function() {
                 b.disabled = false;
                 b.innerHTML = '<i class="fas fa-user-plus"></i> Daftar';
-                showToast('Pendaftaran berhasil!', 'success');
+                showToast('Pendaftaran berhasil! Akun Anda menunggu verifikasi admin.', 'success');
+                auth.signOut();
             }).catch(function(er) {
                 b.disabled = false;
                 b.innerHTML = '<i class="fas fa-user-plus"></i> Daftar';
@@ -4135,12 +3760,11 @@
 
         function handleLogout() {
             closeUserDD();
-            if (realtimeUnsubscribe) { realtimeUnsubscribe();
-                realtimeUnsubscribe = null; }
-            if (serviceUnsubscribe) { serviceUnsubscribe();
-                serviceUnsubscribe = null; }
+            if (realtimeUnsubscribe) { realtimeUnsubscribe(); realtimeUnsubscribe = null; }
+            if (serviceUnsubscribe) { serviceUnsubscribe(); serviceUnsubscribe = null; }
+            if (usersUnsubscribe) { usersUnsubscribe(); usersUnsubscribe = null; }
             auth.signOut().then(function() {
-                allOrders = [];
+                allOrders = []; allUsers = [];
                 newRowIndices.clear();
                 isFirstLoad = true;
                 isAdmin = false;
@@ -4154,31 +3778,34 @@
                 document.getElementById('tableFooter').style.display = 'none';
                 document.getElementById('emptyRiwayat').style.display = 'none';
                 document.getElementById('riwayatFooter').style.display = 'none';
+                var uv = document.getElementById('userVerifyList');
+                if (uv) uv.innerHTML = '<div class="verification-empty"><i class="fas fa-spinner fa-spin"></i><p>Memuat data user...</p></div>';
                 ['statTotal', 'statPending', 'statProses', 'statGotw', 'statReady', 'statRiwayat', 'tabCountAktif',
-                    'tabCountRiwayat', 'statChatTotal', 'statFileTotal', 'tabCountService'
-                ].forEach(function(id) { document.getElementById(id).textContent = '0'; });
+                    'tabCountRiwayat', 'statChatTotal', 'statFileTotal', 'tabCountService', 'tabCountVerifikasi',
+                    'statTotalUsers', 'statVerifiedUsers', 'statUnverifiedUsers'
+                ].forEach(function(id) {
+                    var el = document.getElementById(id);
+                    if (el) el.textContent = '0';
+                });
                 document.getElementById('loginForm').reset();
                 document.getElementById('registerForm').reset();
                 document.getElementById('pwStrBar').style.width = '0';
                 document.getElementById('pwStrTxt').textContent = '';
+                var tabVerifikasi = document.getElementById('tabVerifikasiUser');
+                if (tabVerifikasi) tabVerifikasi.style.display = 'none';
                 switchAuthTab('login', document.querySelector('.auth-tab'));
                 showToast('Berhasil keluar.', 'info');
             });
         }
 
         function togglePwVis(id, b) {
-            var i = document.getElementById(id),
-                c = b.querySelector('i');
-            if (i.type === 'password') { i.type = 'text';
-                c.className = 'fas fa-eye-slash'; } else { i.type = 'password';
-                c.className = 'fas fa-eye'; }
+            var i = document.getElementById(id), c = b.querySelector('i');
+            if (i.type === 'password') { i.type = 'text'; c.className = 'fas fa-eye-slash'; }
+            else { i.type = 'password'; c.className = 'fas fa-eye'; }
         }
-
         function checkPwStr(pw) {
-            var bar = document.getElementById('pwStrBar'),
-                txt = document.getElementById('pwStrTxt');
-            if (!pw) { bar.style.width = '0';
-                txt.textContent = ''; return; }
+            var bar = document.getElementById('pwStrBar'), txt = document.getElementById('pwStrTxt');
+            if (!pw) { bar.style.width = '0'; txt.textContent = ''; return; }
             var s = 0;
             if (pw.length >= 6) s++;
             if (pw.length >= 10) s++;
@@ -4187,8 +3814,7 @@
             if (/[^A-Za-z0-9]/.test(pw)) s++;
             var l = [{ w: '20%', c: '#ef4444', t: 'Sangat lemah' }, { w: '40%', c: '#f97316', t: 'Lemah' },
                 { w: '60%', c: '#eab308', t: 'Cukup' }, { w: '80%', c: '#22c55e', t: 'Kuat' },
-                { w: '100%', c: '#10b981', t: 'Sangat kuat' }
-            ];
+                { w: '100%', c: '#10b981', t: 'Sangat kuat' }];
             var v = l[Math.min(s, 4)];
             bar.style.width = v.w;
             bar.style.background = v.c;
@@ -4200,34 +3826,29 @@
             var n = u.displayName || u.email.split('@')[0] || 'User';
             document.getElementById('userAvatar').textContent = n.charAt(0).toUpperCase();
             document.getElementById('userName').textContent = n;
-            document.getElementById('udName').innerHTML = n + ' <span class="role-badge ' + (isAdmin ? 'admin' : 'user') +
-                '">' + (isAdmin ? 'ADMIN' : 'USER') + '</span>';
+            document.getElementById('udName').innerHTML = n + ' <span class="role-badge ' + (isAdmin ? 'admin' : 'user') + '">' + (isAdmin ? 'ADMIN' : 'USER') + '</span>';
             document.getElementById('udEmail').textContent = u.email;
         }
-
-        function toggleUserDD() {
-            document.getElementById('userDropdown').classList.toggle('show');
-        }
-
-        function closeUserDD() {
-            document.getElementById('userDropdown').classList.remove('show');
-        }
+        function toggleUserDD() { document.getElementById('userDropdown').classList.toggle('show'); }
+        function closeUserDD() { document.getElementById('userDropdown').classList.remove('show'); }
         document.addEventListener('click', function(e) {
             var m = document.getElementById('userMenu');
             if (m && !m.contains(e.target)) closeUserDD();
         });
 
         function switchMainTab(tab, btn) {
+            if (tab === 'verifikasi' && !isAdmin) {
+                showToast('Hanya Admin yang bisa mengakses Verifikasi User.', 'warning');
+                return;
+            }
             currentMainTab = tab;
             document.querySelectorAll('.main-tab').forEach(function(t) { t.classList.remove('active'); });
             document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
             btn.classList.add('active');
             document.getElementById(tab === 'aktif' ? 'panelAktif' : tab === 'riwayat' ? 'panelRiwayat' :
-                'panelServiceinfo').classList.add('active');
-
-            if (tab === 'serviceinfo') {
-                loadServiceInfo();
-            }
+                tab === 'verifikasi' ? 'panelVerifikasi' : 'panelServiceinfo').classList.add('active');
+            if (tab === 'serviceinfo') loadServiceInfo();
+            else if (tab === 'verifikasi') loadUsers();
         }
 
         auth.onAuthStateChanged(function(user) {
@@ -4236,14 +3857,30 @@
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('appWrapper').classList.add('visible');
                 updateUserUI(user);
+                var tabVerifikasi = document.getElementById('tabVerifikasiUser');
+                if (tabVerifikasi) tabVerifikasi.style.display = isAdmin ? 'flex' : 'none';
+
+                var userRef = db.collection(USERS_COL).doc(user.uid);
+                userRef.get().then(function(doc) {
+                    if (!doc.exists) {
+                        userRef.set({
+                            name: user.displayName || user.email.split('@')[0],
+                            email: user.email,
+                            verified: isAdmin ? true : false,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                    } else {
+                        userRef.update({ lastLogin: firebase.firestore.FieldValue.serverTimestamp() });
+                    }
+                }).catch(function(err) { console.log('User sync error:', err); });
+
                 if (!window._appStarted) {
                     window._appStarted = true;
                     setDefaultDate();
                     startDataEngine();
                     loadServiceInfo();
-                } else {
-                    renderAll();
-                }
+                } else renderAll();
             } else {
                 document.getElementById('authScreen').classList.remove('hidden');
                 document.getElementById('appWrapper').classList.remove('visible');
@@ -4251,7 +3888,6 @@
             }
         });
 
-        // ===== ENGINE =====
         async function startDataEngine() {
             var cached = await loadFromCache();
             if (cached.length > 0) {
@@ -4273,8 +3909,7 @@
             realtimeUnsubscribe = db.collection(ORDERS_COL).orderBy('createdAt', 'asc').onSnapshot(function(snap) {
                 sd.classList.remove('syncing');
                 var prevCount = allOrders.length;
-                var data = [];
-                var idx = 0;
+                var data = [], idx = 0;
                 snap.forEach(function(doc) {
                     var o = doc.data();
                     o._rowIndex = idx;
@@ -4306,7 +3941,6 @@
             updateAllStats();
         }
 
-        // ===== THEME =====
         function toggleTheme() {
             var h = document.documentElement,
                 c = h.getAttribute('data-theme'),
@@ -4317,9 +3951,8 @@
         (function initTheme() {
             var s = localStorage.getItem('theme');
             if (s) document.documentElement.setAttribute('data-theme', s);
-            else if (window.matchMedia && window.matchMedia('(prefers-color-scheme:light)').matches) document
-                .documentElement
-                .setAttribute('data-theme', 'light');
+            else if (window.matchMedia && window.matchMedia('(prefers-color-scheme:light)').matches)
+                document.documentElement.setAttribute('data-theme', 'light');
         })();
 
         function getStatusClass(s) {
@@ -4331,14 +3964,12 @@
             if (s === 'FINISH') return 'finish';
             return 'pending';
         }
-
         function escapeHtml(s) {
             if (!s) return '';
             var d = document.createElement('div');
             d.textContent = String(s);
             return d.innerHTML;
         }
-
         function formatDateDisplay(d) {
             if (!d) return '-';
             if (d.match(/^\d{4}-\d{2}-\d{2}$/)) {
@@ -4347,94 +3978,61 @@
             }
             return d;
         }
-
         function debouncedSearch() {
             clearTimeout(searchDebounceTimer);
-            searchDebounceTimer = setTimeout(function() {
-                currentPageAktif = 1;
-                renderAktifTable();
-            }, 150);
+            searchDebounceTimer = setTimeout(function() { currentPageAktif = 1; renderAktifTable(); }, 150);
         }
-
         function debouncedSearchRiwayat() {
             clearTimeout(searchRiwayatTimer);
-            searchRiwayatTimer = setTimeout(function() {
-                currentPageRiwayat = 1;
-                renderRiwayatTable();
-            }, 150);
+            searchRiwayatTimer = setTimeout(function() { currentPageRiwayat = 1; renderRiwayatTable(); }, 150);
         }
 
-        // ===== MODAL INPUT =====
-        function openInputModal() { resetForm();
-            document.getElementById('inputModal').classList.add('active'); }
-
+        function openInputModal() { resetForm(); document.getElementById('inputModal').classList.add('active'); }
         function closeInputModal() { document.getElementById('inputModal').classList.remove('active'); }
-
         function closeEditModal() { document.getElementById('editModal').classList.remove('active'); }
-
         function closeDeleteModal() { var m = document.getElementById('deleteConfirmModal'); if (m) m.remove(); }
-
         function closeSuccess() { document.getElementById('successOverlay').classList.remove('active'); }
-
-        function resetForm() {
-            document.getElementById('orderForm').reset();
-            setDefaultDate();
-        }
-
+        function resetForm() { document.getElementById('orderForm').reset(); setDefaultDate(); }
         function setDefaultDate() {
             var t = new Date().toISOString().split('T')[0],
                 d = document.getElementById('inpTglPengajuan');
             if (d) d.value = t;
         }
-
         function generateOrderNo() {
-            var now = new Date(),
-                y = now.getFullYear(),
+            var now = new Date(), y = now.getFullYear(),
                 m = String(now.getMonth() + 1).padStart(2, '0'),
                 dd = String(now.getDate()).padStart(2, '0'),
                 prefix = 'ORD-' + y + m + dd + '-';
             return db.collection(ORDERS_COL).where('No. Order', '>=', prefix).where('No. Order', '<', prefix + 'ZZZZ').get()
-                .then(
-                    function(snap) {
-                        var maxNum = 0;
-                        snap.forEach(function(doc) {
-                            var no = doc.data()['No. Order'] || '',
-                                parts = no.split('-');
-                            if (parts.length === 3) {
-                                var n = parseInt(parts[2], 10);
-                                if (!isNaN(n) && n > maxNum) maxNum = n;
-                            }
-                        });
-                        return prefix + String(maxNum + 1).padStart(4, '0');
+                .then(function(snap) {
+                    var maxNum = 0;
+                    snap.forEach(function(doc) {
+                        var no = doc.data()['No. Order'] || '', parts = no.split('-');
+                        if (parts.length === 3) {
+                            var n = parseInt(parts[2], 10);
+                            if (!isNaN(n) && n > maxNum) maxNum = n;
+                        }
                     });
+                    return prefix + String(maxNum + 1).padStart(4, '0');
+                });
         }
 
-        // ===== HANDLE SUBMIT =====
         function handleSubmit(e) {
             e.preventDefault();
-            var f = document.getElementById('orderForm'),
-                fd = new FormData(f),
-                d = {};
+            var f = document.getElementById('orderForm'), fd = new FormData(f), d = {};
             for (var p of fd.entries()) d[p[0]] = p[1].trim();
-
-            var rf = ['TEKNISI', 'TGL PENGAJUAN ORD', 'TYPE (IDNO)', 'NAMA PART', 'QTY', 'PROD.', 'LAYANAN', 'NAMA KONSUMEN',
-                    'NO. HP'
-                ],
+            var rf = ['TEKNISI', 'TGL PENGAJUAN ORD', 'TYPE (IDNO)', 'NAMA PART', 'QTY', 'PROD.', 'LAYANAN', 'NAMA KONSUMEN', 'NO. HP'],
                 fl = { 'TEKNISI': 'Teknisi', 'TGL PENGAJUAN ORD': 'Tgl Pengajuan', 'TYPE (IDNO)': 'Type (IDNO)',
                     'NAMA PART': 'Nama Part', 'QTY': 'QTY', 'PROD.': 'Prod.', 'LAYANAN': 'Layanan',
-                    'NAMA KONSUMEN': 'Nama Konsumen', 'NO. HP': 'No. HP'
-                };
+                    'NAMA KONSUMEN': 'Nama Konsumen', 'NO. HP': 'No. HP' };
             for (var i = 0; i < rf.length; i++) {
                 if (!d[rf[i]]) { showToast('"' + (fl[rf[i]] || rf[i]) + '" wajib diisi!', 'error'); return; }
             }
             if (parseInt(d['QTY']) < 1) { showToast('QTY harus minimal 1!', 'error'); return; }
-
-            var sb = document.getElementById('submitBtn'),
-                fl2 = document.getElementById('formLoading');
+            var sb = document.getElementById('submitBtn'), fl2 = document.getElementById('formLoading');
             sb.disabled = true;
             sb.innerHTML = '<div class="spinner"></div> Menyimpan...';
             fl2.classList.add('active');
-
             generateOrderNo().then(function(orderNo) {
                 var user = auth.currentUser;
                 return db.collection(ORDERS_COL).add({
@@ -4476,12 +4074,8 @@
             });
         }
 
-        // ===== INLINE EDIT: Tgl Terima Part =====
         function editTglTerimaPart(docId, td) {
-            if (!isAdmin) {
-                showToast('Hanya Admin yang bisa mengedit TGL TERIMA PART.', 'warning');
-                return;
-            }
+            if (!isAdmin) { showToast('Hanya Admin yang bisa mengedit TGL TERIMA PART.', 'warning'); return; }
             if (td.querySelector('input')) return;
             var currentValue = td.textContent.trim();
             var displayValue = (currentValue === '-' ? '' : currentValue);
@@ -4492,168 +4086,103 @@
             var input = document.createElement('input');
             input.type = 'date';
             input.value = displayValue;
-            input.className = 'form-input';
-            input.style.width = '100%';
-            input.style.minWidth = '120px';
-            input.style.background = 'var(--bg-input)';
-            input.style.border = '1px solid var(--border-focus)';
-            input.style.borderRadius = 'var(--radius)';
-            input.style.padding = '4px 8px';
-            input.style.fontFamily = 'inherit';
-            input.style.fontSize = '0.75rem';
-            input.style.color = 'var(--text-primary)';
+            input.style.cssText = 'width:100%;min-width:120px;background:var(--bg-input);border:1px solid var(--border-focus);border-radius:var(--radius);padding:4px 8px;font-family:inherit;font-size:0.75rem;color:var(--text-primary);';
             td.textContent = '';
             td.appendChild(input);
             input.focus();
             input.select();
-
             var save = function() {
                 var newValue = input.value;
                 var order = allOrders.find(function(o) { return o._docId === docId; });
                 var tglPengajuan = order ? order['TGL PENGAJUAN ORD'] : '';
-
                 if (newValue === currentValue || (newValue === '' && currentValue === '-')) {
                     td.textContent = currentValue || '-';
                     return;
                 }
-
                 var jumlah = '';
                 if (tglPengajuan && newValue) {
-                    var d1 = new Date(tglPengajuan);
-                    var d2 = new Date(newValue);
-                    var diffTime = Math.abs(d2 - d1);
-                    var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    jumlah = String(diffDays);
+                    var d1 = new Date(tglPengajuan), d2 = new Date(newValue);
+                    jumlah = String(Math.ceil(Math.abs(d2 - d1) / (1000 * 60 * 60 * 24)));
                 }
-
-                var updates = {
-                    'TGL TERIMA PART': newValue,
-                    'JUMLAH': jumlah
-                };
-                db.collection(ORDERS_COL).doc(docId).update(updates)
+                db.collection(ORDERS_COL).doc(docId).update({ 'TGL TERIMA PART': newValue, 'JUMLAH': jumlah })
                     .then(function() {
                         showToast('TGL TERIMA PART & Jumlah berhasil diupdate!', 'success');
-                        var formatted = newValue ? formatDateDisplay(newValue) : '-';
-                        td.textContent = formatted;
-                        if (order) {
-                            order['TGL TERIMA PART'] = newValue;
-                            order['JUMLAH'] = jumlah;
-                        }
+                        td.textContent = newValue ? formatDateDisplay(newValue) : '-';
+                        if (order) { order['TGL TERIMA PART'] = newValue; order['JUMLAH'] = jumlah; }
                         renderAll();
-                    })
-                    .catch(function(err) {
+                    }).catch(function(err) {
                         showToast('Gagal update: ' + err.message, 'error');
                         td.textContent = currentValue || '-';
                     });
             };
-
-            var cancel = function() {
-                td.textContent = currentValue || '-';
-            };
-
+            var cancel = function() { td.textContent = currentValue || '-'; };
             input.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') { e.preventDefault();
-                    input.blur(); }
-                if (e.key === 'Escape') { cancel(); }
+                if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+                if (e.key === 'Escape') cancel();
             });
             input.addEventListener('blur', save);
         }
 
-        // ===== INLINE EDIT: Order ke Pabrik =====
         function editOrderPabrik(docId, td) {
-            if (!isAdmin) {
-                showToast('Hanya Admin yang bisa mengedit Order ke Pabrik.', 'warning');
-                return;
-            }
+            if (!isAdmin) { showToast('Hanya Admin yang bisa mengedit Order ke Pabrik.', 'warning'); return; }
             if (td.querySelector('input')) return;
             var currentValue = td.textContent.trim();
             var displayValue = (currentValue === '-' ? '' : currentValue);
             var input = document.createElement('input');
             input.type = 'text';
             input.value = displayValue;
-            input.className = 'form-input';
-            input.style.width = '100%';
-            input.style.minWidth = '80px';
-            input.style.background = 'var(--bg-input)';
-            input.style.border = '1px solid var(--border-focus)';
-            input.style.borderRadius = 'var(--radius)';
-            input.style.padding = '4px 8px';
-            input.style.fontFamily = 'inherit';
-            input.style.fontSize = '0.75rem';
-            input.style.color = 'var(--text-primary)';
+            input.style.cssText = 'width:100%;min-width:80px;background:var(--bg-input);border:1px solid var(--border-focus);border-radius:var(--radius);padding:4px 8px;font-family:inherit;font-size:0.75rem;color:var(--text-primary);';
             td.textContent = '';
             td.appendChild(input);
             input.focus();
             input.select();
-
             var save = function() {
                 var newValue = input.value.trim();
                 if (newValue === currentValue || (newValue === '' && currentValue === '-')) {
                     td.textContent = currentValue || '-';
                     return;
                 }
-                var updates = { 'ORDER KE PABRIK': newValue };
-                db.collection(ORDERS_COL).doc(docId).update(updates)
+                db.collection(ORDERS_COL).doc(docId).update({ 'ORDER KE PABRIK': newValue })
                     .then(function() {
                         showToast('Order ke Pabrik berhasil diupdate!', 'success');
                         td.textContent = newValue || '-';
                         var order = allOrders.find(function(o) { return o._docId === docId; });
                         if (order) order['ORDER KE PABRIK'] = newValue;
-                    })
-                    .catch(function(err) {
+                    }).catch(function(err) {
                         showToast('Gagal update: ' + err.message, 'error');
                         td.textContent = currentValue || '-';
                     });
             };
-
-            var cancel = function() {
-                td.textContent = currentValue || '-';
-            };
-
+            var cancel = function() { td.textContent = currentValue || '-'; };
             input.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter') { e.preventDefault();
-                    input.blur(); }
-                if (e.key === 'Escape') { cancel(); }
+                if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+                if (e.key === 'Escape') cancel();
             });
             input.addEventListener('blur', save);
         }
 
-        // ===== RENDER AKTIF =====
         function renderAktifTable() {
             var tb = document.getElementById('tableBody'),
                 es = document.getElementById('emptyState'),
                 sk = document.getElementById('tableSkeleton'),
                 te = document.getElementById('dataTableEl'),
                 ft = document.getElementById('tableFooter');
-
             var fd = getAktifOrders();
-
-            if (currentFilter !== 'all') fd = fd.filter(function(o) { return (o['STATUS'] || '').toUpperCase() ===
-                    currentFilter; });
-
-            if (filterTeknisiAktif) {
-                fd = fd.filter(function(o) { return (o['TEKNISI'] || '').toUpperCase() === filterTeknisiAktif
-                        .toUpperCase(); });
-            }
-
+            if (currentFilter !== 'all') fd = fd.filter(function(o) { return (o['STATUS'] || '').toUpperCase() === currentFilter; });
+            if (filterTeknisiAktif) fd = fd.filter(function(o) { return (o['TEKNISI'] || '').toUpperCase() === filterTeknisiAktif.toUpperCase(); });
             var sv = (document.getElementById('searchInput').value || '').toLowerCase();
             if (sv) fd = fd.filter(function(o) {
                 return Object.values(o).some(function(v) { return String(v).toLowerCase().includes(sv); });
             });
-
             var totalItems = fd.length;
             var totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-
             if (currentPageAktif > totalPages && totalPages > 0) currentPageAktif = totalPages;
             if (currentPageAktif < 1) currentPageAktif = 1;
-
             var startIdx = (currentPageAktif - 1) * ITEMS_PER_PAGE;
             var endIdx = Math.min(startIdx + ITEMS_PER_PAGE, totalItems);
             var pageData = fd.slice(startIdx, endIdx);
-
             if (sk) sk.style.display = 'none';
             if (te) te.style.display = 'table';
-
             if (pageData.length === 0 && totalItems === 0) {
                 tb.innerHTML = '';
                 es.style.display = 'block';
@@ -4661,47 +4190,28 @@
                 document.getElementById('paginationAktif').style.display = 'none';
                 return;
             }
-            if (pageData.length === 0 && totalItems > 0) {
-                currentPageAktif = 1;
-                renderAktifTable();
-                return;
-            }
-
+            if (pageData.length === 0 && totalItems > 0) { currentPageAktif = 1; renderAktifTable(); return; }
             es.style.display = 'none';
             ft.style.display = 'flex';
             document.getElementById('rowCount').textContent = pageData.length;
             document.getElementById('rowTotal').textContent = totalItems;
-
             renderPagination('aktif', totalItems);
-
             var h = '';
             for (var i = 0; i < pageData.length; i++) {
-                var o = pageData[i],
-                    s = o['STATUS'] || 'PENDING',
-                    sc = getStatusClass(s),
-                    ri = o._rowIndex,
-                    isNew = newRowIndices.has(ri),
-                    to = o['Tgl Order'] || '',
-                    ttp = o['TGL TERIMA PART'] || '',
-                    jml = o['JUMLAH'] || '',
-                    op = o['ORDER KE PABRIK'] || '',
+                var o = pageData[i], s = o['STATUS'] || 'PENDING', sc = getStatusClass(s),
+                    ri = o._rowIndex, isNew = newRowIndices.has(ri),
+                    to = o['Tgl Order'] || '', ttp = o['TGL TERIMA PART'] || '',
+                    jml = o['JUMLAH'] || '', op = o['ORDER KE PABRIK'] || '',
                     k = o['Keterangan Pemenuhan'] || '',
                     da = 'onclick="openEditModal(\'' + o._docId + '\')"',
                     teknisi = o['TEKNISI'] || '';
-
                 var isFiltered = filterTeknisiAktif && teknisi.toUpperCase() === filterTeknisiAktif.toUpperCase();
                 var teknisiClass = 'teknisi-cell' + (isFiltered ? ' filtered' : '');
-
                 var jmlDisplay = jml ? escapeHtml(jml) + ' hari' : '-';
-
                 h += '<tr class="' + (isNew ? 'new-row' : '') + '">' +
                     '<td>' + (startIdx + i + 1) + '</td>' +
-                    '<td><span class="status-badge ' + sc + '"><span class="status-dot"></span>' + escapeHtml(s) +
-                    '</span></td>' +
-                    '<td class="' + teknisiClass + '" onclick="filterByTeknisi(\'aktif\', \'' + escapeHtml(teknisi) +
-                    '\', this.closest(\'.filter-teknisi-bar\').querySelector(\'.filter-teknisi-chip:not(.clear-filter)\'))">' +
-                    escapeHtml(teknisi) +
-                    '</td>' +
+                    '<td><span class="status-badge ' + sc + '"><span class="status-dot"></span>' + escapeHtml(s) + '</span></td>' +
+                    '<td class="' + teknisiClass + '" onclick="filterByTeknisi(\'aktif\', \'' + escapeHtml(teknisi) + '\', this.closest(\'.filter-teknisi-bar\').querySelector(\'.filter-teknisi-chip:not(.clear-filter)\'))">' + escapeHtml(teknisi) + '</td>' +
                     '<td>' + formatDateDisplay(o['TGL PENGAJUAN ORD'] || '') + '</td>' +
                     '<td>' + escapeHtml(o['NO. SERVICE CASE'] || '') + '</td>' +
                     '<td>' + escapeHtml(o['TYPE (IDNO)'] || '') + '</td>' +
@@ -4714,21 +4224,15 @@
                     '<td class="name-cell">' + escapeHtml(o['NAMA KONSUMEN'] || '') + '</td>' +
                     '<td>' + escapeHtml(o['NO. HP'] || '') + '</td>' +
                     '<td class="editable-cell" ' + da + '>' + formatDateDisplay(to) + '</td>' +
-                    '<td class="editable-cell" ondblclick="editTglTerimaPart(\'' + o._docId +
-                    '\', this)" title="Double‑klik untuk edit (Admin only)" style="cursor:text;">' +
-                    formatDateDisplay(ttp) + '</td>' +
+                    '<td class="editable-cell" ondblclick="editTglTerimaPart(\'' + o._docId + '\', this)" title="Double‑klik untuk edit (Admin only)" style="cursor:text;">' + formatDateDisplay(ttp) + '</td>' +
                     '<td style="font-weight:700;color:var(--accent);">' + jmlDisplay + '</td>' +
-                    '<td class="editable-cell" ondblclick="editOrderPabrik(\'' + o._docId +
-                    '\', this)" title="Double‑klik untuk edit (Admin only)" style="cursor:text;">' +
-                    escapeHtml(op || '-') + '</td>' +
+                    '<td class="editable-cell" ondblclick="editOrderPabrik(\'' + o._docId + '\', this)" title="Double‑klik untuk edit (Admin only)" style="cursor:text;">' + escapeHtml(op || '-') + '</td>' +
                     '<td class="editable-cell" ' + da + '>' + escapeHtml(k || '-') + '</td>' +
                     '<td><div class="action-btns">' +
                     '<button class="action-btn" ' + da + '><i class="fas fa-pen"></i></button>' +
-                    '<button class="action-btn whatsapp" onclick="sendWATeknisi(\'' + o._docId +
-                    '\')" title="Kirim WA ke Teknisi"><i class="fab fa-whatsapp"></i></button>' +
+                    '<button class="action-btn whatsapp" onclick="sendWATeknisi(\'' + o._docId + '\')" title="Kirim WA ke Teknisi"><i class="fab fa-whatsapp"></i></button>' +
                     '<button class="action-btn locked" title="Hanya FINISH bisa dihapus"><i class="fas fa-trash"></i></button>' +
-                    '</div></td>' +
-                    '</tr>';
+                    '</div></td></tr>';
             }
             tb.innerHTML = h;
             if (newRowIndices.size > 0) {
@@ -4739,35 +4243,24 @@
             }
         }
 
-        // ===== RENDER RIWAYAT =====
         function renderRiwayatTable() {
             var tb = document.getElementById('riwayatBody'),
                 es = document.getElementById('emptyRiwayat'),
                 te = document.getElementById('riwayatTableEl'),
                 ft = document.getElementById('riwayatFooter');
-
             var fd = getRiwayatOrders();
-
-            if (filterTeknisiRiwayat) {
-                fd = fd.filter(function(o) { return (o['TEKNISI'] || '').toUpperCase() === filterTeknisiRiwayat
-                        .toUpperCase(); });
-            }
-
+            if (filterTeknisiRiwayat) fd = fd.filter(function(o) { return (o['TEKNISI'] || '').toUpperCase() === filterTeknisiRiwayat.toUpperCase(); });
             var sv = (document.getElementById('searchRiwayat').value || '').toLowerCase();
             if (sv) fd = fd.filter(function(o) {
                 return Object.values(o).some(function(v) { return String(v).toLowerCase().includes(sv); });
             });
-
             var totalItems = fd.length;
             var totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
-
             if (currentPageRiwayat > totalPages && totalPages > 0) currentPageRiwayat = totalPages;
             if (currentPageRiwayat < 1) currentPageRiwayat = 1;
-
             var startIdx = (currentPageRiwayat - 1) * ITEMS_PER_PAGE;
             var endIdx = Math.min(startIdx + ITEMS_PER_PAGE, totalItems);
             var pageData = fd.slice(startIdx, endIdx);
-
             if (pageData.length === 0 && totalItems === 0) {
                 tb.innerHTML = '';
                 es.style.display = 'block';
@@ -4776,19 +4269,12 @@
                 document.getElementById('paginationRiwayat').style.display = 'none';
                 return;
             }
-            if (pageData.length === 0 && totalItems > 0) {
-                currentPageRiwayat = 1;
-                renderRiwayatTable();
-                return;
-            }
-
+            if (pageData.length === 0 && totalItems > 0) { currentPageRiwayat = 1; renderRiwayatTable(); return; }
             es.style.display = 'none';
             te.style.display = 'table';
             ft.style.display = 'flex';
             document.getElementById('riwayatCount').textContent = pageData.length;
-
             renderPagination('riwayat', totalItems);
-
             var canEdit = isAdmin,
                 cellClass = canEdit ? 'editable-cell' : 'locked-cell',
                 editAction = canEdit ? 'onclick="openEditModal(\'' : '',
@@ -4799,29 +4285,18 @@
                 btnDelTitle = canEdit ? '' : ' title="Hanya Admin yang bisa menghapus"',
                 delAction = canEdit ? 'onclick="confirmDelete(\'' : '',
                 delActionClose = canEdit ? '\')"' : '';
-
             var h = '';
             for (var i = 0; i < pageData.length; i++) {
-                var o = pageData[i],
-                    to = o['Tgl Order'] || '',
-                    ttp = o['TGL TERIMA PART'] || '',
-                    jml = o['JUMLAH'] || '',
-                    op = o['ORDER KE PABRIK'] || '',
-                    k = o['Keterangan Pemenuhan'] || '',
+                var o = pageData[i], to = o['Tgl Order'] || '', ttp = o['TGL TERIMA PART'] || '',
+                    jml = o['JUMLAH'] || '', op = o['ORDER KE PABRIK'] || '', k = o['Keterangan Pemenuhan'] || '',
                     teknisi = o['TEKNISI'] || '';
-
                 var isFiltered = filterTeknisiRiwayat && teknisi.toUpperCase() === filterTeknisiRiwayat.toUpperCase();
                 var teknisiClass = 'teknisi-cell' + (isFiltered ? ' filtered' : '');
-
                 var jmlDisplay = jml ? escapeHtml(jml) + ' hari' : '-';
-
                 h += '<tr>' +
                     '<td>' + (startIdx + i + 1) + '</td>' +
                     '<td><span class="status-badge finish"><span class="status-dot"></span>FINISH</span></td>' +
-                    '<td class="' + teknisiClass + '" onclick="filterByTeknisi(\'riwayat\', \'' + escapeHtml(teknisi) +
-                    '\', this.closest(\'.filter-teknisi-bar\').querySelector(\'.filter-teknisi-chip:not(.clear-filter)\'))">' +
-                    escapeHtml(teknisi) +
-                    '</td>' +
+                    '<td class="' + teknisiClass + '" onclick="filterByTeknisi(\'riwayat\', \'' + escapeHtml(teknisi) + '\', this.closest(\'.filter-teknisi-bar\').querySelector(\'.filter-teknisi-chip:not(.clear-filter)\'))">' + escapeHtml(teknisi) + '</td>' +
                     '<td>' + formatDateDisplay(o['TGL PENGAJUAN ORD'] || '') + '</td>' +
                     '<td>' + escapeHtml(o['NO. SERVICE CASE'] || '') + '</td>' +
                     '<td>' + escapeHtml(o['TYPE (IDNO)'] || '') + '</td>' +
@@ -4833,67 +4308,219 @@
                     '<td>' + escapeHtml(o['LAYANAN'] || '') + '</td>' +
                     '<td class="name-cell">' + escapeHtml(o['NAMA KONSUMEN'] || '') + '</td>' +
                     '<td>' + escapeHtml(o['NO. HP'] || '') + '</td>' +
-                    '<td class="' + cellClass + '" ' + editAction + o._docId + editActionClose + '>' + formatDateDisplay(
-                        to) +
-                    '</td>' +
-                    '<td class="' + cellClass + '" ' +
-                    (canEdit ? 'ondblclick="editTglTerimaPart(\'' + o._docId + '\', this)" title="Double‑klik untuk edit (Admin only)"' :
-                        '') +
-                    ' style="' + (canEdit ? 'cursor:text;' : '') + '">' +
-                    formatDateDisplay(ttp) + '</td>' +
+                    '<td class="' + cellClass + '" ' + editAction + o._docId + editActionClose + '>' + formatDateDisplay(to) + '</td>' +
+                    '<td class="' + cellClass + '" ' + (canEdit ? 'ondblclick="editTglTerimaPart(\'' + o._docId + '\', this)" title="Double‑klik untuk edit (Admin only)"' : '') + ' style="' + (canEdit ? 'cursor:text;' : '') + '">' + formatDateDisplay(ttp) + '</td>' +
                     '<td style="font-weight:700;color:var(--info);">' + jmlDisplay + '</td>' +
-                    '<td class="' + cellClass + '" ' +
-                    (canEdit ? 'ondblclick="editOrderPabrik(\'' + o._docId + '\', this)" title="Double‑klik untuk edit (Admin only)"' :
-                        '') +
-                    ' style="' + (canEdit ? 'cursor:text;' : '') + '">' +
-                    escapeHtml(op || '-') + '</td>' +
-                    '<td class="' + cellClass + '" ' + editAction + o._docId + editActionClose + '>' + escapeHtml(k ||
-                        '-') +
-                    '</td>' +
+                    '<td class="' + cellClass + '" ' + (canEdit ? 'ondblclick="editOrderPabrik(\'' + o._docId + '\', this)" title="Double‑klik untuk edit (Admin only)"' : '') + ' style="' + (canEdit ? 'cursor:text;' : '') + '">' + escapeHtml(op || '-') + '</td>' +
+                    '<td class="' + cellClass + '" ' + editAction + o._docId + editActionClose + '>' + escapeHtml(k || '-') + '</td>' +
                     '<td><div class="action-btns">' +
-                    '<button class="action-btn' + btnEditClass + '" ' + editAction + o._docId +
-                    editActionClose + btnEditTitle + '><i class="fas fa-pen"></i></button>' +
-                    '<button class="action-btn whatsapp" onclick="sendWATeknisi(\'' + o._docId +
-                    '\')" title="Kirim WA ke Teknisi"><i class="fab fa-whatsapp"></i></button>' +
-                    '<button class="action-btn delete' + btnDelClass + '" ' + delAction + o._docId +
-                    delActionClose + btnDelTitle + '><i class="fas fa-trash"></i></button>' +
-                    '</div></td>' +
-                    '</tr>';
+                    '<button class="action-btn' + btnEditClass + '" ' + editAction + o._docId + editActionClose + btnEditTitle + '><i class="fas fa-pen"></i></button>' +
+                    '<button class="action-btn whatsapp" onclick="sendWATeknisi(\'' + o._docId + '\')" title="Kirim WA ke Teknisi"><i class="fab fa-whatsapp"></i></button>' +
+                    '<button class="action-btn delete' + btnDelClass + '" ' + delAction + o._docId + delActionClose + btnDelTitle + '><i class="fas fa-trash"></i></button>' +
+                    '</div></td></tr>';
             }
             tb.innerHTML = h;
         }
 
-        // ===== STATS =====
         function updateAllStats() {
-            var aktif = getAktifOrders(),
-                riwayat = getRiwayatOrders();
+            var aktif = getAktifOrders(), riwayat = getRiwayatOrders();
             animateCounter('statTotal', aktif.length);
-            animateCounter('statPending', aktif.filter(function(o) { return (o['STATUS'] || '').toUpperCase() ===
-                    'PENDING'; })
-                .length);
-            animateCounter('statProses', aktif.filter(function(o) { return (o['STATUS'] || '').toUpperCase() ===
-                    'PROSES'; })
-                .length);
-            animateCounter('statGotw', aktif.filter(function(o) { return (o['STATUS'] || '').toUpperCase() === 'GOTW'; })
-                .length);
-            animateCounter('statReady', aktif.filter(function(o) { return (o['STATUS'] || '').toUpperCase() === 'READY'; })
-                .length);
+            animateCounter('statPending', aktif.filter(function(o) { return (o['STATUS'] || '').toUpperCase() === 'PENDING'; }).length);
+            animateCounter('statProses', aktif.filter(function(o) { return (o['STATUS'] || '').toUpperCase() === 'PROSES'; }).length);
+            animateCounter('statGotw', aktif.filter(function(o) { return (o['STATUS'] || '').toUpperCase() === 'GOTW'; }).length);
+            animateCounter('statReady', aktif.filter(function(o) { return (o['STATUS'] || '').toUpperCase() === 'READY'; }).length);
             animateCounter('statRiwayat', riwayat.length);
             document.getElementById('tabCountAktif').textContent = aktif.length;
             document.getElementById('tabCountRiwayat').textContent = riwayat.length;
         }
-
         function animateCounter(id, t) {
             var el = document.getElementById(id);
             var c = parseInt(el.textContent) || 0;
             if (c === t) return;
-            var s = t > c ? 1 : -1;
-            var v = c;
+            var s = t > c ? 1 : -1, v = c;
             var tm = setInterval(function() {
                 v += s;
                 el.textContent = v;
                 if (v === t) clearInterval(tm);
             }, 30);
+        }
+
+        // ===== USER VERIFICATION FUNCTIONS =====
+        function loadUsers() {
+            if (usersUnsubscribe) { usersUnsubscribe(); usersUnsubscribe = null; }
+            usersUnsubscribe = db.collection(USERS_COL).orderBy('createdAt', 'desc').onSnapshot(function(snap) {
+                var users = [];
+                snap.forEach(function(doc) {
+                    var data = doc.data();
+                    data._docId = doc.id;
+                    users.push(data);
+                });
+                allUsers = users;
+                renderUserVerification();
+                updateUserStats();
+                var pendingCount = users.filter(function(u) { return u.verified !== true; }).length;
+                var tabCountEl = document.getElementById('tabCountVerifikasi');
+                if (tabCountEl) tabCountEl.textContent = pendingCount;
+            }, function(err) {
+                console.error('Users load error:', err);
+                var uv = document.getElementById('userVerifyList');
+                if (uv) uv.innerHTML = '<div class="verification-empty"><i class="fas fa-exclamation-triangle"></i><p>Gagal memuat data user: ' + escapeHtml(err.message) + '</p></div>';
+            });
+        }
+
+        function renderUserVerification() {
+            var container = document.getElementById('userVerifyList');
+            if (!container) return;
+            var query = (document.getElementById('searchUser') ? document.getElementById('searchUser').value : '').toLowerCase();
+            var filtered = allUsers.filter(function(u) {
+                if (!query) return true;
+                return (u.name || '').toLowerCase().includes(query) || (u.email || '').toLowerCase().includes(query);
+            });
+            if (filtered.length === 0) {
+                container.innerHTML = '<div class="verification-empty"><i class="fas fa-users"></i><p>' +
+                    (query ? 'Tidak ada user yang cocok.' : 'Belum ada user terdaftar.') + '</p></div>';
+                return;
+            }
+
+            // Sort: unverified first, then verified
+            var unverifiedList = filtered.filter(function(u) { return u.verified !== true; });
+            var verifiedList = filtered.filter(function(u) { return u.verified === true; });
+
+            var html = '';
+
+            // Render unverified users with DELETE button
+            if (unverifiedList.length > 0) {
+                html += '<div style="font-size:0.7rem;font-weight:700;color:var(--warning);text-transform:uppercase;letter-spacing:1px;padding:0.25rem 0.5rem;display:flex;align-items:center;gap:8px;"><i class="fas fa-user-clock"></i> Belum Verifikasi (' + unverifiedList.length + ')</div>';
+                unverifiedList.forEach(function(u) {
+                    var initial = (u.name || u.email || '?').charAt(0).toUpperCase();
+                    var createdDate = u.createdAt && u.createdAt.toDate ? formatFullDateTime(u.createdAt.toDate().toISOString()) : '-';
+                    html += '<div class="user-verify-card unverified-card">';
+                    html += '<div class="user-info">';
+                    html += '<div class="user-avatar-lg">' + escapeHtml(initial) + '</div>';
+                    html += '<div class="user-details">';
+                    html += '<span class="user-name">' + escapeHtml(u.name || 'Tanpa Nama') +
+                        ' <span class="verification-badge unverified">Belum Verifikasi</span></span>';
+                    html += '<span class="user-email">' + escapeHtml(u.email || '-') + '</span>';
+                    html += '<span class="user-date">Terdaftar: ' + createdDate + '</span>';
+                    html += '</div></div>';
+                    html += '<div class="user-actions">';
+                    html += '<button class="verify-btn approve" onclick="verifyUser(\'' + u._docId + '\', true)"><i class="fas fa-check"></i> Verifikasi</button>';
+                    html += '<button class="verify-btn delete-user" onclick="deleteUnverifiedUser(\'' + u._docId + '\', \'' + escapeHtml(u.email || '') + '\')" title="Hapus user ini dari daftar"><i class="fas fa-trash"></i> Hapus</button>';
+                    html += '</div></div>';
+                });
+            }
+
+            // Render verified users with REJECT button
+            if (verifiedList.length > 0) {
+                html += '<div style="font-size:0.7rem;font-weight:700;color:var(--success);text-transform:uppercase;letter-spacing:1px;padding:0.5rem 0.5rem 0.25rem 0.5rem;display:flex;align-items:center;gap:8px;margin-top:0.5rem;"><i class="fas fa-user-check"></i> Terverifikasi (' + verifiedList.length + ')</div>';
+                verifiedList.forEach(function(u) {
+                    var initial = (u.name || u.email || '?').charAt(0).toUpperCase();
+                    var createdDate = u.createdAt && u.createdAt.toDate ? formatFullDateTime(u.createdAt.toDate().toISOString()) : '-';
+                    html += '<div class="user-verify-card verified-card">';
+                    html += '<div class="user-info">';
+                    html += '<div class="user-avatar-lg">' + escapeHtml(initial) + '</div>';
+                    html += '<div class="user-details">';
+                    html += '<span class="user-name">' + escapeHtml(u.name || 'Tanpa Nama') +
+                        ' <span class="verification-badge verified">Terverifikasi</span></span>';
+                    html += '<span class="user-email">' + escapeHtml(u.email || '-') + '</span>';
+                    html += '<span class="user-date">Terdaftar: ' + createdDate + '</span>';
+                    html += '</div></div>';
+                    html += '<div class="user-actions">';
+                    html += '<button class="verify-btn reject" onclick="verifyUser(\'' + u._docId + '\', false)"><i class="fas fa-times"></i> Batalkan Verifikasi</button>';
+                    html += '</div></div>';
+                });
+            }
+
+            container.innerHTML = html;
+        }
+
+        function verifyUser(docId, verified) {
+            if (!isAdmin) { showToast('Hanya Admin yang bisa memverifikasi user.', 'warning'); return; }
+            var action = verified ? 'verifikasi' : 'batalkan verifikasi';
+            if (!confirm('Yakin ingin ' + action + ' user ini?')) return;
+            db.collection(USERS_COL).doc(docId).update({
+                verified: verified,
+                verifiedAt: verified ? firebase.firestore.FieldValue.serverTimestamp() : null,
+                verifiedBy: auth.currentUser ? auth.currentUser.email : ''
+            }).then(function() {
+                showToast('User berhasil di' + (verified ? 'verifikasi' : 'batalkan verifikasi') + '!', 'success');
+            }).catch(function(err) {
+                showToast('Gagal: ' + err.message, 'error');
+            });
+        }
+
+        // ===== DELETE UNVERIFIED USER =====
+        function deleteUnverifiedUser(docId, email) {
+            if (!isAdmin) { showToast('Hanya Admin yang bisa menghapus user.', 'warning'); return; }
+
+            var user = allUsers.find(function(u) { return u._docId === docId; });
+            if (!user) { showToast('User tidak ditemukan.', 'error'); return; }
+
+            if (user.verified === true) {
+                showToast('User sudah terverifikasi. Batalkan verifikasi dulu sebelum menghapus.', 'warning');
+                return;
+            }
+
+            if (!confirm('⚠️ Hapus user "' + (user.name || email) + '" (' + email + ')?\n\nUser ini belum terverifikasi dan akan dihapus permanen dari daftar. Tindakan ini tidak bisa dibatalkan.')) return;
+
+            // Show confirmation modal for extra safety
+            var em = document.getElementById('deleteUserConfirmModal');
+            if (em) em.remove();
+            var ov = document.createElement('div');
+            ov.className = 'modal-overlay active';
+            ov.id = 'deleteUserConfirmModal';
+            ov.innerHTML =
+                '<div class="modal" style="max-width:420px;">' +
+                '<div class="modal-header"><h3 style="color:var(--danger);"><i class="fas fa-exclamation-triangle" style="margin-right:8px;"></i>Hapus User</h3><button class="modal-close" onclick="closeDeleteUserModal()"><i class="fas fa-times"></i></button></div>' +
+                '<div class="modal-body">' +
+                '<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:var(--radius);padding:12px 16px;margin-bottom:0.5rem;">' +
+                '<p style="color:var(--text-secondary);font-size:0.85rem;margin-bottom:0.5rem;">Yakin ingin menghapus user berikut dari daftar?</p>' +
+                '<div style="display:flex;flex-direction:column;gap:4px;font-size:0.8rem;">' +
+                '<div><strong>Nama:</strong> <span style="color:var(--text-primary);">' + escapeHtml(user.name || '-') + '</span></div>' +
+                '<div><strong>Email:</strong> <span style="color:var(--text-primary);font-family:JetBrains Mono,monospace;">' + escapeHtml(email) + '</span></div>' +
+                '<div><strong>Status:</strong> <span class="verification-badge unverified">Belum Verifikasi</span></div>' +
+                '</div></div>' +
+                '<p style="color:var(--danger);font-size:0.75rem;margin-top:0.5rem;"><i class="fas fa-info-circle"></i> User ini akan dihapus dari database. Akun Firebase Auth-nya juga sebaiknya dihapus manual dari Firebase Console.</p>' +
+                '</div>' +
+                '<div class="modal-footer">' +
+                '<button class="btn btn-secondary btn-sm" onclick="closeDeleteUserModal()"><i class="fas fa-times"></i> Batal</button>' +
+                '<button class="btn btn-danger btn-sm" id="confirmDeleteUserBtn"><i class="fas fa-trash"></i> Hapus User</button>' +
+                '</div></div>';
+            document.body.appendChild(ov);
+            ov.addEventListener('click', function(e) { if (e.target === ov) closeDeleteUserModal(); });
+            document.getElementById('confirmDeleteUserBtn').addEventListener('click', function() {
+                closeDeleteUserModal();
+                executeDeleteUser(docId, email);
+            });
+        }
+
+        function closeDeleteUserModal() {
+            var m = document.getElementById('deleteUserConfirmModal');
+            if (m) m.remove();
+        }
+
+        function executeDeleteUser(docId, email) {
+            db.collection(USERS_COL).doc(docId).delete().then(function() {
+                showToast('User "' + email + '" berhasil dihapus dari daftar!', 'success');
+                // If currently logged in user deletes their own unverified account, log them out
+                if (auth.currentUser && auth.currentUser.email === email) {
+                    auth.signOut();
+                }
+            }).catch(function(err) {
+                showToast('Gagal hapus user: ' + err.message, 'error');
+            });
+        }
+
+        function updateUserStats() {
+            var total = allUsers.length;
+            var verified = allUsers.filter(function(u) { return u.verified === true; }).length;
+            var unverified = total - verified;
+            var e1 = document.getElementById('statTotalUsers');
+            var e2 = document.getElementById('statVerifiedUsers');
+            var e3 = document.getElementById('statUnverifiedUsers');
+            if (e1) e1.textContent = total;
+            if (e2) e2.textContent = verified;
+            if (e3) e3.textContent = unverified;
         }
 
         // ===== EDIT MODAL =====
@@ -4904,28 +4531,21 @@
                 showToast('Hanya Admin yang bisa mengubah data riwayat.', 'warning');
                 return;
             }
-
             document.getElementById('modalRowIndex').value = docId;
             document.getElementById('modalStatus').value = (o['STATUS'] || 'PENDING').toUpperCase();
-
             var adminFields = document.getElementById('adminOnlyFields');
             var userMsg = document.getElementById('userOnlyMessage');
-
             var tglOrderEl = document.getElementById('modalTglOrder');
             var tglTerimaEl = document.getElementById('modalTglTerimaPart');
             var jumlahEl = document.getElementById('modalJumlah');
             var orderPabrikEl = document.getElementById('modalOrderPabrik');
             var keteranganEl = document.getElementById('modalKeterangan');
-
             tglOrderEl.value = o['Tgl Order'] || '';
             tglTerimaEl.value = o['TGL TERIMA PART'] || '';
             jumlahEl.value = o['JUMLAH'] || '';
             orderPabrikEl.value = o['ORDER KE PABRIK'] || '';
             keteranganEl.value = o['Keterangan Pemenuhan'] || '';
-
-            document.getElementById('modalPartInfo').textContent = (o['NAMA PART'] || '-') + ' | ' + (o['NAMA KONSUMEN'] ||
-                '-');
-
+            document.getElementById('modalPartInfo').textContent = (o['NAMA PART'] || '-') + ' | ' + (o['NAMA KONSUMEN'] || '-');
             if (isAdmin) {
                 adminFields.style.display = 'block';
                 userMsg.style.display = 'none';
@@ -4937,9 +4557,7 @@
                 renderTracking(docId);
                 document.getElementById('trackingDescInput').value = '';
                 document.querySelector('.tracking-add-form').style.display = 'flex';
-                document.querySelectorAll('.tracking-remove').forEach(function(el) {
-                    el.style.display = 'block';
-                });
+                document.querySelectorAll('.tracking-remove').forEach(function(el) { el.style.display = 'block'; });
             } else {
                 adminFields.style.display = 'block';
                 userMsg.style.display = 'block';
@@ -4950,56 +4568,39 @@
                 keteranganEl.disabled = true;
                 renderTracking(docId);
                 document.querySelector('.tracking-add-form').style.display = 'none';
-                document.querySelectorAll('.tracking-remove').forEach(function(el) {
-                    el.style.display = 'none';
-                });
+                document.querySelectorAll('.tracking-remove').forEach(function(el) { el.style.display = 'none'; });
             }
-
             document.getElementById('editModal').classList.add('active');
         }
 
         function submitUpdate() {
             var docId = document.getElementById('modalRowIndex').value;
             var status = document.getElementById('modalStatus').value;
-
-            var updates = {
-                'STATUS': status
-            };
-
+            var updates = { 'STATUS': status };
             if (isAdmin) {
                 var tglTerima = document.getElementById('modalTglTerimaPart').value;
                 var order = allOrders.find(function(o) { return o._docId === docId; });
                 var tglPengajuan = order ? order['TGL PENGAJUAN ORD'] : '';
-
                 var jumlah = document.getElementById('modalJumlah').value;
                 if (tglPengajuan && tglTerima) {
-                    var d1 = new Date(tglPengajuan);
-                    var d2 = new Date(tglTerima);
-                    var diffTime = Math.abs(d2 - d1);
-                    var diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                    jumlah = String(diffDays);
+                    var d1 = new Date(tglPengajuan), d2 = new Date(tglTerima);
+                    jumlah = String(Math.ceil(Math.abs(d2 - d1) / (1000 * 60 * 60 * 24)));
                 }
-
                 updates['Tgl Order'] = document.getElementById('modalTglOrder').value;
                 updates['TGL TERIMA PART'] = tglTerima;
                 updates['JUMLAH'] = jumlah;
                 updates['ORDER KE PABRIK'] = document.getElementById('modalOrderPabrik').value;
                 updates['Keterangan Pemenuhan'] = document.getElementById('modalKeterangan').value;
             }
-
             var sb = document.getElementById('modalSaveBtn');
             sb.disabled = true;
             sb.innerHTML = '<div class="spinner"></div>';
-
             db.collection(ORDERS_COL).doc(docId).update(updates).then(function() {
                 sb.disabled = false;
                 sb.innerHTML = '<i class="fas fa-save"></i> Simpan';
                 var newStatus = updates['STATUS'].toUpperCase();
-                if (newStatus === 'FINISH') {
-                    showToast('Order selesai! Dipindahkan ke Riwayat.', 'success');
-                } else {
-                    showToast('Berhasil diupdate!', 'success');
-                }
+                if (newStatus === 'FINISH') showToast('Order selesai! Dipindahkan ke Riwayat.', 'success');
+                else showToast('Berhasil diupdate!', 'success');
                 closeEditModal();
             }).catch(function(er) {
                 sb.disabled = false;
@@ -5008,7 +4609,6 @@
             });
         }
 
-        // ===== DELETE =====
         function confirmDelete(docId) {
             if (!isAdmin) { showToast('Hanya Admin yang bisa menghapus data riwayat.', 'warning'); return; }
             var o = allOrders.find(function(x) { return x._docId === docId; });
@@ -5018,10 +4618,7 @@
             var ov = document.createElement('div');
             ov.className = 'modal-overlay active';
             ov.id = 'deleteConfirmModal';
-            ov.innerHTML =
-                '<div class="modal" style="max-width:380px;"><div class="modal-header"><h3 style="color:var(--danger);"><i class="fas fa-exclamation-triangle" style="margin-right:8px;"></i>Hapus Order</h3><button class="modal-close" onclick="closeDeleteModal()"><i class="fas fa-times"></i></button></div><div class="modal-body"><p style="color:var(--text-secondary);">Yakin hapus order <strong style="color:var(--accent);">#' +
-                escapeHtml(o['No. Order'] || '-') +
-                '</strong> dari riwayat?</p></div><div class="modal-footer"><button class="btn btn-secondary btn-sm" onclick="closeDeleteModal()">Batal</button><button class="btn btn-danger btn-sm" id="confirmDeleteBtn"><i class="fas fa-trash"></i> Hapus</button></div></div>';
+            ov.innerHTML = '<div class="modal" style="max-width:380px;"><div class="modal-header"><h3 style="color:var(--danger);"><i class="fas fa-exclamation-triangle" style="margin-right:8px;"></i>Hapus Order</h3><button class="modal-close" onclick="closeDeleteModal()"><i class="fas fa-times"></i></button></div><div class="modal-body"><p style="color:var(--text-secondary);">Yakin hapus order <strong style="color:var(--accent);">#' + escapeHtml(o['No. Order'] || '-') + '</strong> dari riwayat?</p></div><div class="modal-footer"><button class="btn btn-secondary btn-sm" onclick="closeDeleteModal()">Batal</button><button class="btn btn-danger btn-sm" id="confirmDeleteBtn"><i class="fas fa-trash"></i> Hapus</button></div></div>';
             document.body.appendChild(ov);
             ov.addEventListener('click', function(e) { if (e.target === ov) closeDeleteModal(); });
             document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
@@ -5029,17 +4626,13 @@
                 deleteOrderAction(docId);
             });
         }
-
         function deleteOrderAction(docId) {
             db.collection(ORDERS_COL).doc(docId).delete().then(function() {
                 removeCacheItem(docId);
                 showToast('Berhasil dihapus!', 'success');
-            }).catch(function(er) {
-                showToast('Error: ' + er.message, 'error');
-            });
+            }).catch(function(er) { showToast('Error: ' + er.message, 'error'); });
         }
 
-        // ===== EXCEL =====
         function downloadExcel(src) {
             var fd = src === 'riwayat' ? getRiwayatOrders() : getFilteredAktif();
             if (fd.length === 0) { showToast('Tidak ada data!', 'error'); return; }
@@ -5047,35 +4640,23 @@
             b.disabled = true;
             b.innerHTML = '<div class="spinner"></div>';
             try {
-                var eh = ['No', 'Status', 'Teknisi', 'Tgl Pengajuan',
-                    'No. Service', 'Type (IDNO)', 'No. Serie', 'No Gudang',
-                    'Nama Part', 'QTY', 'Prod.', 'Layanan', 'Nama Konsumen', 'No. HP',
-                    'Tgl Order', 'Tgl Terima Part', 'Lama Pengiriman', 'No. Order', 'Keterangan'
-                ];
+                var eh = ['No', 'Status', 'Teknisi', 'Tgl Pengajuan', 'No. Service', 'Type (IDNO)', 'No. Serie', 'No Gudang', 'Nama Part', 'QTY', 'Prod.', 'Layanan', 'Nama Konsumen', 'No. HP', 'Tgl Order', 'Tgl Terima Part', 'Lama Pengiriman', 'No. Order', 'Keterangan'];
                 var rows = fd.map(function(o, i) {
                     var jml = o['JUMLAH'] || '';
                     var jmlDisplay = jml ? jml + ' hari' : '';
-                    return [i + 1, o['STATUS'] || '', o['TEKNISI'] || '', formatDateDisplay(o['TGL PENGAJUAN ORD'] ||
-                            ''),
-                        o['NO. SERVICE CASE'] || '', o['TYPE (IDNO)'] || '', o['NO. SERIE'] || '', o['NO GUDANG'] ||
-                        '',
+                    return [i + 1, o['STATUS'] || '', o['TEKNISI'] || '', formatDateDisplay(o['TGL PENGAJUAN ORD'] || ''),
+                        o['NO. SERVICE CASE'] || '', o['TYPE (IDNO)'] || '', o['NO. SERIE'] || '', o['NO GUDANG'] || '',
                         o['NAMA PART'] || '', o['QTY'] || '', o['PROD.'] || '', o['LAYANAN'] || '',
                         o['NAMA KONSUMEN'] || '', o['NO. HP'] || '', formatDateDisplay(o['Tgl Order'] || ''),
                         formatDateDisplay(o['TGL TERIMA PART'] || ''), jmlDisplay,
-                        o['ORDER KE PABRIK'] || '', o['Keterangan Pemenuhan'] || ''
-                    ];
+                        o['ORDER KE PABRIK'] || '', o['Keterangan Pemenuhan'] || ''];
                 });
-                var wb = XLSX.utils.book_new(),
-                    ws = XLSX.utils.aoa_to_sheet([eh].concat(rows));
+                var wb = XLSX.utils.book_new(), ws = XLSX.utils.aoa_to_sheet([eh].concat(rows));
                 XLSX.utils.book_append_sheet(wb, ws, src === 'riwayat' ? 'Riwayat Order' : 'Order Aktif');
-                var t = new Date(),
-                    ds = t.getFullYear() + '' + String(t.getMonth() + 1).padStart(2, '0') + String(t.getDate())
-                    .padStart(2, '0');
+                var t = new Date(), ds = t.getFullYear() + '' + String(t.getMonth() + 1).padStart(2, '0') + String(t.getDate()).padStart(2, '0');
                 XLSX.writeFile(wb, (src === 'riwayat' ? 'Riwayat_' : 'Order_Aktif_') + ds + '.xlsx');
                 showToast('Excel terdownload!', 'success');
-            } catch (er) {
-                showToast('Gagal: ' + er.message, 'error');
-            }
+            } catch (er) { showToast('Gagal: ' + er.message, 'error'); }
             setTimeout(function() {
                 b.disabled = false;
                 b.innerHTML = '<i class="fas fa-file-excel"></i> Download';
@@ -5084,12 +4665,8 @@
 
         function getFilteredAktif() {
             var f = getAktifOrders();
-            if (currentFilter !== 'all') f = f.filter(function(o) { return (o['STATUS'] || '').toUpperCase() ===
-                    currentFilter; });
-            if (filterTeknisiAktif) {
-                f = f.filter(function(o) { return (o['TEKNISI'] || '').toUpperCase() === filterTeknisiAktif
-                        .toUpperCase(); });
-            }
+            if (currentFilter !== 'all') f = f.filter(function(o) { return (o['STATUS'] || '').toUpperCase() === currentFilter; });
+            if (filterTeknisiAktif) f = f.filter(function(o) { return (o['TEKNISI'] || '').toUpperCase() === filterTeknisiAktif.toUpperCase(); });
             var s = (document.getElementById('searchInput').value || '').toLowerCase();
             if (s) f = f.filter(function(o) {
                 return Object.values(o).some(function(v) { return String(v).toLowerCase().includes(s); });
@@ -5105,11 +4682,9 @@
             renderAktifTable();
         }
 
-        // ===== TOAST =====
         function showToast(m, t) {
             var c = document.getElementById('toastContainer'),
-                ic = { success: 'fas fa-check-circle', error: 'fas fa-exclamation-circle', info: 'fas fa-info-circle',
-                    warning: 'fas fa-exclamation-triangle' },
+                ic = { success: 'fas fa-check-circle', error: 'fas fa-exclamation-circle', info: 'fas fa-info-circle', warning: 'fas fa-exclamation-triangle' },
                 ts = document.createElement('div');
             ts.className = 'toast ' + t;
             ts.innerHTML = '<i class="' + (ic[t] || ic.info) + '"></i><span>' + escapeHtml(m) + '</span>';
@@ -5127,32 +4702,25 @@
             if (el) el.textContent = 'Sync: ' + t;
         }
 
-        // ===== KEYBOARD SHORTCUTS =====
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeInputModal();
                 closeEditModal();
                 closeDeleteModal();
+                closeDeleteUserModal();
                 closeUserDD();
                 var so = document.getElementById('successOverlay');
                 if (so.classList.contains('active')) so.classList.remove('active');
-                if (isUploading) {
-                    cancelUpload();
-                }
+                if (isUploading) cancelUpload();
             }
         });
         document.getElementById('inputModal').addEventListener('click', function(e) { if (e.target === this) closeInputModal(); });
         document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeEditModal(); });
 
-        console.log('✅ Aplikasi siap - dengan animasi progress upload!');
-        console.log('📎 Kirim file: JPG, PNG, PDF, XLSX/XLS via GoFile.io');
-        console.log('📊 Progress bar dan persentase saat upload file');
-        console.log('🔍 Cari file berdasarkan nama dan filter (Gambar/PDF/Excel)');
-        console.log('💬 Chat menampilkan tanggal dan jam dengan format DD/MM/YYYY HH:MM');
-        console.log('🗑️ Hover pesan untuk melihat tombol hapus (Admin only)');
-        console.log('❌ Tombol Batal untuk membatalkan upload');
-        console.log('🔄 Tracking TERIMA otomatis ubah status order menjadi READY');
-        console.log('🎨 READY = HIJAU | GOTW = warna READY sebelumnya (kuning/emas)');
+        console.log('✅ Aplikasi siap - dengan verifikasi user & tombol hapus user belum terverifikasi!');
+        console.log('🗑️ User belum terverifikasi dapat dihapus dari daftar oleh Admin');
+        console.log('👤 Hanya admin yang bisa memverifikasi user');
+        console.log('🔒 User yang belum diverifikasi tidak bisa login');
     </script>
 </body>
 </html>
