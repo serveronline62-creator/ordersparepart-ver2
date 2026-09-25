@@ -2130,7 +2130,136 @@
         }
         .table-footer .row-count { font-family: 'JetBrains Mono', monospace; }
 
-        /* ===== USER VERIFICATION STYLES ===== */
+        /* ===== USER VERIFICATION STYLES (Pengaturan) ===== */
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+        .settings-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+        }
+        .settings-card h3 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .settings-card h3 i { color: var(--accent); }
+        .settings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 1rem;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+        .settings-list::-webkit-scrollbar { width: 3px; }
+        .settings-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+        .settings-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background: var(--bg-input);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            font-size: 0.8rem;
+            transition: all 0.2s ease;
+        }
+        .settings-item:hover {
+            border-color: var(--accent);
+            background: var(--accent-dim);
+        }
+        .settings-item .item-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 0;
+        }
+        .settings-item .item-info i {
+            color: var(--accent);
+            font-size: 0.8rem;
+            width: 16px;
+            text-align: center;
+        }
+        .settings-item .item-info span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .settings-item .item-info .item-sub {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-left: 4px;
+        }
+        .settings-item .item-actions {
+            display: flex;
+            gap: 4px;
+            flex-shrink: 0;
+        }
+        .settings-item .item-actions button {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+            transition: all 0.2s;
+            font-size: 0.7rem;
+        }
+        .settings-item .item-actions button:hover {
+            background: var(--accent-dim);
+            color: var(--accent);
+        }
+        .settings-item .item-actions button.delete:hover {
+            background: rgba(239,68,68,0.1);
+            color: var(--danger);
+        }
+        .settings-add-form {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .settings-add-form input {
+            flex: 1;
+            min-width: 120px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 8px 12px;
+            font-family: inherit;
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            outline: none;
+        }
+        .settings-add-form input:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 2px var(--accent-dim);
+        }
+        .settings-add-form input::placeholder { color: var(--text-muted); }
+        .settings-add-form .btn {
+            padding: 8px 16px;
+            font-size: 0.78rem;
+            flex-shrink: 0;
+        }
+        .settings-empty {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-style: italic;
+            text-align: center;
+            padding: 0.5rem 0;
+        }
+
+        /* User verification styles (existing) */
         .verification-badge {
             font-size: 0.6rem;
             font-weight: 800;
@@ -2395,6 +2524,10 @@
                 flex: 1;
                 justify-content: center;
             }
+            .settings-grid {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
         }
         @media (max-width: 480px) {
             .stats-row, .riwayat-stats {
@@ -2413,6 +2546,7 @@
                 font-size: 0.7rem;
                 padding: 5px 10px;
             }
+            .settings-add-form input { min-width: 80px; }
         }
     </style>
 </head>
@@ -2493,7 +2627,7 @@
                 <button class="main-tab active" onclick="switchMainTab('aktif', this)"><i class="fas fa-tasks"></i> Order Aktif <span class="tab-count" id="tabCountAktif">0</span></button>
                 <button class="main-tab" onclick="switchMainTab('riwayat', this)"><i class="fas fa-history"></i> Riwayat Order <span class="tab-count" id="tabCountRiwayat">0</span></button>
                 <button class="main-tab" onclick="switchMainTab('serviceinfo', this)"><i class="fas fa-headset"></i> Service Informasi <span class="tab-count" id="tabCountService">0</span></button>
-                <button class="main-tab" id="tabVerifikasiUser" onclick="switchMainTab('verifikasi', this)" style="display:none;"><i class="fas fa-user-check"></i> Verifikasi User <span class="tab-count" id="tabCountVerifikasi">0</span></button>
+                <button class="main-tab" id="tabPengaturan" onclick="switchMainTab('pengaturan', this)" style="display:none;"><i class="fas fa-cog"></i> Pengaturan <span class="tab-count" id="tabCountPengaturan">0</span></button>
             </div>
 
             <!-- ===== TAB AKTIF ===== -->
@@ -2693,8 +2827,8 @@
                 </div>
             </div>
 
-            <!-- ===== TAB VERIFIKASI USER (ADMIN ONLY) ===== -->
-            <div class="tab-panel" id="panelVerifikasi">
+            <!-- ===== TAB PENGATURAN (ADMIN ONLY) ===== -->
+            <div class="tab-panel" id="panelPengaturan">
                 <div class="stats-row">
                     <div class="stat-card"><div class="stat-icon total"><i class="fas fa-users"></i></div><div><div class="stat-value" id="statTotalUsers">0</div><div class="stat-label">Total User</div></div></div>
                     <div class="stat-card"><div class="stat-icon ready"><i class="fas fa-user-check"></i></div><div><div class="stat-value" id="statVerifiedUsers">0</div><div class="stat-label">Terverifikasi</div></div></div>
@@ -2702,16 +2836,61 @@
                 </div>
                 <div class="table-card">
                     <div class="table-toolbar">
-                        <h2><i class="fas fa-user-check" style="color:var(--accent);"></i> Verifikasi User</h2>
+                        <h2><i class="fas fa-cog" style="color:var(--accent);"></i> Pengaturan</h2>
                         <div class="toolbar-right">
-                            <div class="search-box"><i class="fas fa-search"></i><input type="text" placeholder="Cari user..." id="searchUser" oninput="renderUserVerification()" /></div>
-                            <button class="btn btn-secondary btn-sm" onclick="loadUsers()"><i class="fas fa-sync"></i> Refresh</button>
+                            <button class="btn btn-secondary btn-sm" onclick="loadUsers()"><i class="fas fa-sync"></i> Refresh User</button>
                         </div>
                     </div>
-                    <div class="user-verify-list" id="userVerifyList">
-                        <div class="verification-empty"><i class="fas fa-spinner fa-spin"></i><p>Memuat data user...</p></div>
+                    <div class="settings-grid">
+                        <!-- Verifikasi User -->
+                        <div class="settings-card" style="grid-column: 1 / -1;">
+                            <h3><i class="fas fa-user-check"></i> Verifikasi User</h3>
+                            <div style="margin-bottom:0.75rem;">
+                                <div class="search-box" style="width:100%;"><i class="fas fa-search"></i><input type="text" placeholder="Cari user..." id="searchUser" oninput="renderUserVerification()" style="width:100%;" /></div>
+                            </div>
+                            <div class="user-verify-list" id="userVerifyList" style="padding:0;max-height:400px;">
+                                <div class="verification-empty"><i class="fas fa-spinner fa-spin"></i><p>Memuat data user...</p></div>
+                            </div>
+                        </div>
+
+                        <!-- Teknisi & Nomor HP -->
+                        <div class="settings-card">
+                            <h3><i class="fas fa-user-cog"></i> Teknisi & Nomor HP</h3>
+                            <div class="settings-list" id="teknisiSettingsList">
+                                <div class="settings-empty">Memuat...</div>
+                            </div>
+                            <div class="settings-add-form">
+                                <input type="text" id="newTeknisiNama" placeholder="Nama Teknisi" />
+                                <input type="text" id="newTeknisiNomor" placeholder="No. HP (62...)" />
+                                <button class="btn btn-primary btn-sm" onclick="addTeknisiSetting()"><i class="fas fa-plus"></i> Tambah</button>
+                            </div>
+                        </div>
+
+                        <!-- Layanan -->
+                        <div class="settings-card">
+                            <h3><i class="fas fa-tools"></i> Layanan</h3>
+                            <div class="settings-list" id="layananSettingsList">
+                                <div class="settings-empty">Memuat...</div>
+                            </div>
+                            <div class="settings-add-form">
+                                <input type="text" id="newLayanan" placeholder="Nama Layanan" />
+                                <button class="btn btn-primary btn-sm" onclick="addLayananSetting()"><i class="fas fa-plus"></i> Tambah</button>
+                            </div>
+                        </div>
+
+                        <!-- Prod -->
+                        <div class="settings-card">
+                            <h3><i class="fas fa-industry"></i> Prod.</h3>
+                            <div class="settings-list" id="prodSettingsList">
+                                <div class="settings-empty">Memuat...</div>
+                            </div>
+                            <div class="settings-add-form">
+                                <input type="text" id="newProd" placeholder="Nama Prod." />
+                                <button class="btn btn-primary btn-sm" onclick="addProdSetting()"><i class="fas fa-plus"></i> Tambah</button>
+                            </div>
+                        </div>
                     </div>
-                    <div class="table-footer"><span>Verifikasi User &mdash; hanya admin</span><span style="display:flex;align-items:center;gap:6px;"><span class="sync-dot" style="width:6px;height:6px;"></span> Copyright © 2026, GBS</span></div>
+                    <div class="table-footer"><span>Pengaturan &mdash; hanya admin</span><span style="display:flex;align-items:center;gap:6px;"><span class="sync-dot" style="width:6px;height:6px;"></span> Copyright © 2026, GBS</span></div>
                 </div>
             </div>
         </main>
@@ -2742,7 +2921,7 @@
                 <form id="orderForm" onsubmit="handleSubmit(event)" novalidate>
                     <div class="form-section-title">Informasi Teknisi & Service</div>
                     <div class="form-grid">
-                        <div class="form-group"><label class="form-label">Teknisi <span class="required">*</span></label><select class="form-select" name="TEKNISI" required><option value="">-- Pilih --</option><option value="YANDRI OTTU">YANDRI OTTU</option><option value="HARMINDO LAMMA">HARMINDO LAMMA</option><option value="INOSENCIUS FA'OT">INOSENCIUS FA'OT</option><option value="RIZALDI ABDULLAH">RIZALDI ABDULLAH</option><option value="KRISTIAN OPENG">KRISTIAN OPENG</option><option value="MUHAMMAD FAUZI">MUHAMMAD FAUZI</option></select></div>
+                        <div class="form-group"><label class="form-label">Teknisi <span class="required">*</span></label><select class="form-select" name="TEKNISI" id="selectTeknisi" required><option value="">-- Pilih --</option></select></div>
                         <div class="form-group"><label class="form-label">Tgl Pengajuan <span class="required">*</span></label><input class="form-input" type="date" name="TGL PENGAJUAN ORD" id="inpTglPengajuan" required /></div>
                         <div class="form-group"><label class="form-label">No. Service Case</label><input class="form-input" type="text" name="NO. SERVICE CASE" placeholder="Opsional" /></div>
                     </div>
@@ -2753,8 +2932,8 @@
                         <div class="form-group"><label class="form-label">No Gudang</label><input class="form-input" type="text" name="NO GUDANG" /></div>
                         <div class="form-group"><label class="form-label">Nama Part <span class="required">*</span></label><input class="form-input" type="text" name="NAMA PART" required /></div>
                         <div class="form-group"><label class="form-label">QTY <span class="required">*</span></label><input class="form-input" type="number" name="QTY" min="1" required /></div>
-                        <div class="form-group"><label class="form-label">Prod. <span class="required">*</span></label><select class="form-select" name="PROD." required><option value="">-- Pilih --</option><option value="AV">AV</option><option value="HA.">HA.</option><option value="EV">EV</option><option value="LAPTOP">LAPTOP</option></select></div>
-                        <div class="form-group"><label class="form-label">Layanan <span class="required">*</span></label><select class="form-select" name="LAYANAN" required><option value="">-- Pilih --</option><option value="KONSUMEN LANGSUNG">KONSUMEN LANGSUNG</option><option value="KUNJUNGAN TOKO">KUNJUNGAN TOKO</option><option value="KUNJUNGAN CALL">KUNJUNGAN CALL</option><option value="KUNJUNGAN LUAR KOTA">KUNJUNGAN LUAR KOTA</option><option value="LUAR KOTA PSR FLORES">LUAR KOTA PSR FLORES</option></select></div>
+                        <div class="form-group"><label class="form-label">Prod. <span class="required">*</span></label><select class="form-select" name="PROD." id="selectProd" required><option value="">-- Pilih --</option></select></div>
+                        <div class="form-group"><label class="form-label">Layanan <span class="required">*</span></label><select class="form-select" name="LAYANAN" id="selectLayanan" required><option value="">-- Pilih --</option></select></div>
                     </div>
                     <div class="form-section-title">Informasi Konsumen</div>
                     <div class="form-grid">
@@ -2872,7 +3051,8 @@
             auth = firebase.auth(),
             ORDERS_COL = 'orders',
             SERVICE_COL = 'serviceInfo',
-            USERS_COL = 'users';
+            USERS_COL = 'users',
+            SETTINGS_COL = 'settings';
 
         var ADMIN_EMAIL = 'admin@app.local';
         var isAdmin = false;
@@ -2891,14 +3071,26 @@
         var currentPageAktif = 1;
         var currentPageRiwayat = 1;
 
-        var TEKNISI_LIST = [
-            { nama: "YANDRI OTTU", nomor: "6282236369250" },
-            { nama: "HARMINDO LAMMA", nomor: "6285792383538" },
-            { nama: "INOSENCIUS FA'OT", nomor: "6281339239612" },
-            { nama: "RIZALDI ABDULLAH", nomor: "6281344134334" },
-            { nama: "KRISTIAN OPENG", nomor: "6282144373727" },
-            { nama: "MUHAMMAD FAUZI", nomor: "6281328162259" }
-        ];
+        // ===== SETTINGS STATE =====
+        var settingsData = {
+            teknisi: [
+                { nama: "YANDRI OTTU", nomor: "6282236369250" },
+                { nama: "HARMINDO LAMMA", nomor: "6285792383538" },
+                { nama: "INOSENCIUS FA'OT", nomor: "6281339239612" },
+                { nama: "RIZALDI ABDULLAH", nomor: "6281344134334" },
+                { nama: "KRISTIAN OPENG", nomor: "6282144373727" },
+                { nama: "MUHAMMAD FAUZI", nomor: "6281328162259" }
+            ],
+            layanan: [
+                "KONSUMEN LANGSUNG",
+                "KUNJUNGAN TOKO",
+                "KUNJUNGAN CALL",
+                "KUNJUNGAN LUAR KOTA",
+                "LUAR KOTA PSR FLORES"
+            ],
+            prod: ["AV", "HA.", "EV", "LAPTOP"]
+        };
+        var settingsUnsubscribe = null;
 
         var currentTrackingDocId = null;
         var trackingData = [];
@@ -3179,7 +3371,7 @@
         }
 
         function getTeknisiPhone(nama) {
-            var found = TEKNISI_LIST.find(function(t) { return t.nama === nama; });
+            var found = settingsData.teknisi.find(function(t) { return t.nama === nama; });
             return found ? found.nomor : null;
         }
 
@@ -3763,6 +3955,7 @@
             if (realtimeUnsubscribe) { realtimeUnsubscribe(); realtimeUnsubscribe = null; }
             if (serviceUnsubscribe) { serviceUnsubscribe(); serviceUnsubscribe = null; }
             if (usersUnsubscribe) { usersUnsubscribe(); usersUnsubscribe = null; }
+            if (settingsUnsubscribe) { settingsUnsubscribe(); settingsUnsubscribe = null; }
             auth.signOut().then(function() {
                 allOrders = []; allUsers = [];
                 newRowIndices.clear();
@@ -3781,7 +3974,7 @@
                 var uv = document.getElementById('userVerifyList');
                 if (uv) uv.innerHTML = '<div class="verification-empty"><i class="fas fa-spinner fa-spin"></i><p>Memuat data user...</p></div>';
                 ['statTotal', 'statPending', 'statProses', 'statGotw', 'statReady', 'statRiwayat', 'tabCountAktif',
-                    'tabCountRiwayat', 'statChatTotal', 'statFileTotal', 'tabCountService', 'tabCountVerifikasi',
+                    'tabCountRiwayat', 'statChatTotal', 'statFileTotal', 'tabCountService',
                     'statTotalUsers', 'statVerifiedUsers', 'statUnverifiedUsers'
                 ].forEach(function(id) {
                     var el = document.getElementById(id);
@@ -3791,8 +3984,8 @@
                 document.getElementById('registerForm').reset();
                 document.getElementById('pwStrBar').style.width = '0';
                 document.getElementById('pwStrTxt').textContent = '';
-                var tabVerifikasi = document.getElementById('tabVerifikasiUser');
-                if (tabVerifikasi) tabVerifikasi.style.display = 'none';
+                var tabPengaturan = document.getElementById('tabPengaturan');
+                if (tabPengaturan) tabPengaturan.style.display = 'none';
                 switchAuthTab('login', document.querySelector('.auth-tab'));
                 showToast('Berhasil keluar.', 'info');
             });
@@ -3837,8 +4030,8 @@
         });
 
         function switchMainTab(tab, btn) {
-            if (tab === 'verifikasi' && !isAdmin) {
-                showToast('Hanya Admin yang bisa mengakses Verifikasi User.', 'warning');
+            if (tab === 'pengaturan' && !isAdmin) {
+                showToast('Hanya Admin yang bisa mengakses Pengaturan.', 'warning');
                 return;
             }
             currentMainTab = tab;
@@ -3846,9 +4039,9 @@
             document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
             btn.classList.add('active');
             document.getElementById(tab === 'aktif' ? 'panelAktif' : tab === 'riwayat' ? 'panelRiwayat' :
-                tab === 'verifikasi' ? 'panelVerifikasi' : 'panelServiceinfo').classList.add('active');
+                tab === 'pengaturan' ? 'panelPengaturan' : 'panelServiceinfo').classList.add('active');
             if (tab === 'serviceinfo') loadServiceInfo();
-            else if (tab === 'verifikasi') loadUsers();
+            else if (tab === 'pengaturan') { loadUsers(); loadSettings(); }
         }
 
         auth.onAuthStateChanged(function(user) {
@@ -3857,8 +4050,8 @@
                 document.getElementById('authScreen').classList.add('hidden');
                 document.getElementById('appWrapper').classList.add('visible');
                 updateUserUI(user);
-                var tabVerifikasi = document.getElementById('tabVerifikasiUser');
-                if (tabVerifikasi) tabVerifikasi.style.display = isAdmin ? 'flex' : 'none';
+                var tabPengaturan = document.getElementById('tabPengaturan');
+                if (tabPengaturan) tabPengaturan.style.display = isAdmin ? 'flex' : 'none';
 
                 var userRef = db.collection(USERS_COL).doc(user.uid);
                 userRef.get().then(function(doc) {
@@ -3880,6 +4073,7 @@
                     setDefaultDate();
                     startDataEngine();
                     loadServiceInfo();
+                    loadSettings();
                 } else renderAll();
             } else {
                 document.getElementById('authScreen').classList.remove('hidden');
@@ -3992,7 +4186,7 @@
         function closeEditModal() { document.getElementById('editModal').classList.remove('active'); }
         function closeDeleteModal() { var m = document.getElementById('deleteConfirmModal'); if (m) m.remove(); }
         function closeSuccess() { document.getElementById('successOverlay').classList.remove('active'); }
-        function resetForm() { document.getElementById('orderForm').reset(); setDefaultDate(); }
+        function resetForm() { document.getElementById('orderForm').reset(); setDefaultDate(); populateFormDropdowns(); }
         function setDefaultDate() {
             var t = new Date().toISOString().split('T')[0],
                 d = document.getElementById('inpTglPengajuan');
@@ -4359,7 +4553,7 @@
                 renderUserVerification();
                 updateUserStats();
                 var pendingCount = users.filter(function(u) { return u.verified !== true; }).length;
-                var tabCountEl = document.getElementById('tabCountVerifikasi');
+                var tabCountEl = document.getElementById('tabCountPengaturan');
                 if (tabCountEl) tabCountEl.textContent = pendingCount;
             }, function(err) {
                 console.error('Users load error:', err);
@@ -4382,13 +4576,11 @@
                 return;
             }
 
-            // Sort: unverified first, then verified
             var unverifiedList = filtered.filter(function(u) { return u.verified !== true; });
             var verifiedList = filtered.filter(function(u) { return u.verified === true; });
 
             var html = '';
 
-            // Render unverified users with DELETE button
             if (unverifiedList.length > 0) {
                 html += '<div style="font-size:0.7rem;font-weight:700;color:var(--warning);text-transform:uppercase;letter-spacing:1px;padding:0.25rem 0.5rem;display:flex;align-items:center;gap:8px;"><i class="fas fa-user-clock"></i> Belum Verifikasi (' + unverifiedList.length + ')</div>';
                 unverifiedList.forEach(function(u) {
@@ -4410,7 +4602,6 @@
                 });
             }
 
-            // Render verified users with REJECT button
             if (verifiedList.length > 0) {
                 html += '<div style="font-size:0.7rem;font-weight:700;color:var(--success);text-transform:uppercase;letter-spacing:1px;padding:0.5rem 0.5rem 0.25rem 0.5rem;display:flex;align-items:center;gap:8px;margin-top:0.5rem;"><i class="fas fa-user-check"></i> Terverifikasi (' + verifiedList.length + ')</div>';
                 verifiedList.forEach(function(u) {
@@ -4449,7 +4640,6 @@
             });
         }
 
-        // ===== DELETE UNVERIFIED USER =====
         function deleteUnverifiedUser(docId, email) {
             if (!isAdmin) { showToast('Hanya Admin yang bisa menghapus user.', 'warning'); return; }
 
@@ -4463,7 +4653,6 @@
 
             if (!confirm('⚠️ Hapus user "' + (user.name || email) + '" (' + email + ')?\n\nUser ini belum terverifikasi dan akan dihapus permanen dari daftar. Tindakan ini tidak bisa dibatalkan.')) return;
 
-            // Show confirmation modal for extra safety
             var em = document.getElementById('deleteUserConfirmModal');
             if (em) em.remove();
             var ov = document.createElement('div');
@@ -4502,7 +4691,6 @@
         function executeDeleteUser(docId, email) {
             db.collection(USERS_COL).doc(docId).delete().then(function() {
                 showToast('User "' + email + '" berhasil dihapus dari daftar!', 'success');
-                // If currently logged in user deletes their own unverified account, log them out
                 if (auth.currentUser && auth.currentUser.email === email) {
                     auth.signOut();
                 }
@@ -4521,6 +4709,219 @@
             if (e1) e1.textContent = total;
             if (e2) e2.textContent = verified;
             if (e3) e3.textContent = unverified;
+        }
+
+        // ===== SETTINGS FUNCTIONS (NEW) =====
+        function loadSettings() {
+            if (settingsUnsubscribe) { settingsUnsubscribe(); settingsUnsubscribe = null; }
+            settingsUnsubscribe = db.collection(SETTINGS_COL).doc('config').onSnapshot(function(doc) {
+                if (doc.exists) {
+                    var data = doc.data();
+                    if (data.teknisi && Array.isArray(data.teknisi)) settingsData.teknisi = data.teknisi;
+                    if (data.layanan && Array.isArray(data.layanan)) settingsData.layanan = data.layanan;
+                    if (data.prod && Array.isArray(data.prod)) settingsData.prod = data.prod;
+                }
+                renderSettingsLists();
+                populateFormDropdowns();
+            }, function(err) {
+                console.error('Settings load error:', err);
+                renderSettingsLists();
+            });
+        }
+
+        function saveSettings() {
+            if (!isAdmin) { showToast('Hanya Admin yang bisa mengubah pengaturan.', 'warning'); return; }
+            db.collection(SETTINGS_COL).doc('config').set({
+                teknisi: settingsData.teknisi,
+                layanan: settingsData.layanan,
+                prod: settingsData.prod
+            }, { merge: true }).then(function() {
+                showToast('Pengaturan disimpan!', 'success');
+            }).catch(function(err) {
+                showToast('Gagal simpan pengaturan: ' + err.message, 'error');
+            });
+        }
+
+        function renderSettingsLists() {
+            // Teknisi
+            var teknisiList = document.getElementById('teknisiSettingsList');
+            if (teknisiList) {
+                if (settingsData.teknisi.length === 0) {
+                    teknisiList.innerHTML = '<div class="settings-empty">Belum ada data teknisi.</div>';
+                } else {
+                    var html = '';
+                    settingsData.teknisi.forEach(function(t, i) {
+                        html += '<div class="settings-item">' +
+                            '<div class="item-info"><i class="fas fa-user"></i><span>' + escapeHtml(t.nama) + ' <span class="item-sub">' + escapeHtml(t.nomor || '-') + '</span></span></div>' +
+                            '<div class="item-actions">' +
+                            '<button onclick="editTeknisiSetting(' + i + ')" title="Edit"><i class="fas fa-pen"></i></button>' +
+                            '<button class="delete" onclick="deleteTeknisiSetting(' + i + ')" title="Hapus"><i class="fas fa-trash"></i></button>' +
+                            '</div></div>';
+                    });
+                    teknisiList.innerHTML = html;
+                }
+            }
+            // Layanan
+            var layananList = document.getElementById('layananSettingsList');
+            if (layananList) {
+                if (settingsData.layanan.length === 0) {
+                    layananList.innerHTML = '<div class="settings-empty">Belum ada data layanan.</div>';
+                } else {
+                    var html = '';
+                    settingsData.layanan.forEach(function(l, i) {
+                        html += '<div class="settings-item">' +
+                            '<div class="item-info"><i class="fas fa-tools"></i><span>' + escapeHtml(l) + '</span></div>' +
+                            '<div class="item-actions">' +
+                            '<button onclick="editLayananSetting(' + i + ')" title="Edit"><i class="fas fa-pen"></i></button>' +
+                            '<button class="delete" onclick="deleteLayananSetting(' + i + ')" title="Hapus"><i class="fas fa-trash"></i></button>' +
+                            '</div></div>';
+                    });
+                    layananList.innerHTML = html;
+                }
+            }
+            // Prod
+            var prodList = document.getElementById('prodSettingsList');
+            if (prodList) {
+                if (settingsData.prod.length === 0) {
+                    prodList.innerHTML = '<div class="settings-empty">Belum ada data prod.</div>';
+                } else {
+                    var html = '';
+                    settingsData.prod.forEach(function(p, i) {
+                        html += '<div class="settings-item">' +
+                            '<div class="item-info"><i class="fas fa-industry"></i><span>' + escapeHtml(p) + '</span></div>' +
+                            '<div class="item-actions">' +
+                            '<button onclick="editProdSetting(' + i + ')" title="Edit"><i class="fas fa-pen"></i></button>' +
+                            '<button class="delete" onclick="deleteProdSetting(' + i + ')" title="Hapus"><i class="fas fa-trash"></i></button>' +
+                            '</div></div>';
+                    });
+                    prodList.innerHTML = html;
+                }
+            }
+        }
+
+        function populateFormDropdowns() {
+            var selectTeknisi = document.getElementById('selectTeknisi');
+            var selectLayanan = document.getElementById('selectLayanan');
+            var selectProd = document.getElementById('selectProd');
+            if (selectTeknisi) {
+                var currentVal = selectTeknisi.value;
+                selectTeknisi.innerHTML = '<option value="">-- Pilih --</option>';
+                settingsData.teknisi.forEach(function(t) {
+                    var opt = document.createElement('option');
+                    opt.value = t.nama;
+                    opt.textContent = t.nama;
+                    selectTeknisi.appendChild(opt);
+                });
+                if (currentVal) selectTeknisi.value = currentVal;
+            }
+            if (selectLayanan) {
+                var currentVal = selectLayanan.value;
+                selectLayanan.innerHTML = '<option value="">-- Pilih --</option>';
+                settingsData.layanan.forEach(function(l) {
+                    var opt = document.createElement('option');
+                    opt.value = l;
+                    opt.textContent = l;
+                    selectLayanan.appendChild(opt);
+                });
+                if (currentVal) selectLayanan.value = currentVal;
+            }
+            if (selectProd) {
+                var currentVal = selectProd.value;
+                selectProd.innerHTML = '<option value="">-- Pilih --</option>';
+                settingsData.prod.forEach(function(p) {
+                    var opt = document.createElement('option');
+                    opt.value = p;
+                    opt.textContent = p;
+                    selectProd.appendChild(opt);
+                });
+                if (currentVal) selectProd.value = currentVal;
+            }
+        }
+
+        function addTeknisiSetting() {
+            if (!isAdmin) { showToast('Hanya Admin.', 'warning'); return; }
+            var nama = document.getElementById('newTeknisiNama').value.trim();
+            var nomor = document.getElementById('newTeknisiNomor').value.trim();
+            if (!nama) { showToast('Nama teknisi wajib diisi.', 'warning'); return; }
+            if (!nomor) { showToast('Nomor HP wajib diisi.', 'warning'); return; }
+            settingsData.teknisi.push({ nama: nama, nomor: nomor });
+            saveSettings();
+            document.getElementById('newTeknisiNama').value = '';
+            document.getElementById('newTeknisiNomor').value = '';
+        }
+
+        function editTeknisiSetting(index) {
+            if (!isAdmin) { showToast('Hanya Admin.', 'warning'); return; }
+            var t = settingsData.teknisi[index];
+            var newNama = prompt('Nama Teknisi:', t.nama);
+            if (newNama === null) return;
+            newNama = newNama.trim();
+            if (!newNama) { showToast('Nama tidak boleh kosong.', 'warning'); return; }
+            var newNomor = prompt('Nomor HP (62...):', t.nomor);
+            if (newNomor === null) return;
+            newNomor = newNomor.trim();
+            if (!newNomor) { showToast('Nomor HP tidak boleh kosong.', 'warning'); return; }
+            settingsData.teknisi[index] = { nama: newNama, nomor: newNomor };
+            saveSettings();
+        }
+
+        function deleteTeknisiSetting(index) {
+            if (!isAdmin) { showToast('Hanya Admin.', 'warning'); return; }
+            if (!confirm('Hapus teknisi "' + settingsData.teknisi[index].nama + '"?')) return;
+            settingsData.teknisi.splice(index, 1);
+            saveSettings();
+        }
+
+        function addLayananSetting() {
+            if (!isAdmin) { showToast('Hanya Admin.', 'warning'); return; }
+            var val = document.getElementById('newLayanan').value.trim();
+            if (!val) { showToast('Nama Layanan wajib diisi.', 'warning'); return; }
+            settingsData.layanan.push(val);
+            saveSettings();
+            document.getElementById('newLayanan').value = '';
+        }
+
+        function editLayananSetting(index) {
+            if (!isAdmin) { showToast('Hanya Admin.', 'warning'); return; }
+            var val = prompt('Nama Layanan:', settingsData.layanan[index]);
+            if (val === null) return;
+            val = val.trim();
+            if (!val) { showToast('Nama Layanan tidak boleh kosong.', 'warning'); return; }
+            settingsData.layanan[index] = val;
+            saveSettings();
+        }
+
+        function deleteLayananSetting(index) {
+            if (!isAdmin) { showToast('Hanya Admin.', 'warning'); return; }
+            if (!confirm('Hapus layanan "' + settingsData.layanan[index] + '"?')) return;
+            settingsData.layanan.splice(index, 1);
+            saveSettings();
+        }
+
+        function addProdSetting() {
+            if (!isAdmin) { showToast('Hanya Admin.', 'warning'); return; }
+            var val = document.getElementById('newProd').value.trim();
+            if (!val) { showToast('Nama Prod. wajib diisi.', 'warning'); return; }
+            settingsData.prod.push(val);
+            saveSettings();
+            document.getElementById('newProd').value = '';
+        }
+
+        function editProdSetting(index) {
+            if (!isAdmin) { showToast('Hanya Admin.', 'warning'); return; }
+            var val = prompt('Nama Prod.:', settingsData.prod[index]);
+            if (val === null) return;
+            val = val.trim();
+            if (!val) { showToast('Nama Prod. tidak boleh kosong.', 'warning'); return; }
+            settingsData.prod[index] = val;
+            saveSettings();
+        }
+
+        function deleteProdSetting(index) {
+            if (!isAdmin) { showToast('Hanya Admin.', 'warning'); return; }
+            if (!confirm('Hapus Prod. "' + settingsData.prod[index] + '"?')) return;
+            settingsData.prod.splice(index, 1);
+            saveSettings();
         }
 
         // ===== EDIT MODAL =====
@@ -4717,10 +5118,12 @@
         document.getElementById('inputModal').addEventListener('click', function(e) { if (e.target === this) closeInputModal(); });
         document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeEditModal(); });
 
-        console.log('✅ Aplikasi siap - dengan verifikasi user & tombol hapus user belum terverifikasi!');
-        console.log('🗑️ User belum terverifikasi dapat dihapus dari daftar oleh Admin');
-        console.log('👤 Hanya admin yang bisa memverifikasi user');
-        console.log('🔒 User yang belum diverifikasi tidak bisa login');
+        // Initialize settings dropdown when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            populateFormDropdowns();
+        });
+
+        console.log('✅ Aplikasi siap - dengan menu Pengaturan (verifikasi user + teknisi + layanan + prod)!');
     </script>
 </body>
 </html>
