@@ -1558,6 +1558,34 @@
             100% { background: transparent !important; box-shadow: none; }
         }
 
+        /* ===== SORTABLE HEADER ===== */
+        .data-table thead th.sortable {
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.2s ease;
+            position: relative;
+        }
+        .data-table thead th.sortable:hover {
+            color: var(--accent);
+        }
+        .data-table thead th.sortable .sort-icon {
+            margin-left: 4px;
+            font-size: 0.6rem;
+            opacity: 0.4;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            display: inline-block;
+        }
+        .data-table thead th.sortable.active .sort-icon {
+            opacity: 1;
+            color: var(--accent);
+        }
+        .data-table thead th.sortable.active.asc .sort-icon {
+            transform: rotate(0deg);
+        }
+        .data-table thead th.sortable.active.desc .sort-icon {
+            transform: rotate(180deg);
+        }
+
         /* ===== STATUS BADGE ===== */
         .status-badge {
             display: inline-flex;
@@ -2667,29 +2695,8 @@
                             <p style="color:var(--text-muted);font-size:0.82rem;margin-top:0.5rem;">Memuat data...</p>
                         </div>
                         <table class="data-table" id="dataTableEl" style="display:none;">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Status</th>
-                                    <th>Teknisi</th>
-                                    <th>Tgl Pengajuan</th>
-                                    <th>No. Service</th>
-                                    <th>Type (IDNO)</th>
-                                    <th>No. Serie</th>
-                                    <th>No Gudang</th>
-                                    <th>Nama Part</th>
-                                    <th>QTY</th>
-                                    <th>Prod.</th>
-                                    <th>Layanan</th>
-                                    <th>Nama Konsumen</th>
-                                    <th>No. HP</th>
-                                    <th>Tgl Order</th>
-                                    <th>Tgl Terima Part</th>
-                                    <th>Lama Pengiriman</th>
-                                    <th>No. Order</th>
-                                    <th>Keterangan</th>
-                                    <th>Aksi</th>
-                                </tr>
+                            <thead id="tableHeadAktif">
+                                <!-- Header akan di-render dinamis oleh JavaScript -->
                             </thead>
                             <tbody id="tableBody"></tbody>
                         </table>
@@ -2730,29 +2737,8 @@
                     </div>
                     <div class="table-wrapper">
                         <table class="data-table" id="riwayatTableEl" style="display:none;">
-                            <thead>
-                                <tr>
-                                    <th>#</th>
-                                    <th>Status</th>
-                                    <th>Teknisi</th>
-                                    <th>Tgl Pengajuan</th>
-                                    <th>No. Service</th>
-                                    <th>Type (IDNO)</th>
-                                    <th>No. Serie</th>
-                                    <th>No Gudang</th>
-                                    <th>Nama Part</th>
-                                    <th>QTY</th>
-                                    <th>Prod.</th>
-                                    <th>Layanan</th>
-                                    <th>Nama Konsumen</th>
-                                    <th>No. HP</th>
-                                    <th>Tgl Order</th>
-                                    <th>Tgl Terima Part</th>
-                                    <th>Lama Pengiriman</th>
-                                    <th>No. Order</th>
-                                    <th>Keterangan</th>
-                                    <th>Aksi</th>
-                                </tr>
+                            <thead id="tableHeadRiwayat">
+                                <!-- Header akan di-render dinamis oleh JavaScript -->
                             </thead>
                             <tbody id="riwayatBody"></tbody>
                         </table>
@@ -3070,6 +3056,10 @@
         var ITEMS_PER_PAGE = 10;
         var currentPageAktif = 1;
         var currentPageRiwayat = 1;
+
+        // ===== SORT STATE =====
+        var sortAktif = { column: null, direction: 'asc' };
+        var sortRiwayat = { column: null, direction: 'asc' };
 
         // ===== SETTINGS STATE =====
         var settingsData = {
@@ -4355,7 +4345,101 @@
             input.addEventListener('blur', save);
         }
 
+        // ===== SORTING =====
+        var SORT_COLUMNS = [
+            { key: 'STATUS', label: 'Status', type: 'status' },
+            { key: 'TEKNISI', label: 'Teknisi', type: 'text' },
+            { key: 'TGL PENGAJUAN ORD', label: 'Tgl Pengajuan', type: 'date' },
+            { key: 'NO. SERVICE CASE', label: 'No. Service', type: 'text' },
+            { key: 'TYPE (IDNO)', label: 'Type (IDNO)', type: 'text' },
+            { key: 'NO. SERIE', label: 'No. Serie', type: 'text' },
+            { key: 'NO GUDANG', label: 'No Gudang', type: 'text' },
+            { key: 'NAMA PART', label: 'Nama Part', type: 'text' },
+            { key: 'QTY', label: 'QTY', type: 'number' },
+            { key: 'PROD.', label: 'Prod.', type: 'text' },
+            { key: 'LAYANAN', label: 'Layanan', type: 'text' },
+            { key: 'NAMA KONSUMEN', label: 'Nama Konsumen', type: 'text' },
+            { key: 'NO. HP', label: 'No. HP', type: 'text' },
+            { key: 'Tgl Order', label: 'Tgl Order', type: 'date' },
+            { key: 'TGL TERIMA PART', label: 'Tgl Terima Part', type: 'date' },
+            { key: 'JUMLAH', label: 'Lama Pengiriman', type: 'number' },
+            { key: 'No. Order', label: 'No. Order', type: 'text' },
+            { key: 'Keterangan Pemenuhan', label: 'Keterangan', type: 'text' }
+        ];
+
+        function renderTableHead(tab) {
+            var thead = document.getElementById(tab === 'aktif' ? 'tableHeadAktif' : 'tableHeadRiwayat');
+            if (!thead) return;
+            var sortState = tab === 'aktif' ? sortAktif : sortRiwayat;
+            var html = '<tr><th>#</th>';
+            SORT_COLUMNS.forEach(function(col) {
+                var isActive = sortState.column === col.key;
+                var classes = 'sortable' + (isActive ? ' active ' + sortState.direction : '');
+                var icon = isActive ? (sortState.direction === 'asc' ? 'fa-sort-up' : 'fa-sort-down') : 'fa-sort';
+                html += '<th class="' + classes + '" onclick="handleSort(\'' + tab + '\', \'' + col.key + '\')">' +
+                    escapeHtml(col.label) + ' <i class="fas ' + icon + ' sort-icon"></i></th>';
+            });
+            html += '<th>Aksi</th></tr>';
+            thead.innerHTML = html;
+        }
+
+        function handleSort(tab, columnKey) {
+            var state = tab === 'aktif' ? sortAktif : sortRiwayat;
+            if (state.column === columnKey) {
+                state.direction = state.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                state.column = columnKey;
+                state.direction = 'asc';
+            }
+            if (tab === 'aktif') {
+                sortAktif = state;
+                currentPageAktif = 1;
+                renderAktifTable();
+            } else {
+                sortRiwayat = state;
+                currentPageRiwayat = 1;
+                renderRiwayatTable();
+            }
+        }
+
+        var STATUS_SORT_ORDER = { 'PENDING': 1, 'PROSES': 2, 'GOTW': 3, 'READY': 4, 'FINISH': 5 };
+
+        function compareOrders(a, b, columnKey, direction) {
+            var col = SORT_COLUMNS.find(function(c) { return c.key === columnKey; });
+            if (!col) return 0;
+            var va = a[columnKey] !== undefined && a[columnKey] !== null ? a[columnKey] : '';
+            var vb = b[columnKey] !== undefined && b[columnKey] !== null ? b[columnKey] : '';
+            var result = 0;
+
+            if (col.type === 'status') {
+                var sa = STATUS_SORT_ORDER[(va || '').toUpperCase()] || 99;
+                var sb = STATUS_SORT_ORDER[(vb || '').toUpperCase()] || 99;
+                result = sa - sb;
+            } else if (col.type === 'number') {
+                var na = parseFloat(String(va).replace(/[^0-9.-]/g, '')) || 0;
+                var nb = parseFloat(String(vb).replace(/[^0-9.-]/g, '')) || 0;
+                result = na - nb;
+            } else if (col.type === 'date') {
+                var da = va ? new Date(va).getTime() : 0;
+                var db2 = vb ? new Date(vb).getTime() : 0;
+                if (isNaN(da)) da = 0;
+                if (isNaN(db2)) db2 = 0;
+                result = da - db2;
+            } else {
+                result = String(va).toUpperCase().localeCompare(String(vb).toUpperCase());
+            }
+            return direction === 'asc' ? result : -result;
+        }
+
+        function applySort(data, sortState) {
+            if (!sortState.column) return data;
+            return data.slice().sort(function(a, b) {
+                return compareOrders(a, b, sortState.column, sortState.direction);
+            });
+        }
+
         function renderAktifTable() {
+            renderTableHead('aktif');
             var tb = document.getElementById('tableBody'),
                 es = document.getElementById('emptyState'),
                 sk = document.getElementById('tableSkeleton'),
@@ -4368,6 +4452,7 @@
             if (sv) fd = fd.filter(function(o) {
                 return Object.values(o).some(function(v) { return String(v).toLowerCase().includes(sv); });
             });
+            fd = applySort(fd, sortAktif);
             var totalItems = fd.length;
             var totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
             if (currentPageAktif > totalPages && totalPages > 0) currentPageAktif = totalPages;
@@ -4438,6 +4523,7 @@
         }
 
         function renderRiwayatTable() {
+            renderTableHead('riwayat');
             var tb = document.getElementById('riwayatBody'),
                 es = document.getElementById('emptyRiwayat'),
                 te = document.getElementById('riwayatTableEl'),
@@ -4448,6 +4534,7 @@
             if (sv) fd = fd.filter(function(o) {
                 return Object.values(o).some(function(v) { return String(v).toLowerCase().includes(sv); });
             });
+            fd = applySort(fd, sortRiwayat);
             var totalItems = fd.length;
             var totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
             if (currentPageRiwayat > totalPages && totalPages > 0) currentPageRiwayat = totalPages;
@@ -4711,7 +4798,7 @@
             if (e3) e3.textContent = unverified;
         }
 
-        // ===== SETTINGS FUNCTIONS (NEW) =====
+        // ===== SETTINGS FUNCTIONS =====
         function loadSettings() {
             if (settingsUnsubscribe) { settingsUnsubscribe(); settingsUnsubscribe = null; }
             settingsUnsubscribe = db.collection(SETTINGS_COL).doc('config').onSnapshot(function(doc) {
@@ -5121,9 +5208,11 @@
         // Initialize settings dropdown when page loads
         document.addEventListener('DOMContentLoaded', function() {
             populateFormDropdowns();
+            renderTableHead('aktif');
+            renderTableHead('riwayat');
         });
 
-        console.log('✅ Aplikasi siap - dengan menu Pengaturan (verifikasi user + teknisi + layanan + prod)!');
+        console.log('✅ Aplikasi siap - dengan sorting kolom!');
     </script>
 </body>
 </html>
