@@ -3365,6 +3365,10 @@
             return found ? found.nomor : null;
         }
 
+        // ================================================================
+        //  FUNGSI KIRIM WA — "No. Order" DIAMBIL DARI NOMOR MANUAL
+        //  (field ORDER KE PABRIK / "No. Order" yang diketik manual oleh admin)
+        // ================================================================
         function sendWATeknisi(docId) {
             var order = allOrders.find(function(o) { return o._docId === docId; });
             if (!order) return;
@@ -3381,13 +3385,20 @@
             }
             function val(v) { return (v && v.trim()) ? v.trim() : '-'; }
 
+            // >>> Ambil nomor order MANUAL (yang diketik di field "No. Order" / ORDER KE PABRIK).
+            //     Fallback ke nomor otomatis hanya jika manual kosong.
+            var manualOrderNo = val(order['ORDER KE PABRIK']);
+            if (manualOrderNo === '-') {
+                manualOrderNo = val(order['No. Order']);
+            }
+
             var pesan = '*NOTIFIKASI ORDER KOMPONEN*\n';
             pesan += '━━━━━━━━━━━━━━━━━━━━━\n\n';
             pesan += 'Kepada Yth. *' + val(order['TEKNISI']) + '*\n\n';
             pesan += 'Dengan hormat,\n\n';
             pesan += 'Kami informasikan bahwa status order komponen dengan rincian berikut:\n\n';
             var fields = {
-                'No. Order': val(order['No. Order']),
+                'No. Order': manualOrderNo,                       // <== nomor MANUAL (bukan otomatis)
                 'Status': val(order['STATUS'] || 'PENDING'),
                 'Tgl Pengajuan': fmt(order['TGL PENGAJUAN ORD']),
                 'No. Service': val(order['NO. SERVICE CASE']),
@@ -3403,13 +3414,12 @@
                 'Tgl Order': fmt(order['Tgl Order']),
                 'Tgl Terima Part': fmt(order['TGL TERIMA PART']),
                 'Lama Pengiriman': val(order['JUMLAH']) + (order['JUMLAH'] ? ' hari' : ''),
-                'No. Order Pabrik': val(order['ORDER KE PABRIK']),
                 'Keterangan': val(order['Keterangan Pemenuhan'])
             };
             var emojis = { 'No. Order': '📋', 'Status': '📋', 'Tgl Pengajuan': '📅', 'No. Service': '🆔',
                 'Type (IDNO)': '📌', 'No. Serie': '🔢', 'No Gudang': '🏢', 'Nama Part': '🧩', 'QTY': '📦',
                 'Prod.': '🏭', 'Layanan': '🛠️', 'Nama Konsumen': '👤', 'No. HP': '📱', 'Tgl Order': '📅',
-                'Tgl Terima Part': '📅', 'Lama Pengiriman': '⏳', 'No. Order Pabrik': '🏗️', 'Keterangan': '📝' };
+                'Tgl Terima Part': '📅', 'Lama Pengiriman': '⏳', 'Keterangan': '📝' };
             for (var key in fields) {
                 pesan += (emojis[key] || '•') + ' *' + key + '*: ' + fields[key] + '\n';
             }
@@ -5212,7 +5222,7 @@
             renderTableHead('riwayat');
         });
 
-        console.log('✅ Aplikasi siap - dengan sorting kolom!');
+        console.log('✅ Aplikasi siap - "No. Order" di WA diambil dari nomor MANUAL!');
     </script>
 </body>
 </html>
